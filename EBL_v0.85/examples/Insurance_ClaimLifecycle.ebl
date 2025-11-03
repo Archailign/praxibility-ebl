@@ -1,0 +1,62 @@
+Metadata:
+  Domain: insurance
+  Owner: Claims
+  Version: 1.2.8
+
+DataObject DO_Claim {
+  Schema:
+    ClaimId: UUID, required, unique
+    PolicyId: UUID, required
+    Status: Enum, values=["Filed","Assessed","Approved","Rejected","Paid","Closed"]
+  Policies:
+    - "Claims retained 7 years"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ins/claim", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ins/claim", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+  erMap: Claim
+}
+
+DataObject DO_ClaimPayment {
+  Schema:
+    ClaimId: UUID, required, unique
+    Amount: Currency
+    Payee: String
+  Policies:
+    - "Payments require dual approval"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ins/payment", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ins/payment", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+  erMap: ClaimPayment
+}
+
+Entity Claim {
+  dataRef: DO_Claim
+  Properties:
+    ClaimId: { type: UUID, required: true, unique: true }
+    Status: { type: Enum, values: ["Filed","Assessed","Approved","Rejected","Paid","Closed"], default: "Filed" }
+  erMap: Claim
+}
+
+Process ClaimLifecycle {
+  Description: "Process an insurance claim end-to-end"
+  ObjectiveID: INS1
+  BusinessGoalID: CSAT1
+  Actors: [Policyholder, ClaimsAdjuster, Underwriter, PaymentClerk]
+  erMap: ClaimLifecycle
+  Starts With: Event ClaimFiled(Claim)
+
+  Step Assess {
+    Validation:
+      - Provide all documentation BEFORE approval
+    Actions:
+      - ClaimsAdjuster Assess via DO_Claim Output
+      - Underwriter Approve via DO_Claim Input
+  }
+
+  Step Pay {
+    Actions:
+      - PaymentClerk Disburse via DO_ClaimPayment Input
+  }
+
+  Ends With: Event ClaimClosed(Claim)
+}

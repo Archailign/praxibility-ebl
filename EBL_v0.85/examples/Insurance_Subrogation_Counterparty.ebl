@@ -1,0 +1,54 @@
+Metadata:
+  Domain: insurance
+  Owner: Legal
+  Version: 1.3.0
+
+DataObject DO_Subrogation {
+  Schema:
+    SubroId: UUID, required, unique
+    ClaimId: UUID, required
+    ThirdPartyId: UUID
+    RecoveryAmount: Currency, min=0
+  Policies:
+    - "Subrogation recoveries audited for 7 years"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ins/subro", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ins/subro", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+  erMap: Subrogation
+}
+
+Entity SubrogationCase {
+  dataRef: DO_Subrogation
+  Properties:
+    SubroId: { type: UUID, required: true, unique: true }
+  erMap: SubroCase
+}
+
+Entity ThirdParty {
+  dataRef: DO_Subrogation
+  Properties:
+    ThirdPartyId: { type: UUID, required: true, unique: true }
+  erMap: ThirdParty
+}
+
+Process SubrogationPursuit {
+  Description: "Pursue recovery from third party"
+  ObjectiveID: INS3
+  BusinessGoalID: LOSS2
+  Actors: [SubrogationSpecialist, ClaimsAdjuster]  // ClaimsAdjuster declared but intentionally unused to trigger warning
+  erMap: SubroProc
+  Starts With: Event SubroOpened(SubrogationCase)
+
+  Step Recover {
+    Actions:
+      - SubrogationSpecialist Subrogate via DO_Subrogation Input
+  }
+
+  Ends With: Event SubroClosed(SubrogationCase)
+}
+
+Relationship Subro_vs_ThirdParty {
+  From: SubrogationCase
+  To:   ThirdParty
+  Type: subrogates_against
+}

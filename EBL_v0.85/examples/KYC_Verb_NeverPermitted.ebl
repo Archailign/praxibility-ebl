@@ -1,0 +1,53 @@
+Metadata:
+  Domain: kyc
+  Owner: Compliance
+  Version: 1.3.0
+
+DataObject DO_IdentityDocument {
+  Schema:
+    DocId: UUID, required, unique
+    AppId: UUID, required
+    Type: Enum, values=["Passport","DrivingLicence","BRP","NINo"]
+  Policies:
+    - "PII encrypted at rest"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/doc", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/doc", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: KycDoc
+}
+
+DataObject DO_KYCApplication {
+  Schema:
+    AppId: UUID, required, unique
+    CustomerId: UUID, required
+    Status: Enum, values=["Pending","InReview","Approved","Rejected"], default="Pending"
+  Policies:
+    - "KYC records retained per jurisdictional policy"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/app", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/app", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Kyca
+}
+
+Entity Application {
+  dataRef: DO_KYCApplication
+  Properties:
+    AppId: { type: UUID, required: true, unique: true }
+  erMap: Application
+}
+
+Process KYC_WeirdVerb {
+  Description: "Demonstrate verb never permitted by any actor"
+  ObjectiveID: KYC3
+  BusinessGoalID: REG2
+  Actors: [Registrar, KYCAnalyst]
+  erMap: KycWeird
+  Starts With: Event ApplicationSubmitted(Application)
+
+  Step BadAction {
+    Actions:
+      - Registrar Reprice via DO_IdentityDocument Output  // 'Reprice' is listed in domain verbs but not permitted for any actor
+  }
+
+  Ends With: Event Done(Application)
+}

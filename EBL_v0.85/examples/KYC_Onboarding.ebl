@@ -1,0 +1,63 @@
+Metadata:
+  Domain: kyc
+  Owner: Compliance
+  Version: 1.2.8
+
+DataObject DO_KYCApplication {
+  Schema:
+    AppId: UUID, required, unique
+    CustomerId: UUID, required
+    Status: Enum, values=["Pending","InReview","Approved","Rejected"]
+  Policies:
+    - "KYC records retained 10 years"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/app", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/app", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: KYCApp
+}
+
+DataObject DO_IdentityDocument {
+  Schema:
+    DocId: UUID, required, unique
+    AppId: UUID, required
+    Type: Enum, values=["Passport","DL","IDCard"]
+  Policies:
+    - "PII encrypted at rest"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/doc", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://kyc/doc", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: KycDoc
+}
+
+Entity Application {
+  dataRef: DO_KYCApplication
+  Properties:
+    AppId: { type: UUID, required: true, unique: true }
+    Status: { type: Enum, values: ["Pending","InReview","Approved","Rejected"], default: "Pending" }
+  erMap: Application
+}
+
+Process KYCOnboarding {
+  Description: "Capture documents, verify identity, and approve"
+  ObjectiveID: KYC1
+  BusinessGoalID: AFC1
+  Actors: [Customer, Registrar, KYCAnalyst, ComplianceOfficer]
+  erMap: KYCOnboarding
+  Starts With: Event ApplicationSubmitted(Application)
+
+  Step CaptureDocs {
+    Actions:
+      - Registrar Capture via DO_IdentityDocument Input
+  }
+
+  Step VerifyAndApprove {
+    Validation:
+      - THEN do not use reserved words here
+    Actions:
+      - KYCAnalyst Verify via DO_IdentityDocument Output
+      - KYCAnalyst Screen via DO_KYCApplication Output
+      - ComplianceOfficer Approve via DO_KYCApplication Input
+  }
+
+  Ends With: Event ApplicationApproved(Application)
+}

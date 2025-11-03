@@ -1,0 +1,517 @@
+# Enterprise Business Language (EBL) Definition
+# Version: 1.3.0
+# License: Apache-2.0
+# Author: Innovate Marketing Agency
+# Description: Blended EBL definition for dynamic ad campaign management with predictive budgeting and full marketing cycle in the ad tech domain, aligned with Archailign framework
+# Domain: AdTech
+# Conforms to: EBL-Spec-1.1
+
+Metadata:
+  EBLClass: AdCampaignManagement
+  RequirementID: BR-001
+  ProjectID: PRJ-ADTECH-001
+  OrganisationID: ORG-002
+  DomainID: DOM-ADTECH
+  DepartmentID: DEPT-ADTECH-CAMPAIGN
+  CreatedAt: 2025-10-24
+  UpdatedAt: 2025-10-24
+
+# --- Data Objects (Blended from sources) ---
+DataObject DO_Campaign {
+  Schema:
+    CampaignID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    Name: { type: String, required: true }
+    Budget: { type: Currency, required: true }
+    Status: { type: Enum, values: [Draft, Active, Completed, Paused, Optimized], default: Draft }
+    ComplianceStatus: { type: Enum, values: [Compliant, NonCompliant], default: NonCompliant }
+    RemainingBudget: { type: Currency, calculated: Budget - SpentAmount }
+    PredictedBudget: { type: Currency, calculated: AutonomousEngine.PredictBudget(CampaignID) }
+    Objective: { type: Enum, values: ["Awareness","Traffic","Conversion","Revenue"], default: "Conversion" }
+  Policies:
+    - "Marketing governance; changes logged; 2-year retention"
+    - "Privacy: consent-respecting; PII hashed; jurisdictional controls"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/campaign/in", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/campaign/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: CampaignDO
+}
+
+DataObject DO_AudienceProfile {
+  Schema:
+    ProfileId: { type: UUID, required: true, unique: true }
+    Segments: { type: JSON, required: true }
+    Consent: { type: Enum, values: ["OptIn","OptOut","Unknown"], default: "OptIn" }
+    PredictedSize: { type: Integer, calculated: AutonomousEngine.PredictAudienceSize(ProfileId) }
+  Policies:
+    - "Privacy: consent-respecting; PII hashed; jurisdictional controls"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://audience/in", Auth: mTLS, Format: JSON, SLA: "P99<200ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://dmp/audience/out", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: AudienceProfile
+}
+
+DataObject DO_Template {
+  Schema:
+    TemplateId: { type: UUID, required: true, unique: true }
+    Slots: { type: JSON, required: true }
+  Policies:
+    - "Templates versioned; audit retained 1 year"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://creative/template/in", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: CDN, Protocol: HTTPS, Endpoint: "https://cdn/template", Auth: None, Format: JSON, SLA: "P95<50ms" }
+  erMap: Template
+}
+
+DataObject DO_CreativeAsset {
+  Schema:
+    AssetId: { type: UUID, required: true, unique: true }
+    Type: { type: Enum, values: ["Image","Video","Text","Product"], default: "Image" }
+    Meta: { type: JSON }
+    Content: { type: String, required: true }
+  Policies:
+    - "Creative assets rights-managed; usage logged"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://creative/asset/in", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: CDN, Protocol: HTTPS, Endpoint: "https://cdn/asset", Auth: None, Format: JSON, SLA: "P95<50ms" }
+  erMap: CreativeAsset
+}
+
+DataObject DO_TargetingRule {
+  Schema:
+    RuleId: { type: UUID, required: true, unique: true }
+    Expression: { type: JSON, required: true }
+  Policies:
+    - "Targeting logic reviewed by Compliance"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/rule/in", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/rule/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: TargetingRule
+}
+
+DataObject DO_BidRequest {
+  Schema:
+    RequestId: { type: UUID, required: true, unique: true }
+    UserSignals: { type: JSON, required: true }
+    FloorPrice: { type: Currency, min: 0 }
+  Policies:
+    - "No PII; contractual data-use constraints per SSP"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ssp/bidreq/in", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ssp/bidreq/out", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+  erMap: BidRequest
+}
+
+DataObject DO_BidResponse {
+  Schema:
+    ResponseId: { type: UUID, required: true, unique: true }
+    RequestId: { type: UUID, required: true }
+    Price: { type: Currency, min: 0 }
+    CreativeRef: { type: UUID, required: true }
+  Policies:
+    - "Bids stored 30 days for audit"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://dsp/bidresp/in", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://dsp/bidresp/out", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+  erMap: BidResponse
+}
+
+DataObject DO_Impression {
+  Schema:
+    ImpressionId: { type: UUID, required: true, unique: true }
+    ResponseId: { type: UUID, required: true }
+    Timestamp: { type: DateTime, required: true }
+  Policies:
+    - "Event-level logs aggregated within 24h"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://events/impression", Auth: mTLS, Format: JSON, SLA: "P99<100ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://events/impression/export", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Impression
+}
+
+DataObject DO_Click {
+  Schema:
+    ClickId: { type: UUID, required: true, unique: true }
+    ImpressionId: { type: UUID, required: true }
+    Timestamp: { type: DateTime, required: true }
+  Policies:
+    - "Event-level logs aggregated within 24h"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://events/click", Auth: mTLS, Format: JSON, SLA: "P99<100ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://events/click/export", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Click
+}
+
+DataObject DO_Conversion {
+  Schema:
+    ConvId: { type: UUID, required: true, unique: true }
+    ImpressionId: { type: UUID }
+    ClickId: { type: UUID }
+    Value: { type: Currency, min: 0 }
+    Timestamp: { type: DateTime, required: true }
+  Policies:
+    - "Attribution windows: 1/7/28-day configurable"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://events/conversion", Auth: mTLS, Format: JSON, SLA: "P99<100ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://events/conversion/export", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Conversion
+}
+
+DataObject DO_PerformanceMetrics {
+  Schema:
+    MetricId: { type: UUID, required: true, unique: true }
+    CampaignID: { type: UUID, required: true }
+    CTR: { type: Ratio, required: true }
+    ROI: { type: Ratio, required: true }
+    ROAS: { type: Ratio, calculated: Revenue / SpentAmount }
+    CPA: { type: Currency, calculated: SpentAmount / Conversions }
+    Timestamp: { type: DateTime, required: true }
+    AttributionModel: { type: Enum, values: [FirstTouch, LastTouch], default: LastTouch }
+    PredictedCTR: { type: Ratio, calculated: AutonomousEngine.PredictCTR(CampaignID) }
+    PredictedROAS: { type: Ratio, calculated: AutonomousEngine.PredictROAS(CampaignID) }
+  Policies:
+    - "Metrics aggregated daily; anonymized"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://metrics/in", Auth: mTLS, Format: JSON, SLA: "P99<100ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://metrics/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: PerformanceMetrics
+}
+
+DataObject DO_ExperimentDesign {
+  Schema:
+    ExpId: { type: UUID, required: true, unique: true }
+    Type: { type: Enum, values: ["ABTest","GeoLift","SyntheticControl"], default: "ABTest" }
+    Variants: { type: JSON, required: true }
+  Policies:
+    - "Experiments IRB-approved where required"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/design/in", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/design/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: ExperimentDesign
+}
+
+DataObject DO_MLModel {
+  Schema:
+    ModelId: { type: UUID, required: true, unique: true }
+    Version: { type: String, required: true }
+    Params: { type: JSON, required: true }
+  Policies:
+    - "Models version-controlled; bias-audited"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ml/model/in", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ml/model/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: MLModel
+}
+
+DataObject DO_IncrementalityResult {
+  Schema:
+    ResultId: { type: UUID, required: true, unique: true }
+    ExpId: { type: UUID, required: true }
+    Lift: { type: Ratio }
+    Confidence: { type: Ratio }
+  Policies:
+    - "Experiment outcomes confidential"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/result/in", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/result/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: Incrementality
+}
+
+DataObject DO_BrandLiftStudy {
+  Schema:
+    StudyId: { type: UUID, required: true, unique: true }
+    Metric: { type: Enum, values: ["Recall","Familiarity","Intent"], default: "Recall" }
+    Lift: { type: Ratio }
+  Policies:
+    - "3rd-party vendor agreements apply"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://brandlift/in", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://brandlift/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: BrandLift
+}
+
+DataObject DO_Report {
+  Schema:
+    ReportId: { type: UUID, required: true, unique: true }
+    PeriodStart: { type: Date, required: true }
+    PeriodEnd: { type: Date, required: true }
+    Payload: { type: JSON, required: true }
+  Policies:
+    - "Reports retained 7 years"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://report/in", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://report/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: Report
+}
+
+# --- Entities (Blended and Referenced) ---
+Entity Campaign {
+  dataRef: DO_Campaign
+  Properties:
+    CampaignID: { type: UUID, required: true, unique: true }
+    Objective: { type: Enum, values: ["Awareness","Traffic","Conversion","Revenue"], default: "Conversion" }
+  erMap: Campaign
+}
+
+Entity DMPProfile {
+  dataRef: DO_AudienceProfile
+  Properties:
+    ProfileId: { type: UUID, required: true, unique: true }
+  erMap: DMPProfile
+}
+
+Entity Template {
+  dataRef: DO_Template
+  Properties:
+    TemplateId: { type: UUID, required: true, unique: true }
+  erMap: Template
+}
+
+Entity CreativeAsset {
+  dataRef: DO_CreativeAsset
+  Properties:
+    AssetId: { type: UUID, required: true, unique: true }
+  erMap: CreativeAsset
+}
+
+Entity TargetingRule {
+  dataRef: DO_TargetingRule
+  Properties:
+    RuleId: { type: UUID, required: true, unique: true }
+  erMap: TargetingRule
+}
+
+Entity BidRequest {
+  dataRef: DO_BidRequest
+  Properties:
+    RequestId: { type: UUID, required: true, unique: true }
+  erMap: BidRequest
+}
+
+Entity BidResponse {
+  dataRef: DO_BidResponse
+  Properties:
+    ResponseId: { type: UUID, required: true, unique: true }
+  erMap: BidResponse
+}
+
+Entity Impression {
+  dataRef: DO_Impression
+  Properties:
+    ImpressionId: { type: UUID, required: true, unique: true }
+  erMap: Impression
+}
+
+Entity Click {
+  dataRef: DO_Click
+  Properties:
+    ClickId: { type: UUID, required: true, unique: true }
+  erMap: Click
+}
+
+Entity Conversion {
+  dataRef: DO_Conversion
+  Properties:
+    ConvId: { type: UUID, required: true, unique: true }
+  erMap: Conversion
+}
+
+Entity PerformanceMetrics {
+  dataRef: DO_PerformanceMetrics
+  Properties:
+    MetricId: { type: UUID, required: true, unique: true }
+  erMap: PerformanceMetrics
+}
+
+Entity ExperimentDesign {
+  dataRef: DO_ExperimentDesign
+  Properties:
+    ExpId: { type: UUID, required: true, unique: true }
+  erMap: ExperimentDesign
+}
+
+Entity MLModel {
+  dataRef: DO_MLModel
+  Properties:
+    ModelId: { type: UUID, required: true, unique: true }
+  erMap: MLModel
+}
+
+Entity IncrementalityResult {
+  dataRef: DO_IncrementalityResult
+  Properties:
+    ResultId: { type: UUID, required: true, unique: true }
+  erMap: IncrementalityResult
+}
+
+Entity BrandLiftStudy {
+  dataRef: DO_BrandLiftStudy
+  Properties:
+    StudyId: { type: UUID, required: true, unique: true }
+  erMap: BrandLiftStudy
+}
+
+Entity Report {
+  dataRef: DO_Report
+  Properties:
+    ReportId: { type: UUID, required: true, unique: true }
+  erMap: Report
+}
+
+# --- Process: Blended Dynamic Cycle with Predictive Enhancements ---
+Process AdCampaignManagement {
+  Description: Continuous DCO-driven ads blended with predictive budgeting: plan → assemble → bid/deliver → optimise → analyse, using Archailign’s integrated framework
+  ObjectiveID: OBJ-ADTECH-001
+  BusinessGoalID: BG-ADTECH-001
+  Actors: [MediaBuyer, DataAnalyst, AccountDirector, OperationsTeam, MarketingManager, CreativeDesigner, DCOEngine, DMP, DSP, SSP, AdServer, DataScientist, Analyst, ComplianceOfficer]
+  erMap: BusinessProcess
+
+  Starts With: Event CampaignCreationRequested(Campaign)
+
+  Step StrategySetup {
+    Description: Strategy and setup phase
+    Inputs:
+      - Campaign.Name
+      - Campaign.Budget
+      - DMPProfile.ProfileId
+    Validation:
+      - Campaign.Budget > 0
+      - DMPProfile.Consent == "OptIn"
+    Actions:
+      - MarketingManager Plan via DO_Campaign Input
+      - MarketingManager Define via DO_TargetingRule Input
+      - CreativeDesigner Define via DO_Template Input
+      - CreativeDesigner Assemble via DO_CreativeAsset Input
+      - ComplianceOfficer Verify via DO_TargetingRule Output
+    Service: ArchitectureAsCode.ProvisionInfrastructure(AdPlatform)
+    Output:
+      - CampaignDraft: Partial<Campaign>
+  }
+
+  Step DataAndAssembly {
+    Description: Data collection and creative assembly phase
+    Inputs:
+      - AdPlatform.PlatformID
+    Actions:
+      - DMP Integrate via DO_AudienceProfile Input
+      - DCOEngine Target via DO_AudienceProfile Output
+      - DCOEngine Assemble via DO_Template Output
+      - DCOEngine Assemble via DO_CreativeAsset Output
+    Service: AdPlatformAPI.Connect(AdPlatform.APIKey)
+    Output:
+      - IntegratedData: { Impressions: Integer, Clicks: Integer, Conversions: Integer }
+  }
+
+  Step RTBAndDelivery {
+    Description: Real-time bidding and ad delivery phase
+    Condition: Campaign.ComplianceStatus == "Compliant"
+    Actions:
+      - SSP Emit via DO_BidRequest Input
+      - DSP Bid via DO_BidResponse Input
+      - AdServer Deliver via DO_Impression Input
+      - AdServer Track via DO_Click Input
+    Invoke: AutonomousEngine.Execute(CreativeAsset, DMPProfile, IntegratedData)
+    Service: AdPlatformAPI.LaunchCampaign(Campaign.CampaignID, DMPProfile)
+    Output:
+      - CampaignActive: Partial<Campaign>
+  }
+
+  Step MonitorPerformance {
+    Description: Continuously tracks performance metrics with real-time and predictive updates
+    Inputs:
+      - PerformanceMetrics
+    Service: AdPlatformAPI.RetrieveAnalytics(Campaign.CampaignID)
+    Ruleset: AdTechComplianceRules
+    Output:
+      - PerformanceSnapshot: { CTR: Ratio, ROAS: Ratio, CPA: Currency, PredictedCTR: Ratio, PredictedROAS: Ratio }
+  }
+
+  Step PredictAndOptimize {
+    Description: Continuous optimisation and learning phase with predictive budgeting
+    Invoke: AutonomousEngine.PredictPerformance(PerformanceMetrics, Campaign)
+    Service: ArchitectureAsCode.SimulateReallocation(Campaign, PerformanceMetrics)
+    Actions:
+      - DataScientist Test via DO_ExperimentDesign Input
+      - DataScientist Learn via DO_MLModel Input
+      - DCOEngine Retire via DO_CreativeAsset Output
+      - DCOEngine Scale via DO_CreativeAsset Output
+      - Update Campaign.PredictedBudget = AutonomousEngine.PredictBudget(Campaign.CampaignID)
+      - Condition: PerformanceMetrics.PredictedROAS >= 3.5 AND PerformanceMetrics.PredictedCTR > 0.025
+        - Adjust Campaign.Budget += 5000
+        - Update Campaign.Status = "Optimized"
+      - Else
+        - Set Campaign.Status = "Paused"
+        - Send Notification BudgetAlert to MediaBuyer.Email
+    Output:
+      - OptimizedCampaign: Partial<Campaign>
+  }
+
+  Step ImpactAnalysis {
+    Description: Impact analysis and reporting phase
+    Inputs:
+      - PerformanceSnapshot
+      - Campaign.PredictedBudget
+    Actions:
+      - Analyst Analyse via DO_IncrementalityResult Output
+      - Analyst Analyse via DO_BrandLiftStudy Output
+      - Analyst Report via DO_Report Input
+    Service: ArchitectureAsCode.GenerateReport(PerformanceSnapshot, PredictedBudget)
+    Output:
+      - ClientReport: { Format: Enum[PDF, PPT], Scheduled: Boolean }
+  }
+
+  Ends With: Event CampaignOptimized(Campaign.CampaignID, PerformanceMetrics, ClientReport)
+}
+
+# --- Rules (Blended) ---
+Rule BudgetAlert {
+  Description: Proactively enforces Business Rules & Policies with predictive thresholds
+  Trigger: Campaign.RemainingBudget < 1000 OR PerformanceMetrics.CPA > 50 OR Campaign.PredictedBudget < 0
+  Conditions:
+    - Campaign.Status == "Active"
+  Actions:
+    - Send Notification BudgetAlert to MediaBuyer.Email
+    - Send Notification BudgetAlert to MediaBuyer.Slack
+    - Invoke AutonomousEngine.PauseCampaign(Campaign.CampaignID)
+  erMap: Requirement
+}
+
+# --- Reports (Blended) ---
+Report CampaignPerformance {
+  Description: Real-time and predictive performance metrics aligned with Outcome and Capability
+  Query:
+    Select Campaign.CampaignID, Avg(PerformanceMetrics.CTR), Avg(PerformanceMetrics.PredictedCTR), Avg(PerformanceMetrics.ROAS), Avg(PerformanceMetrics.PredictedROAS), Sum(Campaign.Budget), Sum(Campaign.RemainingBudget), Avg(Campaign.PredictedBudget)
+    From Campaign
+    Join PerformanceMetrics
+    Where Campaign.Status = "Active"
+    Group By Campaign.CampaignID
+    Order By Avg(PerformanceMetrics.PredictedROAS) Descending
+  Schedule: Every 4 hours
+  erMap: Application
+}
+
+# --- Integrations (Blended) ---
+Integration AdPlatformAPI {
+  Provider: MultiPlatformAPI
+  Credentials: SystemConfig.APIKey
+  Operations:
+    - Connect(PlatformID, APIKey)
+    - LaunchCampaign(CampaignID, DMPProfile)
+    - RetrieveAnalytics(CampaignID, PerformanceMetrics)
+  ErrorHandling:
+    - Log ErrorDetails
+    - Notify OperationsTeam
+  erMap: Application
+}
+
+# --- Relationships (From new source) ---
+Relationship AdServer_Hosting {
+  From: AdServer
+  To:   DeliveryPlatform
+  Type: hosted_on
+}
+
+Relationship DCO_Comm_DMP {
+  From: DCOEngine
+  To:   DMP
+  Type: communicates_with
+}

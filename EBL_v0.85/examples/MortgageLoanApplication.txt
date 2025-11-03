@@ -1,0 +1,120 @@
+```
+# Enterprise Business Language (EBL) Definition
+# Version: 1.1.0
+# License: Apache-2.0
+# Author: OpenEBL Community
+# Description: EBL definition for mortgage loan application process in banking
+# Domain: Banking (BAIN)
+# Conforms to: EBL-Spec-1.1
+
+Metadata:
+  EBLClass: MortgageProcessing
+  RequirementID: REQ-BAIN-001
+  ProjectID: PRJ-BAIN-001
+  CreatedAt: 2025-08-08
+  UpdatedAt: 2025-08-08
+
+Entity LoanApplicant {
+  Properties:
+    ApplicantID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    Name: { type: String, required: true }
+    CreditScore: { type: Integer, range: [300, 850], required: true }
+    Income: { type: Currency, required: true }
+    LoanAmount: { type: Currency, required: true }
+    PropertyValue: { type: Currency, required: true }
+    LTV: { type: Ratio, calculated: LoanAmount / PropertyValue }
+  Rules:
+    - LTV must be <= 0.95
+    - CreditScore must be >= 680 for approval
+  erMap: DataObject
+}
+
+Process MortgageLoanApplication {
+  Description: Processes a mortgage loan application
+  ObjectiveID: OBJ-BAIN-001
+  BusinessGoalID: BG-BAIN-001
+  Actors: [LoanOfficer, Underwriter]
+  erMap: BusinessProcess
+
+  Starts With: Event LoanApplicationSubmitted(ApplicantData)
+
+  Step CollectApplicationData {
+    Inputs:
+      - LoanApplicant.Name
+      - LoanApplicant.Income
+      - LoanApplicant.CreditScore
+      - LoanApplicant.LoanAmount
+      - LoanApplicant.PropertyValue
+    Validation:
+      - Income must be >= 0
+      - LoanAmount must be > 0
+    Output:
+      - ApplicationRecord: Partial<LoanApplicant>
+  }
+
+  Step CreditCheck {
+    Inputs:
+      - ApplicationRecord
+    Service: CreditBureau.CheckCredit(ApplicantID)
+    Output:
+      - CreditResult: { score: Integer, status: Enum[Pass, Fail] }
+  }
+
+  Step RiskAssessment {
+    Condition: CreditResult.status == "Pass"
+    Invoke: RiskEngine.EvaluateMortgageRisk(LoanApplicant)
+    Ruleset: Policy.RegulatoryCompliance2025
+    Output:
+      - RiskScore: Integer
+  }
+
+  Step UnderwritingDecision {
+    Condition: RiskScore <= 50 and LTV <= 0.95
+    Actions:
+      - Create LoanApplicant
+      - Set LoanApplicant.Status = Approved
+    ErrorHandling:
+      - If Condition fails, set Status = Rejected
+      - Send Notification RejectionNotice to Applicant.Email
+    Output:
+      - Decision: Enum[Approved, Rejected]
+  }
+
+  Ends With: Event LoanApplicationProcessed(ApplicantID, Decision)
+}
+
+Rule MortgageInsuranceRequirement {
+  Description: Requires insurance for high LTV loans
+  Trigger: LoanApplicant.LTV > 0.80
+  Conditions:
+    - LoanApplicant.Status = Approved
+  Actions:
+    - Require InsurancePolicy
+    - Notify Applicant of InsuranceRequirement
+  erMap: Requirement
+}
+
+Report LoanPortfolioPerformance {
+  Description: Monthly loan approval metrics
+  Query:
+    Select Count(LoanApplicant.ID), Avg(LoanApplicant.LTV)
+    From LoanApplicant
+    Where Status = Approved
+    Group By Month(DecisionDate)
+    Order By Count Descending
+  Schedule: Monthly
+  erMap: Application
+}
+
+Integration CoreBankingSystem {
+  Provider: Finacle
+  Credentials: SystemConfig.BankingAPI_Key
+  Operations:
+    - CreateLoanAccount(ApplicantID, LoanDetails)
+    - UpdateCreditProfile(ApplicantID, CreditScore)
+  ErrorHandling:
+    - Log ErrorDetails
+    - Notify RiskManagementTeam
+  erMap: Application
+}
+```

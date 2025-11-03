@@ -1,0 +1,107 @@
+```
+# Enterprise Business Language (EBL) Definition
+# Version: 1.1.0
+# License: Apache-2.0
+# Author: OpenEBL Community
+# Description: EBL definition for inventory replenishment in retail CG & FMCG
+# Domain: Retail (CG & FMCG)
+# Conforms to: EBL-Spec-1.1
+
+Metadata:
+  EBLClass: InventoryManagement
+  RequirementID: REQ-RETAIL-001
+  ProjectID: PRJ-RETAIL-001
+  CreatedAt: 2025-08-08
+  UpdatedAt: 2025-08-08
+
+Entity Product {
+  Properties:
+    ProductID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    Name: { type: String, required: true }
+    StockLevel: { type: Integer, required: true }
+    ReorderThreshold: { type: Integer, default: 10 }
+    SupplierID: { type: UUID, required: true }
+  Rules:
+    - StockLevel must be >= 0
+    - ReorderThreshold must be > 0
+  erMap: DataObject
+}
+
+Process InventoryReplenishment {
+  Description: Replenishes inventory based on stock levels
+  ObjectiveID: OBJ-RETAIL-001
+  BusinessGoalID: BG-RETAIL-001
+  Actors: [InventoryManager, Supplier]
+  erMap: BusinessProcess
+
+  Starts With: Event LowStockDetected(ProductID)
+
+  Step CheckStockLevel {
+    Inputs:
+      - Product.ProductID
+      - Product.StockLevel
+      - Product.ReorderThreshold
+    Validation:
+      - StockLevel <= ReorderThreshold
+    Output:
+      - StockStatus: { level: Integer, needsReorder: Boolean }
+  }
+
+  Step GeneratePurchaseOrder {
+    Condition: StockStatus.needsReorder == true
+    Invoke: ProcurementService.CreateOrder(ProductID, SupplierID)
+    Output:
+      - PurchaseOrderID: UUID
+  }
+
+  Step NotifySupplier {
+    Actions:
+      - Send Notification PurchaseOrder to Supplier.Email
+      - Update Product.OrderStatus = Pending
+    Output:
+      - NotificationID
+  }
+
+  Step UpdateInventory {
+    Condition: Event PurchaseOrderFulfilled(PurchaseOrderID)
+    Actions:
+      - Update Product.StockLevel += OrderQuantity
+      - Set Product.OrderStatus = Completed
+    Output:
+      - UpdatedStockLevel: Integer
+  }
+
+  Ends With: Event InventoryReplenished(ProductID, UpdatedStockLevel)
+}
+
+Rule StockAlert {
+  Description: Alerts manager for low stock levels
+  Trigger: Product.StockLevel <= Product.ReorderThreshold
+  Actions:
+    - Send Notification LowStockAlert to InventoryManager
+  erMap: Requirement
+}
+
+Report InventoryTurnover {
+  Description: Weekly inventory turnover metrics
+  Query:
+    Select Product.Name, Sum(Product.StockLevel) as TotalStock
+    From Product
+    Group By Product.SupplierID
+    Order By TotalStock Descending
+  Schedule: Weekly
+  erMap: Application
+}
+
+Integration SupplyChainSystem {
+  Provider: SAP
+  Credentials: SystemConfig.SAP_API_Key
+  Operations:
+    - CreatePurchaseOrder(ProductID, SupplierID, Quantity)
+    - TrackOrderStatus(PurchaseOrderID)
+  ErrorHandling:
+    - Log ErrorDetails
+    - Notify SupplyChainTeam
+  erMap: Application
+}
+```

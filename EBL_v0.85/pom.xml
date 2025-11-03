@@ -1,0 +1,11 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion><groupId>org.example</groupId><artifactId>ebl-adtech</artifactId><version>0.85</version>
+  <properties><maven.compiler.source>17</maven.compiler.source><maven.compiler.target>17</maven.compiler.target><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding><antlr4.version>4.13.1</antlr4.version><jackson.version>2.17.1</jackson.version><junit.version>5.10.2</junit.version></properties>
+  <dependencies><dependency><groupId>org.antlr</groupId><artifactId>antlr4-runtime</artifactId><version>${antlr4.version}</version></dependency><dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId><version>${jackson.version}</version></dependency><dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>${junit.version}</version><scope>test</scope></dependency></dependencies>
+  <build><plugins>
+      <plugin><groupId>org.antlr</groupId><artifactId>antlr4-maven-plugin</artifactId><version>${antlr4.version}</version>
+        <executions><execution><goals><goal>antlr4</goal></goals><configuration><listener>true</listener><visitor>true</visitor><outputDirectory>${project.basedir}/generated-src/java</outputDirectory><arguments><argument>-package</argument><argument>org.example.ebl</argument></arguments></configuration></execution></executions>
+      </plugin>
+      <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.11.0</version><configuration><encoding>${project.build.sourceEncoding}</encoding><compilerArgs><arg>-Xlint:all,-serial,-processing</arg></compilerArgs><generatedSourcesDirectory>${project.basedir}/generated-src/java</generatedSourcesDirectory></configuration></plugin>
+      <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.1.2</version><configuration><includes><include>**/*Test.java</include></includes></configuration></plugin>
+    </plugins><sourceDirectory>src/main/java</sourceDirectory><testSourceDirectory>src/test/java</testSourceDirectory></build></project>

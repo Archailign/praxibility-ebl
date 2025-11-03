@@ -1,0 +1,330 @@
+-- Table: Organisation
+CREATE TABLE Organisation (
+    OrganisationID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: Domain
+CREATE TABLE Domain (
+    DomainID INT PRIMARY KEY AUTO_INCREMENT,
+    OrganisationID INT NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (OrganisationID) REFERENCES Organisation(OrganisationID) ON DELETE CASCADE,
+    INDEX idx_organisation (OrganisationID)
+);
+
+-- Table: Project
+CREATE TABLE Project (
+    ProjectID INT PRIMARY KEY AUTO_INCREMENT,
+    DomainID INT NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    Stage ENUM('Planning', 'Execution', 'Monitoring', 'Closed') NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (DomainID) REFERENCES Domain(DomainID) ON DELETE CASCADE,
+    INDEX idx_domain (DomainID)
+);
+
+-- Table: BusinessGoal
+CREATE TABLE BusinessGoal (
+    GoalID INT PRIMARY KEY AUTO_INCREMENT,
+    ProjectID INT NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    Priority INT DEFAULT 0,
+    Owner VARCHAR(100) NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE,
+    INDEX idx_project (ProjectID)
+);
+
+-- Table: Objective
+CREATE TABLE Objective (
+    ObjectiveID INT PRIMARY KEY AUTO_INCREMENT,
+    GoalID INT NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    Priority INT DEFAULT 0,
+    Status ENUM('Defined', 'In Progress', 'Achieved') NOT NULL,
+    TargetDate DATE,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (GoalID) REFERENCES BusinessGoal(GoalID) ON DELETE CASCADE,
+    INDEX idx_goal (GoalID)
+);
+
+-- Table: Actor
+CREATE TABLE Actor (
+    ActorID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    Role VARCHAR(100) NOT NULL,
+    Department VARCHAR(100),
+    AccessLevel ENUM('Admin', 'User', 'Guest') NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: BusinessProcess
+CREATE TABLE BusinessProcess (
+    ProcessID INT PRIMARY KEY AUTO_INCREMENT,
+    ObjectiveID INT NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    Description TEXT,
+    Version VARCHAR(50) NOT NULL,
+    Status ENUM('Draft', 'Active', 'Retired') NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ObjectiveID) REFERENCES Objective(ObjectiveID) ON DELETE CASCADE,
+    INDEX idx_objective (ObjectiveID)
+);
+
+-- Table: EBLClass
+CREATE TABLE EBLClass (
+    EBLClassID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    Type ENUM('Functional', 'Non-Functional') NOT NULL,
+    Version VARCHAR(50) NOT NULL,
+    Description TEXT,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: Requirement
+CREATE TABLE Requirement (
+    RequirementID INT PRIMARY KEY AUTO_INCREMENT,
+    ProcessID INT NOT NULL,
+    EBLClassID INT NOT NULL,
+    Description TEXT NOT NULL,
+    EBLDefinition TEXT NOT NULL UNIQUE,
+    Priority INT DEFAULT 0,
+    Status ENUM('Draft', 'Approved', 'Implemented') NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ProcessID) REFERENCES BusinessProcess(ProcessID) ON DELETE CASCADE,
+    FOREIGN KEY (EBLClassID) REFERENCES EBLClass(EBLClassID) ON DELETE RESTRICT,
+    INDEX idx_process (ProcessID),
+    INDEX idx_eblclass (EBLClassID)
+);
+
+-- Table: Capability
+CREATE TABLE Capability (
+    CapabilityID INT PRIMARY KEY AUTO_INCREMENT,
+    ProjectID INT NOT NULL,
+    RequirementID INT NOT NULL,
+    Name VARCHAR(255) NOT NULL,
+    OutcomeDescription TEXT,
+    Status ENUM('Planned', 'Active', 'Retired') NOT NULL,
+    MaturityLevel ENUM('Emerging', 'Mature', 'Optimized') NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE,
+    FOREIGN KEY (RequirementID) REFERENCES Requirement(RequirementID) ON DELETE CASCADE,
+    INDEX idx_project (ProjectID),
+    INDEX idx_requirement (RequirementID)
+);
+
+-- Table: DataObject
+CREATE TABLE DataObject (
+    DataObjectID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    SchemaType VARCHAR(100) NOT NULL,
+    DataOwner VARCHAR(100) NOT NULL,
+    SensitivityLevel ENUM('Public', 'Confidential', 'Restricted') NOT NULL,
+    SourceSystem VARCHAR(100),
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: Policy
+CREATE TABLE Policy (
+    PolicyID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    Ruleset TEXT NOT NULL,
+    PolicyType ENUM('Governance', 'Compliance', 'Operational') NOT NULL,
+    EnforcementLevel ENUM('Mandatory', 'Advisory') NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: Application
+CREATE TABLE Application (
+    ApplicationID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    Type ENUM('New', 'Existing') NOT NULL,
+    DeploymentTarget VARCHAR(100),
+    LifecycleState ENUM('Planned', 'Active', 'Deprecated') NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: ArchitecturePattern
+CREATE TABLE ArchitecturePattern (
+    PatternID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255) NOT NULL,
+    Type ENUM('AaaS', 'IaaS', 'PaaS') NOT NULL,
+    Description TEXT,
+    DeploymentMetadata JSON,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: TraceLink
+CREATE TABLE TraceLink (
+    TraceLinkID INT PRIMARY KEY AUTO_INCREMENT,
+    SourceEntity VARCHAR(50) NOT NULL,
+    SourceID VARCHAR(50) NOT NULL,
+    TargetEntity VARCHAR(50) NOT NULL,
+    TargetID VARCHAR(50) NOT NULL,
+    RelationshipType VARCHAR(100) NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_source (SourceEntity, SourceID),
+    INDEX idx_target (TargetEntity, TargetID)
+);
+
+-- Table: CapabilityPerformance
+CREATE TABLE CapabilityPerformance (
+    PerformanceID INT PRIMARY KEY AUTO_INCREMENT,
+    CapabilityID INT NOT NULL,
+    MetricName VARCHAR(100) NOT NULL,
+    MetricValue FLOAT NOT NULL,
+    Timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
+    INDEX idx_capability (CapabilityID)
+);
+
+-- Junction Tables for Many-to-Many Relationships
+
+-- Table: Objective_Actor
+CREATE TABLE Objective_Actor (
+    ObjectiveID INT NOT NULL,
+    ActorID INT NOT NULL,
+    InteractionType VARCHAR(100),
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ObjectiveID, ActorID),
+    FOREIGN KEY (ObjectiveID) REFERENCES Objective(ObjectiveID) ON DELETE CASCADE,
+    FOREIGN KEY (ActorID) REFERENCES Actor(ActorID) ON DELETE CASCADE
+);
+
+-- Table: Project_Actor
+CREATE TABLE Project_Actor (
+    ProjectID INT NOT NULL,
+    ActorID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ProjectID, ActorID),
+    FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE,
+    FOREIGN KEY (ActorID) REFERENCES Actor(ActorID) ON DELETE CASCADE
+);
+
+-- Table: Process_Capability
+CREATE TABLE Process_Capability (
+    ProcessID INT NOT NULL,
+    CapabilityID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ProcessID, CapabilityID),
+    FOREIGN KEY (ProcessID) REFERENCES BusinessProcess(ProcessID) ON DELETE CASCADE,
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE
+);
+
+-- Table: Capability_DataObject
+CREATE TABLE Capability_DataObject (
+    CapabilityID INT NOT NULL,
+    DataObjectID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (CapabilityID, DataObjectID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
+    FOREIGN KEY (DataObjectID) REFERENCES DataObject(DataObjectID) ON DELETE CASCADE
+);
+
+-- Table: Capability_Policy
+CREATE TABLE Capability_Policy (
+    CapabilityID INT NOT NULL,
+    PolicyID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (CapabilityID, PolicyID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
+    FOREIGN KEY (PolicyID) REFERENCES Policy(PolicyID) ON DELETE CASCADE
+);
+
+-- Table: Capability_Application
+CREATE TABLE Capability_Application (
+    CapabilityID INT NOT NULL,
+    ApplicationID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (CapabilityID, ApplicationID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
+    FOREIGN KEY (ApplicationID) REFERENCES Application(ApplicationID) ON DELETE CASCADE
+);
+
+-- Table: Project_EBLClass_Data
+CREATE TABLE Project_EBLClass_Data (
+    ProjectID INT NOT NULL,
+    EBLClassID INT NOT NULL,
+    DataObjectID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ProjectID, EBLClassID, DataObjectID),
+    FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE,
+    FOREIGN KEY (EBLClassID) REFERENCES EBLClass(EBLClassID) ON DELETE CASCADE,
+    FOREIGN KEY (DataObjectID) REFERENCES DataObject(DataObjectID) ON DELETE CASCADE
+);
+
+-- Table: Project_EBLClass_Policy
+CREATE TABLE Project_EBLClass_Policy (
+    ProjectID INT NOT NULL,
+    EBLClassID INT NOT NULL,
+    PolicyID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (ProjectID, EBLClassID, PolicyID),
+    FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE,
+    FOREIGN KEY (EBLClassID) REFERENCES EBLClass(EBLClassID) ON DELETE CASCADE,
+    FOREIGN KEY (PolicyID) REFERENCES Policy(PolicyID) ON DELETE CASCADE
+);
+
+-- Table: Pattern_Capability
+CREATE TABLE Pattern_Capability (
+    PatternID INT NOT NULL,
+    CapabilityID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (PatternID, CapabilityID),
+    FOREIGN KEY (PatternID) REFERENCES ArchitecturePattern(PatternID) ON DELETE CASCADE,
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE
+);
+
+-- Table: Pattern_Process
+CREATE TABLE Pattern_Process (
+    PatternID INT NOT NULL,
+    ProcessID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (PatternID, ProcessID),
+    FOREIGN KEY (PatternID) REFERENCES ArchitecturePattern(PatternID) ON DELETE CASCADE,
+    FOREIGN KEY (ProcessID) REFERENCES BusinessProcess(ProcessID) ON DELETE CASCADE
+);
+
+-- Table: Pattern_DataObject
+CREATE TABLE Pattern_DataObject (
+    PatternID INT NOT NULL,
+    DataObjectID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (PatternID, DataObjectID),
+    FOREIGN KEY (PatternID) REFERENCES ArchitecturePattern(PatternID) ON DELETE CASCADE,
+    FOREIGN KEY (DataObjectID) REFERENCES DataObject(DataObjectID) ON DELETE CASCADE
+);
+
+-- Table: Pattern_Policy
+CREATE TABLE Pattern_Policy (
+    PatternID INT NOT NULL,
+    PolicyID INT NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (PatternID, PolicyID),
+    FOREIGN KEY (PatternID) REFERENCES ArchitecturePattern(PatternID) ON DELETE CASCADE,
+    FOREIGN KEY (PolicyID) REFERENCES Policy(PolicyID) ON DELETE CASCADE
+);

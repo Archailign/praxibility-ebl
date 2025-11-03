@@ -1,0 +1,1620 @@
+{
+  "version": "1.3.1",
+  "name": "Enterprise Business Lexicon (EBL) — All Domains",
+  "core": {
+    "types": [
+      "Entity",
+      "DataObject",
+      "Policy",
+      "Resource",
+      "Process",
+      "Rule",
+      "Report",
+      "Integration",
+      "ITAsset",
+      "Relationship"
+    ],
+    "constraints": {
+      "entity_requires_dataRef": true,
+      "dataObject_requires_policies": true,
+      "dataObject_requires_resources": true
+    },
+    "keywords": {
+      "reserved": [
+        "ON",
+        "WHEN",
+        "THEN",
+        "ELSE",
+        "WITHIN",
+        "BEFORE",
+        "AFTER",
+        "BY",
+        "UNTIL",
+        "SINCE",
+        "EVERY",
+        "SHALL",
+        "MUST",
+        "MUST NOT",
+        "SHOULD",
+        "MAY",
+        "CAN",
+        "AND",
+        "OR",
+        "NOT",
+        "IN",
+        "BETWEEN"
+      ]
+    },
+    "verbPermissions": {
+      "Create": "write",
+      "Update": "write",
+      "Set": "write",
+      "Persist": "write",
+      "Delete": "write",
+      "Approve": "write",
+      "Reject": "write",
+      "Escalate": "both",
+      "Notify": "both",
+      "Read": "read",
+      "View": "read",
+      "Fetch": "read",
+      "Verify": "read",
+      "Screen": "read",
+      "Validate": "read",
+      "Monitor": "read",
+      "Reconcile": "both",
+      "Emit": "read",
+      "Invoke": "write",
+      "Post": "write",
+      "Schedule": "write",
+      "File": "write",
+      "Archive": "write",
+      "Allocate": "write",
+      "Pick": "write",
+      "Pack": "write",
+      "Ship": "write",
+      "Receive": "write",
+      "Replenish": "write",
+      "Reserve": "write",
+      "Adjust": "write",
+      "Forecast": "read",
+      "Plan": "write",
+      "Disburse": "write",
+      "Settle": "write",
+      "Reverse": "write",
+      "Capture": "write",
+      "Authorize": "write",
+      "Bid": "write",
+      "Investigate": "read",
+      "ReportSAR": "write",
+      "ScreenName": "read",
+      "Enroll": "write",
+      "Randomise": "write",
+      "Titrate": "write",
+      "Consent": "write",
+      "Assess": "read",
+      "Underwrite": "write",
+      "AssessClaim": "read",
+      "Subrogate": "write",
+      "Recover": "write",
+      "Define": "write",
+      "Integrate": "both",
+      "Assemble": "write",
+      "Target": "both",
+      "Identify": "read",
+      "Evaluate": "read",
+      "Deliver": "write",
+      "Track": "write",
+      "Test": "write",
+      "Learn": "write",
+      "Optimise": "write",
+      "Retire": "write",
+      "Scale": "write",
+      "Analyse": "read",
+      "Report": "write",
+      "Attribute": "read"
+    },
+    "relationshipTypes": [
+      "consists_of",
+      "depends_on",
+      "hosted_on",
+      "supports",
+      "communicates_with",
+      "segregation_of_duties",
+      "traceability",
+      "subrogates_against"
+    ]
+  },
+  "domains": {
+    "adtech": {
+      "entities": [
+        "Campaign",
+        "AudienceSegment",
+        "CreativeAsset",
+        "Template",
+        "TargetingRule",
+        "BidRequest",
+        "BidResponse",
+        "Impression",
+        "Click",
+        "Conversion",
+        "Experiment",
+        "MLModel",
+        "Report",
+        "KPI",
+        "DMPProfile"
+      ],
+      "dataObjects": [
+        "DO_Campaign",
+        "DO_AudienceProfile",
+        "DO_CreativeAsset",
+        "DO_Template",
+        "DO_TargetingRule",
+        "DO_BidRequest",
+        "DO_BidResponse",
+        "DO_Impression",
+        "DO_Click",
+        "DO_Conversion",
+        "DO_PerformanceMetrics",
+        "DO_ExperimentDesign",
+        "DO_MLModel",
+        "DO_IncrementalityResult",
+        "DO_BrandLiftStudy",
+        "DO_Report"
+      ],
+      "verbs": [
+        "Plan",
+        "Define",
+        "Integrate",
+        "Assemble",
+        "Target",
+        "Identify",
+        "Evaluate",
+        "Bid",
+        "Deliver",
+        "Track",
+        "Test",
+        "Learn",
+        "Optimise",
+        "Retire",
+        "Scale",
+        "Analyse",
+        "Report",
+        "Attribute",
+        "Verify",
+        "Approve",
+        "Reject"
+      ],
+      "actors": [
+        "MarketingManager",
+        "CreativeDesigner",
+        "DCOEngine",
+        "DMP",
+        "DSP",
+        "SSP",
+        "AdServer",
+        "DataScientist",
+        "MLTrainingService",
+        "Analyst",
+        "ComplianceOfficer"
+      ],
+      "actorVerbs": {
+        "MarketingManager": [
+          "Plan",
+          "Define",
+          "Target",
+          "Report"
+        ],
+        "CreativeDesigner": [
+          "Define",
+          "Assemble"
+        ],
+        "DCOEngine": [
+          "Assemble",
+          "Target",
+          "Deliver",
+          "Track",
+          "Optimise",
+          "Retire",
+          "Scale"
+        ],
+        "DMP": [
+          "Integrate",
+          "Identify",
+          "Attribute"
+        ],
+        "DSP": [
+          "Bid",
+          "Deliver"
+        ],
+        "SSP": [
+          "Emit"
+        ],
+        "AdServer": [
+          "Deliver",
+          "Track"
+        ],
+        "DataScientist": [
+          "Test",
+          "Learn",
+          "Optimise",
+          "Analyse",
+          "Evaluate"
+        ],
+        "MLTrainingService": [
+          "Evaluate"
+        ],
+        "Analyst": [
+          "Analyse",
+          "Report",
+          "Attribute"
+        ],
+        "ComplianceOfficer": [
+          "Verify",
+          "Approve",
+          "Reject"
+        ]
+      },
+      "actorDataPerms": {
+        "MarketingManager": {
+          "read": [
+            "DO_Report",
+            "DO_PerformanceMetrics"
+          ],
+          "write": [
+            "DO_Campaign",
+            "DO_TargetingRule"
+          ]
+        },
+        "CreativeDesigner": {
+          "read": [
+            "DO_Template"
+          ],
+          "write": [
+            "DO_CreativeAsset",
+            "DO_Template"
+          ]
+        },
+        "DCOEngine": {
+          "read": [
+            "DO_Template",
+            "DO_CreativeAsset",
+            "DO_TargetingRule",
+            "DO_AudienceProfile",
+            "DO_MLModel"
+          ],
+          "write": [
+            "DO_Impression",
+            "DO_Click",
+            "DO_Conversion",
+            "DO_PerformanceMetrics"
+          ]
+        },
+        "DMP": {
+          "read": [
+            "DO_AudienceProfile"
+          ],
+          "write": [
+            "DO_AudienceProfile"
+          ]
+        },
+        "DSP": {
+          "read": [
+            "DO_BidRequest",
+            "DO_AudienceProfile"
+          ],
+          "write": [
+            "DO_BidResponse"
+          ]
+        },
+        "SSP": {
+          "read": [],
+          "write": [
+            "DO_BidRequest"
+          ]
+        },
+        "AdServer": {
+          "read": [
+            "DO_BidResponse",
+            "DO_CreativeAsset"
+          ],
+          "write": [
+            "DO_Impression",
+            "DO_Click"
+          ]
+        },
+        "DataScientist": {
+          "read": [
+            "DO_PerformanceMetrics",
+            "DO_Impression",
+            "DO_Click",
+            "DO_Conversion"
+          ],
+          "write": [
+            "DO_ExperimentDesign",
+            "DO_MLModel",
+            "DO_IncrementalityResult",
+            "DO_BrandLiftStudy"
+          ]
+        },
+        "MLTrainingService": {
+          "read": [
+            "DO_PerformanceMetrics"
+          ],
+          "write": [
+            "DO_MLModel"
+          ]
+        },
+        "Analyst": {
+          "read": [
+            "DO_PerformanceMetrics",
+            "DO_IncrementalityResult",
+            "DO_BrandLiftStudy"
+          ],
+          "write": [
+            "DO_Report"
+          ]
+        },
+        "ComplianceOfficer": {
+          "read": [
+            "DO_Campaign",
+            "DO_TargetingRule"
+          ],
+          "write": []
+        }
+      }
+    },
+    "retail": {
+      "entities": [
+        "Customer",
+        "Order",
+        "OrderItem",
+        "Product",
+        "Inventory",
+        "Store",
+        "Shipment",
+        "Return"
+      ],
+      "dataObjects": [
+        "DO_Customer",
+        "DO_Order",
+        "DO_OrderItem",
+        "DO_Product",
+        "DO_Inventory",
+        "DO_Shipment",
+        "DO_Return",
+        "DO_ReplenishmentPlan"
+      ],
+      "verbs": [
+        "Create",
+        "Update",
+        "Reserve",
+        "Allocate",
+        "Pick",
+        "Pack",
+        "Ship",
+        "Receive",
+        "Replenish",
+        "Adjust",
+        "Forecast",
+        "Plan",
+        "Notify",
+        "Read",
+        "View"
+      ],
+      "actors": [
+        "StoreAssociate",
+        "CustomerService",
+        "WarehouseManager",
+        "Picker",
+        "Packer",
+        "LogisticsCoordinator",
+        "InventoryAnalyst",
+        "EComPlatform"
+      ],
+      "actorVerbs": {
+        "StoreAssociate": [
+          "Create",
+          "Update",
+          "Reserve",
+          "Notify",
+          "View"
+        ],
+        "CustomerService": [
+          "Create",
+          "Update",
+          "Notify",
+          "View"
+        ],
+        "WarehouseManager": [
+          "Allocate",
+          "Pick",
+          "Pack",
+          "Ship",
+          "Receive"
+        ],
+        "Picker": [
+          "Pick"
+        ],
+        "Packer": [
+          "Pack"
+        ],
+        "LogisticsCoordinator": [
+          "Ship",
+          "Receive",
+          "Notify"
+        ],
+        "InventoryAnalyst": [
+          "Forecast",
+          "Plan",
+          "Replenish",
+          "Adjust",
+          "View"
+        ],
+        "EComPlatform": [
+          "Create",
+          "Update",
+          "Notify"
+        ]
+      },
+      "actorDataPerms": {
+        "StoreAssociate": {
+          "read": [
+            "DO_Product",
+            "DO_Inventory",
+            "DO_Order"
+          ],
+          "write": [
+            "DO_Order",
+            "DO_Return"
+          ]
+        },
+        "CustomerService": {
+          "read": [
+            "DO_Order",
+            "DO_Customer"
+          ],
+          "write": [
+            "DO_Order",
+            "DO_Return"
+          ]
+        },
+        "WarehouseManager": {
+          "read": [
+            "DO_Order",
+            "DO_OrderItem",
+            "DO_Inventory",
+            "DO_Shipment"
+          ],
+          "write": [
+            "DO_Shipment",
+            "DO_Inventory"
+          ]
+        },
+        "Picker": {
+          "read": [
+            "DO_OrderItem",
+            "DO_Inventory"
+          ],
+          "write": []
+        },
+        "Packer": {
+          "read": [
+            "DO_OrderItem"
+          ],
+          "write": [
+            "DO_Shipment"
+          ]
+        },
+        "LogisticsCoordinator": {
+          "read": [
+            "DO_Shipment",
+            "DO_Order"
+          ],
+          "write": [
+            "DO_Shipment"
+          ]
+        },
+        "InventoryAnalyst": {
+          "read": [
+            "DO_Inventory",
+            "DO_ReplenishmentPlan"
+          ],
+          "write": [
+            "DO_ReplenishmentPlan",
+            "DO_Inventory"
+          ]
+        },
+        "EComPlatform": {
+          "read": [
+            "DO_Product",
+            "DO_Inventory"
+          ],
+          "write": [
+            "DO_Order"
+          ]
+        }
+      }
+    },
+    "logistics": {
+      "entities": [
+        "Shipment",
+        "Parcel",
+        "Consignment",
+        "Carrier",
+        "Route",
+        "Warehouse",
+        "TrackingEvent"
+      ],
+      "dataObjects": [
+        "DO_Shipment",
+        "DO_Parcel",
+        "DO_Consignment",
+        "DO_Carrier",
+        "DO_Route",
+        "DO_TrackingEvent"
+      ],
+      "verbs": [
+        "Plan",
+        "Allocate",
+        "Pick",
+        "Pack",
+        "Ship",
+        "Receive",
+        "Track",
+        "Notify",
+        "Reconcile"
+      ],
+      "actors": [
+        "LogisticsCoordinator",
+        "WarehouseManager",
+        "CarrierAgent",
+        "Driver",
+        "TrackingSystem"
+      ],
+      "actorVerbs": {
+        "LogisticsCoordinator": [
+          "Plan",
+          "Allocate",
+          "Notify",
+          "Reconcile"
+        ],
+        "WarehouseManager": [
+          "Pick",
+          "Pack",
+          "Ship",
+          "Receive"
+        ],
+        "CarrierAgent": [
+          "Ship",
+          "Track",
+          "Notify"
+        ],
+        "Driver": [
+          "Ship",
+          "Track"
+        ],
+        "TrackingSystem": [
+          "Track",
+          "Notify"
+        ]
+      },
+      "actorDataPerms": {
+        "LogisticsCoordinator": {
+          "read": [
+            "DO_Shipment",
+            "DO_Consignment",
+            "DO_Route"
+          ],
+          "write": [
+            "DO_Shipment",
+            "DO_Consignment",
+            "DO_Route"
+          ]
+        },
+        "WarehouseManager": {
+          "read": [
+            "DO_Shipment",
+            "DO_Parcel",
+            "DO_TrackingEvent"
+          ],
+          "write": [
+            "DO_TrackingEvent"
+          ]
+        },
+        "CarrierAgent": {
+          "read": [
+            "DO_Shipment",
+            "DO_Parcel"
+          ],
+          "write": [
+            "DO_TrackingEvent"
+          ]
+        },
+        "Driver": {
+          "read": [
+            "DO_Parcel"
+          ],
+          "write": [
+            "DO_TrackingEvent"
+          ]
+        },
+        "TrackingSystem": {
+          "read": [
+            "DO_Shipment"
+          ],
+          "write": [
+            "DO_TrackingEvent"
+          ]
+        }
+      }
+    },
+    "payments_kyc": {
+      "entities": [
+        "Payment",
+        "Account",
+        "Transaction",
+        "Customer",
+        "Beneficiary",
+        "Counterparty",
+        "KYCCase",
+        "RiskProfile",
+        "Alert"
+      ],
+      "dataObjects": [
+        "DO_Payment",
+        "DO_Account",
+        "DO_Transaction",
+        "DO_Customer",
+        "DO_Beneficiary",
+        "DO_Counterparty",
+        "DO_KYCApplication",
+        "DO_IdentityDocument",
+        "DO_NameScreeningResult",
+        "DO_KYCRiskProfile",
+        "DO_Alert"
+      ],
+      "verbs": [
+        "Create",
+        "Authorize",
+        "Capture",
+        "Settle",
+        "Reverse",
+        "Disburse",
+        "Verify",
+        "Screen",
+        "Approve",
+        "Reject",
+        "Escalate",
+        "Monitor",
+        "Report",
+        "Notify",
+        "Reconcile",
+        "Read",
+        "Invoke",
+        "Post"
+      ],
+      "actors": [
+        "Teller",
+        "PaymentProcessor",
+        "Bank",
+        "KYCAnalyst",
+        "ComplianceOfficer",
+        "Registrar",
+        "FraudAnalyst",
+        "CustomerApp"
+      ],
+      "actorVerbs": {
+        "Teller": [
+          "Create",
+          "Authorize",
+          "Capture",
+          "Settle",
+          "Reverse",
+          "Notify"
+        ],
+        "PaymentProcessor": [
+          "Authorize",
+          "Capture",
+          "Settle",
+          "Reverse",
+          "Notify",
+          "Invoke",
+          "Post",
+          "Reconcile"
+        ],
+        "Bank": [
+          "Approve",
+          "Reject",
+          "Disburse"
+        ],
+        "KYCAnalyst": [
+          "Verify",
+          "Screen",
+          "Approve",
+          "Reject",
+          "Escalate",
+          "Monitor"
+        ],
+        "ComplianceOfficer": [
+          "Approve",
+          "Reject",
+          "Report",
+          "Escalate"
+        ],
+        "Registrar": [
+          "Create",
+          "Verify"
+        ],
+        "FraudAnalyst": [
+          "Monitor",
+          "Verify",
+          "Escalate",
+          "Report",
+          "Reconcile"
+        ],
+        "CustomerApp": [
+          "Create",
+          "Notify"
+        ]
+      },
+      "actorDataPerms": {
+        "Teller": {
+          "read": [
+            "DO_Customer",
+            "DO_Account",
+            "DO_Transaction"
+          ],
+          "write": [
+            "DO_Payment",
+            "DO_Transaction"
+          ]
+        },
+        "PaymentProcessor": {
+          "read": [
+            "DO_Payment",
+            "DO_Account",
+            "DO_Transaction"
+          ],
+          "write": [
+            "DO_Transaction",
+            "DO_Payment"
+          ]
+        },
+        "Bank": {
+          "read": [
+            "DO_Payment"
+          ],
+          "write": [
+            "DO_Payment"
+          ]
+        },
+        "KYCAnalyst": {
+          "read": [
+            "DO_KYCApplication",
+            "DO_IdentityDocument",
+            "DO_NameScreeningResult",
+            "DO_KYCRiskProfile"
+          ],
+          "write": [
+            "DO_KYCRiskProfile",
+            "DO_NameScreeningResult"
+          ]
+        },
+        "ComplianceOfficer": {
+          "read": [
+            "DO_KYCRiskProfile",
+            "DO_Payment"
+          ],
+          "write": [
+            "DO_Alert"
+          ]
+        },
+        "Registrar": {
+          "read": [
+            "DO_KYCApplication"
+          ],
+          "write": [
+            "DO_IdentityDocument"
+          ]
+        },
+        "FraudAnalyst": {
+          "read": [
+            "DO_Transaction",
+            "DO_Alert"
+          ],
+          "write": [
+            "DO_Alert"
+          ]
+        },
+        "CustomerApp": {
+          "read": [
+            "DO_Account"
+          ],
+          "write": [
+            "DO_Payment"
+          ]
+        }
+      }
+    },
+    "afc": {
+      "entities": [
+        "Case",
+        "SuspiciousActivity",
+        "SARReport",
+        "RuleHit",
+        "Investigation",
+        "Evidence"
+      ],
+      "dataObjects": [
+        "DO_FraudSignal",
+        "DO_Transaction",
+        "DO_Customer",
+        "DO_Alert",
+        "DO_SAR"
+      ],
+      "verbs": [
+        "Monitor",
+        "Investigate",
+        "Escalate",
+        "Approve",
+        "Reject",
+        "Report",
+        "File",
+        "Notify",
+        "Reconcile"
+      ],
+      "actors": [
+        "FraudAnalyst",
+        "InvestigationLead",
+        "SAROfficer",
+        "ComplianceOfficer",
+        "CaseManagementSystem"
+      ],
+      "actorVerbs": {
+        "FraudAnalyst": [
+          "Monitor",
+          "Investigate",
+          "Escalate",
+          "Notify",
+          "Reconcile"
+        ],
+        "InvestigationLead": [
+          "Investigate",
+          "Approve",
+          "Reject",
+          "Notify"
+        ],
+        "SAROfficer": [
+          "Approve",
+          "Reject",
+          "File",
+          "Report",
+          "Notify"
+        ],
+        "ComplianceOfficer": [
+          "Approve",
+          "Reject",
+          "Report",
+          "Notify"
+        ],
+        "CaseManagementSystem": [
+          "Notify",
+          "Reconcile"
+        ]
+      },
+      "actorDataPerms": {
+        "FraudAnalyst": {
+          "read": [
+            "DO_Transaction",
+            "DO_FraudSignal",
+            "DO_Customer"
+          ],
+          "write": [
+            "DO_Alert"
+          ]
+        },
+        "InvestigationLead": {
+          "read": [
+            "DO_Transaction",
+            "DO_Alert"
+          ],
+          "write": [
+            "DO_Alert"
+          ]
+        },
+        "SAROfficer": {
+          "read": [
+            "DO_Alert",
+            "DO_Transaction"
+          ],
+          "write": [
+            "DO_SAR"
+          ]
+        },
+        "ComplianceOfficer": {
+          "read": [
+            "DO_SAR",
+            "DO_Alert"
+          ],
+          "write": [
+            "DO_SAR"
+          ]
+        },
+        "CaseManagementSystem": {
+          "read": [
+            "DO_Alert"
+          ],
+          "write": [
+            "DO_Alert"
+          ]
+        }
+      }
+    },
+    "healthcare": {
+      "entities": [
+        "Patient",
+        "Encounter",
+        "Provider",
+        "InsuranceCompany",
+        "MedicationOrder",
+        "Consent",
+        "TrialEnrollment"
+      ],
+      "dataObjects": [
+        "DO_Patient",
+        "DO_Encounter",
+        "DO_Provider",
+        "DO_InsuranceCompany",
+        "DO_MedicationOrder",
+        "DO_Consent",
+        "DO_TrialEnrollment"
+      ],
+      "verbs": [
+        "Enroll",
+        "Consent",
+        "Titrate",
+        "Assess",
+        "Verify",
+        "Schedule",
+        "Notify",
+        "Read",
+        "Update"
+      ],
+      "actors": [
+        "Clinician",
+        "Nurse",
+        "Pharmacist",
+        "Scheduler",
+        "CareCoordinator",
+        "ResearchCoordinator",
+        "Insurer"
+      ],
+      "actorVerbs": {
+        "Clinician": [
+          "Assess",
+          "Titrate",
+          "Verify",
+          "Update",
+          "Schedule"
+        ],
+        "Nurse": [
+          "Assess",
+          "Titrate",
+          "Verify"
+        ],
+        "Pharmacist": [
+          "Verify",
+          "Update"
+        ],
+        "Scheduler": [
+          "Schedule",
+          "Notify"
+        ],
+        "CareCoordinator": [
+          "Enroll",
+          "Consent",
+          "Notify"
+        ],
+        "ResearchCoordinator": [
+          "Enroll",
+          "Consent",
+          "Assess",
+          "Schedule"
+        ],
+        "Insurer": [
+          "Verify"
+        ]
+      },
+      "actorDataPerms": {
+        "Clinician": {
+          "read": [
+            "DO_Patient",
+            "DO_Encounter",
+            "DO_MedicationOrder"
+          ],
+          "write": [
+            "DO_Encounter",
+            "DO_MedicationOrder"
+          ]
+        },
+        "Nurse": {
+          "read": [
+            "DO_Patient",
+            "DO_Encounter"
+          ],
+          "write": [
+            "DO_Encounter"
+          ]
+        },
+        "Pharmacist": {
+          "read": [
+            "DO_MedicationOrder",
+            "DO_Patient"
+          ],
+          "write": [
+            "DO_MedicationOrder"
+          ]
+        },
+        "Scheduler": {
+          "read": [
+            "DO_Patient"
+          ],
+          "write": [
+            "DO_Encounter"
+          ]
+        },
+        "CareCoordinator": {
+          "read": [
+            "DO_Patient",
+            "DO_Consent"
+          ],
+          "write": [
+            "DO_Consent",
+            "DO_TrialEnrollment"
+          ]
+        },
+        "ResearchCoordinator": {
+          "read": [
+            "DO_Patient",
+            "DO_TrialEnrollment"
+          ],
+          "write": [
+            "DO_TrialEnrollment"
+          ]
+        },
+        "Insurer": {
+          "read": [
+            "DO_InsuranceCompany",
+            "DO_Patient"
+          ],
+          "write": []
+        }
+      }
+    },
+    "insurance": {
+      "entities": [
+        "Claim",
+        "Policy",
+        "Policyholder",
+        "Beneficiary",
+        "ClaimAssessment",
+        "Payment",
+        "AdjusterReport",
+        "SubrogationCase"
+      ],
+      "dataObjects": [
+        "DO_Claim",
+        "DO_Policy",
+        "DO_Assessment",
+        "DO_ClaimPayment",
+        "DO_ClaimDocument",
+        "DO_Subrogation",
+        "DO_FraudSignal"
+      ],
+      "verbs": [
+        "File",
+        "Assess",
+        "Approve",
+        "Reject",
+        "Investigate",
+        "Disburse",
+        "Recover",
+        "Subrogate",
+        "Notify",
+        "Reopen",
+        "Close"
+      ],
+      "actors": [
+        "Policyholder",
+        "ClaimsAdjuster",
+        "Underwriter",
+        "FraudAnalyst",
+        "PaymentClerk",
+        "SubrogationSpecialist",
+        "Regulator"
+      ],
+      "actorVerbs": {
+        "Policyholder": [
+          "File"
+        ],
+        "ClaimsAdjuster": [
+          "Assess",
+          "Investigate",
+          "Approve",
+          "Reject",
+          "Notify",
+          "Close",
+          "Reopen"
+        ],
+        "Underwriter": [
+          "Approve",
+          "Reject",
+          "Verify"
+        ],
+        "FraudAnalyst": [
+          "Investigate",
+          "Verify",
+          "Notify"
+        ],
+        "PaymentClerk": [
+          "Disburse",
+          "Notify"
+        ],
+        "SubrogationSpecialist": [
+          "Recover",
+          "Subrogate",
+          "Notify"
+        ],
+        "Regulator": [
+          "Read"
+        ]
+      },
+      "actorDataPerms": {
+        "Policyholder": {
+          "read": [
+            "DO_Claim"
+          ],
+          "write": [
+            "DO_Claim",
+            "DO_ClaimDocument"
+          ]
+        },
+        "ClaimsAdjuster": {
+          "read": [
+            "DO_Claim",
+            "DO_Assessment",
+            "DO_FraudSignal"
+          ],
+          "write": [
+            "DO_Assessment"
+          ]
+        },
+        "Underwriter": {
+          "read": [
+            "DO_Claim",
+            "DO_Policy"
+          ],
+          "write": [
+            "DO_Claim"
+          ]
+        },
+        "FraudAnalyst": {
+          "read": [
+            "DO_Claim",
+            "DO_FraudSignal"
+          ],
+          "write": [
+            "DO_FraudSignal"
+          ]
+        },
+        "PaymentClerk": {
+          "read": [
+            "DO_ClaimPayment"
+          ],
+          "write": [
+            "DO_ClaimPayment"
+          ]
+        },
+        "SubrogationSpecialist": {
+          "read": [
+            "DO_Subrogation",
+            "DO_Claim"
+          ],
+          "write": [
+            "DO_Subrogation"
+          ]
+        },
+        "Regulator": {
+          "read": [
+            "DO_Claim",
+            "DO_Policy"
+          ],
+          "write": []
+        }
+      }
+    },
+    "manufacturing_mrp": {
+      "entities": [
+        "BillOfMaterials",
+        "Component",
+        "WorkOrder",
+        "ProductionPlan",
+        "Inventory",
+        "Supplier",
+        "PurchaseOrder"
+      ],
+      "dataObjects": [
+        "DO_BOM",
+        "DO_Component",
+        "DO_WorkOrder",
+        "DO_ProductionPlan",
+        "DO_Inventory",
+        "DO_Supplier",
+        "DO_PurchaseOrder",
+        "DO_Receipt"
+      ],
+      "verbs": [
+        "Manufacture",
+        "Assemble",
+        "Procure",
+        "Schedule",
+        "Inspect",
+        "Replenish",
+        "Receive",
+        "Plan",
+        "Forecast",
+        "Allocate"
+      ],
+      "actors": [
+        "ProductionPlanner",
+        "SupplierRep",
+        "WarehouseManager",
+        "MachineOperator",
+        "QualityInspector",
+        "ProcurementOfficer"
+      ],
+      "actorVerbs": {
+        "ProductionPlanner": [
+          "Plan",
+          "Schedule",
+          "Allocate",
+          "Forecast"
+        ],
+        "SupplierRep": [
+          "Procure",
+          "Receive"
+        ],
+        "WarehouseManager": [
+          "Replenish",
+          "Receive",
+          "Inspect"
+        ],
+        "MachineOperator": [
+          "Manufacture",
+          "Assemble"
+        ],
+        "QualityInspector": [
+          "Inspect"
+        ],
+        "ProcurementOfficer": [
+          "Procure",
+          "Schedule"
+        ]
+      },
+      "actorDataPerms": {
+        "ProductionPlanner": {
+          "read": [
+            "DO_BOM",
+            "DO_Component",
+            "DO_Inventory",
+            "DO_ProductionPlan"
+          ],
+          "write": [
+            "DO_ProductionPlan",
+            "DO_WorkOrder"
+          ]
+        },
+        "SupplierRep": {
+          "read": [
+            "DO_PurchaseOrder"
+          ],
+          "write": [
+            "DO_Receipt"
+          ]
+        },
+        "WarehouseManager": {
+          "read": [
+            "DO_Inventory",
+            "DO_Receipt"
+          ],
+          "write": [
+            "DO_Inventory"
+          ]
+        },
+        "MachineOperator": {
+          "read": [
+            "DO_WorkOrder",
+            "DO_Component"
+          ],
+          "write": [
+            "DO_WorkOrder"
+          ]
+        },
+        "QualityInspector": {
+          "read": [
+            "DO_WorkOrder",
+            "DO_Component"
+          ],
+          "write": [
+            "DO_Receipt"
+          ]
+        },
+        "ProcurementOfficer": {
+          "read": [
+            "DO_Supplier",
+            "DO_PurchaseOrder"
+          ],
+          "write": [
+            "DO_PurchaseOrder"
+          ]
+        }
+      }
+    },
+    "public_grants": {
+      "entities": [
+        "Grant",
+        "Application",
+        "Applicant",
+        "Reviewer",
+        "Award",
+        "Disbursement",
+        "ComplianceReport"
+      ],
+      "dataObjects": [
+        "DO_Grant",
+        "DO_Application",
+        "DO_Applicant",
+        "DO_Review",
+        "DO_Award",
+        "DO_Disbursement",
+        "DO_ComplianceReport"
+      ],
+      "verbs": [
+        "Apply",
+        "Review",
+        "Award",
+        "Disburse",
+        "Suspend",
+        "Audit",
+        "Verify",
+        "Approve",
+        "Reject",
+        "Report"
+      ],
+      "actors": [
+        "GrantApplicant",
+        "Reviewer",
+        "FundingAgency",
+        "Auditor",
+        "ComplianceOfficer",
+        "Treasury"
+      ],
+      "actorVerbs": {
+        "GrantApplicant": [
+          "Apply"
+        ],
+        "Reviewer": [
+          "Review",
+          "Approve",
+          "Reject",
+          "Report"
+        ],
+        "FundingAgency": [
+          "Award",
+          "Disburse",
+          "Suspend",
+          "Report"
+        ],
+        "Auditor": [
+          "Audit",
+          "Verify"
+        ],
+        "ComplianceOfficer": [
+          "Verify",
+          "Suspend",
+          "Report"
+        ],
+        "Treasury": [
+          "Disburse",
+          "Report"
+        ]
+      },
+      "actorDataPerms": {
+        "GrantApplicant": {
+          "read": [
+            "DO_Grant"
+          ],
+          "write": [
+            "DO_Application",
+            "DO_Applicant"
+          ]
+        },
+        "Reviewer": {
+          "read": [
+            "DO_Application",
+            "DO_Applicant"
+          ],
+          "write": [
+            "DO_Review"
+          ]
+        },
+        "FundingAgency": {
+          "read": [
+            "DO_Review",
+            "DO_Application"
+          ],
+          "write": [
+            "DO_Award",
+            "DO_Disbursement"
+          ]
+        },
+        "Auditor": {
+          "read": [
+            "DO_Award",
+            "DO_Disbursement",
+            "DO_ComplianceReport"
+          ],
+          "write": [
+            "DO_ComplianceReport"
+          ]
+        },
+        "ComplianceOfficer": {
+          "read": [
+            "DO_ComplianceReport",
+            "DO_Application"
+          ],
+          "write": [
+            "DO_ComplianceReport"
+          ]
+        },
+        "Treasury": {
+          "read": [
+            "DO_Disbursement"
+          ],
+          "write": [
+            "DO_Disbursement"
+          ]
+        }
+      }
+    },
+    "aviation_mro": {
+      "entities": [
+        "Aircraft",
+        "MaintenanceTask",
+        "WorkOrder",
+        "Part",
+        "InspectionReport",
+        "FlightLog",
+        "Certification"
+      ],
+      "dataObjects": [
+        "DO_Aircraft",
+        "DO_MaintenanceTask",
+        "DO_WorkOrder",
+        "DO_Part",
+        "DO_InspectionReport",
+        "DO_FlightLog",
+        "DO_Certification"
+      ],
+      "verbs": [
+        "Inspect",
+        "Repair",
+        "Replace",
+        "Certify",
+        "Log",
+        "Ground",
+        "Schedule",
+        "Plan",
+        "Issue"
+      ],
+      "actors": [
+        "MaintenanceEngineer",
+        "QualityInspector",
+        "AirlineOperator",
+        "Regulator",
+        "OEM",
+        "Scheduler"
+      ],
+      "actorVerbs": {
+        "MaintenanceEngineer": [
+          "Inspect",
+          "Repair",
+          "Replace",
+          "Log"
+        ],
+        "QualityInspector": [
+          "Inspect",
+          "Certify",
+          "Log"
+        ],
+        "AirlineOperator": [
+          "Schedule",
+          "Plan",
+          "Log",
+          "Ground"
+        ],
+        "Regulator": [
+          "Inspect",
+          "Certify"
+        ],
+        "OEM": [
+          "Issue",
+          "Replace"
+        ],
+        "Scheduler": [
+          "Schedule",
+          "Plan"
+        ]
+      },
+      "actorDataPerms": {
+        "MaintenanceEngineer": {
+          "read": [
+            "DO_WorkOrder",
+            "DO_Part",
+            "DO_InspectionReport"
+          ],
+          "write": [
+            "DO_WorkOrder",
+            "DO_InspectionReport"
+          ]
+        },
+        "QualityInspector": {
+          "read": [
+            "DO_InspectionReport",
+            "DO_WorkOrder"
+          ],
+          "write": [
+            "DO_Certification"
+          ]
+        },
+        "AirlineOperator": {
+          "read": [
+            "DO_Aircraft",
+            "DO_FlightLog"
+          ],
+          "write": [
+            "DO_FlightLog",
+            "DO_WorkOrder"
+          ]
+        },
+        "Regulator": {
+          "read": [
+            "DO_Certification",
+            "DO_InspectionReport"
+          ],
+          "write": [
+            "DO_Certification"
+          ]
+        },
+        "OEM": {
+          "read": [
+            "DO_Part"
+          ],
+          "write": [
+            "DO_Part"
+          ]
+        },
+        "Scheduler": {
+          "read": [
+            "DO_WorkOrder",
+            "DO_Aircraft"
+          ],
+          "write": [
+            "DO_WorkOrder"
+          ]
+        }
+      }
+    }
+  }
+}

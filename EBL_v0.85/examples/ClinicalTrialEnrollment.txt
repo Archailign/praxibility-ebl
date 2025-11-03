@@ -1,0 +1,115 @@
+```
+# Enterprise Business Language (EBL) Definition
+# Version: 1.1.0
+# License: Apache-2.0
+# Author: OpenEBL Community
+# Description: EBL definition for clinical trial enrollment in pharmaceutical industry
+# Domain: Pharmaceutical
+# Conforms to: EBL-Spec-1.1
+
+Metadata:
+  EBLClass: ClinicalTrialManagement
+  RequirementID: REQ-PHARMA-001
+  ProjectID: PRJ-PHARMA-001
+  CreatedAt: 2025-08-08
+  UpdatedAt: 2025-08-08
+
+Entity Participant {
+  Properties:
+    ParticipantID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    Name: { type: String, required: true }
+    MedicalID: { type: String, required: true, unique: true }
+    ConsentStatus: { type: Enum, values: [Granted, Denied, Pending], default: Pending }
+    EligibilityCriteria: { type: JSON, required: true }
+  Rules:
+    - MedicalID must comply with HIPAA
+    - ConsentStatus must be Granted before enrollment
+  erMap: DataObject
+}
+
+Process ClinicalTrialEnrollment {
+  Description: Enrolls participants in a clinical trial
+  ObjectiveID: OBJ-PHARMA-001
+  BusinessGoalID: BG-PHARMA-001
+  Actors: [ClinicalCoordinator, ComplianceOfficer]
+  erMap: BusinessProcess
+
+  Starts With: Event TrialApplicationReceived(ParticipantData)
+
+  Step CollectParticipantData {
+    Inputs:
+      - Participant.Name
+      - Participant.MedicalID
+      - Participant.EligibilityCriteria
+    Validation:
+      - MedicalID must be valid
+    Output:
+      - ParticipantRecord: Partial<Participant>
+  }
+
+  Step ConsentVerification {
+    Inputs:
+      - ParticipantRecord
+    Service: ComplianceService.VerifyConsent(ParticipantID)
+    Output:
+      - ConsentResult: { status: Enum[Valid, Invalid] }
+  }
+
+  Step EligibilityCheck {
+    Condition: ConsentResult.status == "Valid"
+    Invoke: TrialEngine.EvaluateEligibility(Participant.EligibilityCriteria)
+    Ruleset: Policy.ClinicalTrialRegulations
+    Output:
+      - EligibilityScore: Integer
+  }
+
+  Step EnrollmentDecision {
+    Condition: EligibilityScore >= 80
+    Actions:
+      - Update Participant.ConsentStatus = Granted
+      - Enroll Participant in Trial
+    ErrorHandling:
+      - If Condition fails, set ConsentStatus = Denied
+      - Send Notification RejectionNotice to Participant.Email
+    Output:
+      - Decision: Enum[Enrolled, Rejected]
+  }
+
+  Ends With: Event ParticipantEnrolled(ParticipantID, Decision)
+}
+
+Rule DataPrivacyCompliance {
+  Description: Ensures HIPAA compliance for participant data
+  Trigger: Participant.ConsentStatus changes
+  Conditions:
+    - ConsentStatus == Granted
+  Actions:
+    - Encrypt Participant.MedicalID
+    - Log ComplianceAudit
+  erMap: Requirement
+}
+
+Report TrialEnrollmentMetrics {
+  Description: Monthly trial enrollment statistics
+  Query:
+    Select Count(Participant.ID), Avg(EligibilityScore)
+    From Participant
+    Where ConsentStatus = Granted
+    Group By TrialID
+    Order By Count Descending
+  Schedule: Weekly
+  erMap: Application
+}
+
+Integration ClinicalDataRegistry {
+  Provider: Medidata
+  Credentials: SystemConfig.RegistryAPI_Key
+  Operations:
+    - RegisterParticipant(ParticipantID, TrialData)
+    - RetrieveTrialStatus(TrialID)
+  ErrorHandling:
+    - Log ErrorDetails
+    - Notify ComplianceTeam
+  erMap: Application
+}
+```

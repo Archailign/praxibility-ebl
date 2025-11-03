@@ -1,0 +1,26 @@
+name: build-ebl
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  build-java-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build (Maven)
+        run: mvn -q -B package
+      - name: Python ANTLR generation
+        run: |
+          python3 -m pip install antlr4-python3-runtime
+          curl -LO https://www.antlr.org/download/antlr-4.13.1-complete.jar
+          mkdir -p generated-src/python
+          java -jar antlr-4.13.1-complete.jar -Dlanguage=Python3 -visitor -listener -o generated-src/python src/main/antlr4/EBL.g4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ebl-generated
+          path: |
+            target/
+            generated-src/python/
