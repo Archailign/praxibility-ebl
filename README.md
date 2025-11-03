@@ -8,8 +8,39 @@
 [![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ## Overview
+**BimL**
+BimL (Business Intelligence Modelling Language) is an Enterprise Business Language (EBL)—a domain-specific, extensible controlled language for expressing business requirements as validated, traceable, compilable artefacts. It bridges strategy and implementation by combining a curated enterprise lexicon with a formal grammar and a data/traceability model, enabling a Business analyst's natural business statements to be parsed and compiled into executable outputs.
 
-**Enterprise Business Language (EBL)** is a domain-specific language (DSL) framework built on ANTLR that enables organizations to define complex business requirements in a structured, machine-readable format. EBL bridges the gap between business strategy and technical implementation through an extensible dictionary and grammar system that can be customized for any industry or enterprise focus.
+BimL is designed for Business Analysts, Product Owners, Developers, Architects, and CXOs, ensuring requirements aren't static documents but living, executable specifications governed by a shared dictionary and modality/temporal constructs (e.g., SHALL, MUST NOT, WITHIN, ON/WHEN/THEN). These are curated by SMEs and enforced at compile time for consistency and auditability.
+
+# What BimL enables #
+Structured, unambiguous requirements using a controlled vocabulary, sentence frames, and modalities—ready for ANTLR-based parsing and semantic checks. 
+
+End-to-end traceability from goals → objectives → processes → requirements → capabilities → data → policies → applications, that can be modeled into an Enterprise ERM to supports audits and impact analysis. 
+
+- **Executable outputs:** when used with Archailign, it seemlessly generates architecture models (ArchiMate), policy bundles (e.g., OPA/Rego), APIs/config, and Architecture-as-Code / Infrastructure-as-Code artefacts attached to projects.
+
+Policy-aware design by linking requirements and capabilities to Policies and DataObjects, enabling governance and compliance checks to be compiled alongside functional logic.
+
+Domain portability via lexicon annexes (banking, pharma, retail, payments/KYC, insurance, MRP, public sector grants, aviation/MRO, adtech), each with actors, entities, verbs, and example rules.
+
+# How it works (at a glance) #
+- **Dictionary & Grammar:** A versioned Enterprise Business Lexicon and reserved keywords/verbs constrain phrasing and semantics (e.g., ECA: ON… WHEN… THEN…; temporal: BEFORE/WITHIN/BY).
+
+- **Parsing & Validation:** ANTLR parses BimL; semantic rules (units, undefined symbols, modality) ensure the creation of compliant, compilable, and consistent EBL DSL.
+
+- **Model Binding:** Statements bind to the ERM (Goals, Objectives, Processes, Requirements, Capabilities, DataObjects, Policies, Applications, Platforms), preserving links for traceability and reporting. 
+
+- **Code Generation:** Compilers emit ArchiMate models, policy code, and AaC/IaC artefacts for each Project (fields are provided to store outputs).
+
+# What's different #
+- **Human-readable, machine-verifiable:** business-friendly syntax with developer-grade determinism. 
+
+- **Compliance by construction**: requirements, data, and policies are linked and enforceable at compile and runtime. 
+
+- **Architecture-aligned:** cross-walk to enterprise models (e.g., ArchiMate) with dictionary-driven consistency. Fits comfortably alongside TOGAF/Zachman practice.
+
+- **In summary:** BimL turns human-written requirements into standardised, validated EBL that compiles to policy-aware architecture and infrastructure artefacts—closing the loop between intent and implementation.
 
 ### Key Features
 
@@ -31,6 +62,8 @@
 | **Domain Experts** | Limited ability to customize business language | Extensible dictionary system tailored to industry terminology |
 
 ## Quick Start
+
+**New to EBL?** → See the [**Getting Started Guide**](GETTING_STARTED.md) for a comprehensive tutorial with examples!
 
 ### Prerequisites
 
@@ -61,10 +94,14 @@ mvn antlr4:antlr4
 
 ```bash
 # Validate an EBL file
-python ebl_validator.py examples/MortgageLoanApplication.ebl
+cd EBL_v0.85
+python ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
 
 # View example files
 ls examples/
+
+# Run all tests
+mvn test
 ```
 
 ## Project Structure
@@ -189,13 +226,15 @@ Entity Applicant {
 
 ## Documentation
 
+### Getting Started
+- **[GETTING_STARTED.md](GETTING_STARTED.md)** - 📘 Comprehensive tutorial with real examples
+- [HOWTO.md](EBL_v0.85/HOWTO.md) - Quick reference for commands and tools
+
+### Reference Documentation
 - [CHANGELOG.md](EBL_v0.85/CHANGELOG.md) - Version history and updates
-- [HOWTO.md](EBL_v0.85/HOWTO.md) - Detailed usage instructions
-- [overview-guide.md](EBL_v0.85/overview-guide.md) - Architecture and design overview
+- [BimL-EBL.md](docs/BimL-EBL.md) - BimL architecture and design overview
 - [ebl-classes.md](docs/ebl-classes.md) - EBL class reference
-- [business_lexicon_ebl_requirements.md](docs/business_lexicon_ebl_requirements.md) - Requirements specification
-- [EBL_ERM_Documentation.markdown](docs/EBL_ERM_Documentation.markdown) - Entity-Relationship Model documentation
-- [ERM_Schema.txt](docs/ERM_Schema.txt) - ERM schema definition
+- [EBL-Lexicon.md](docs/EBL-Lexicon.md) - Enterprise Business Lexicon specification
 
 ## Use Cases
 

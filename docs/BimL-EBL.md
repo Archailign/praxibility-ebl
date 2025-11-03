@@ -28,10 +28,10 @@ BimL is aimed at **business analysts, business and Product Owners, Developer, Ar
 
 BimL is built on the principle of **Flexibility** and **Precision**. Its core features enable rapid domain adaptation and high-fidelity translation of business logic.
 
-*   **Domain Adaptability**: The language supports customisable grammar, verbs, and clauses, allowing it to be rapidly adapted to specific business verticals (e.g., finance, healthcare, logistics).
-*   **Unified Syntax**: Defines business processes, data objects, and governance policies in a single, coherent syntax.
-*   **Stakeholder Alignment**: Enables non-technical stakeholders to articulate requirements clearly while maintaining the technical precision required by developers.
-*   **Open Source Advantage**: Developed as an open-source platform, encouraging community contributions, transparency, and widespread adoption.
+* **Domain Adaptability**: The language supports customisable grammar, verbs, and clauses, allowing it to be rapidly adapted to specific business verticals (e.g., finance, healthcare, logistics).
+* **Unified Syntax**: Defines business processes, data objects, and governance policies in a single, coherent syntax.
+* **Stakeholder Alignment**: Enables non-technical stakeholders to articulate requirements clearly while maintaining the technical precision required by developers.
+* **Open Source Advantage**: Developed as an open-source platform, encouraging community contributions, transparency, and widespread adoption.
 
 ---
 
@@ -63,8 +63,8 @@ To get started with BimL, follow these steps.
 
 ### Prerequisites
 
-*   [Java Development Kit (JDK) 11 or higher](https://www.oracle.com/java/technologies/javase-downloads.html)
-*   [Maven](https://maven.apache.org/download.cgi) (for building the compiler)
+* [Java Development Kit (JDK) 11 or higher](https://www.oracle.com/java/technologies/javase-downloads.html)
+* [Maven](https://maven.apache.org/download.cgi) (for building the compiler)
 
 ### 1. Clone the Repository
 
@@ -108,13 +108,13 @@ We welcome contributions from the community! BimL is an open-source project, and
 
 ### How to Contribute
 
-1.  **Fork** the repository.
-2.  **Clone** your fork: `git clone https://github.com/your-username/biml.git`
-3.  Create a new **branch** for your feature or fix: `git checkout -b feature/my-new-feature`
-4.  Make your changes and ensure all tests pass.
-5.  **Commit** your changes: `git commit -m 'feat: Add new feature for X'`
-6.  **Push** to the branch: `git push origin feature/my-new-feature`
-7.  Open a **Pull Request** against the `main` branch of the original repository.
+1. **Fork** the repository.
+2. **Clone** your fork: `git clone https://github.com/your-username/biml.git`
+3. Create a new **branch** for your feature or fix: `git checkout -b feature/my-new-feature`
+4. Make your changes and ensure all tests pass.
+5. **Commit** your changes: `git commit -m 'feat: Add new feature for X'`
+6. **Push** to the branch: `git push origin feature/my-new-feature`
+7. Open a **Pull Request** against the `main` branch of the original repository.
 
 Please refer to the `CONTRIBUTING.md` file (to be created) for detailed guidelines on coding standards and submission process.
 

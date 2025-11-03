@@ -1,7 +1,6 @@
-# EBL Toolchain v1.3.0 — HOWTO (Backward-compatible with 1.2.x)
+# EBL Toolchain v0.85 — HOWTO
 
-**Compatibility:** Grammar unchanged from v1.2.9 → v1.3.0. All new checks are *non-breaking* warnings except:
-- Existing errors retained (missing dataRef, DO without Policies/Resources, enum default ∉ values, min>max).
+**Initial Open Source Release** - This version includes all core features, validators, and domain dictionaries.
 
 ## Generate Parsers
 curl -LO https://www.antlr.org/download/antlr-4.13.1-complete.jar
@@ -10,16 +9,17 @@ java -jar antlr-4.13.1-complete.jar -Dlanguage=Python3 -visitor -listener -o gen
 
 ## Validate (Java)
 mvn -q -DskipTests package
-java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator EBL_Dictionary_v1.3.0.json examples/Insurance_Subrogation_Counterparty.ebl
+java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator EBL_Dictionary_v0.85.json examples/Insurance_Subrogation_Counterparty.ebl
 
 ## Validate (Python)
 python3 -m pip install -q antlr4-python3-runtime pytest
-PYTHONPATH=generated-src/python python3 ebl_validator.py EBL_Dictionary_v1.3.0.json examples/KYC_Verb_NeverPermitted.ebl
+PYTHONPATH=generated-src/python python3 ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Verb_NeverPermitted.ebl
 
-## What’s new for authors
-- **KYC doc types:** `EU_EIDAS`, `AU`, `NZ`, `AE`, `SA`, `QA`, `KW` added to `docTypesByJurisdiction`.
-- **Insurance subrogation:** new example **Subrogation vs ThirdParty** using `subrogates_against` relationship.
-- **Lint:** warnings for **unused actors** in a process and **verbs never permitted** by any actor in domain whitelist.
+## Features
+- **Multi-domain support:** AdTech, Healthcare, Insurance, Finance/Payments, KYC, Logistics, Retail, IT/Infrastructure
+- **Comprehensive validation:** Action checks, relationship validation, permission inference
+- **Extensible dictionaries:** JSON/YAML format with actor/verb whitelists and data permissions
+- **Example-driven:** 15+ real-world EBL files demonstrating various domain patterns
 
 ## Tests
 mvn -q test
@@ -43,4 +43,4 @@ java -jar antlr-4.13.1-complete.jar -Dlanguage=Python3 -visitor -listener -o gen
 PYTHONPATH=generated-src/python pytest -q
 
 # Manual validation example:
-PYTHONPATH=generated-src/python python3 ebl_validator.py EBL_Dictionary_v1.3.1.json examples/AdTech_Dynamic_Marketing_Cycle_Full.ebl
+PYTHONPATH=generated-src/python python3 ebl_validator.py EBL_Dictionary_v0.85.json examples/AdTech_Dynamic_Marketing_Cycle_Full.ebl

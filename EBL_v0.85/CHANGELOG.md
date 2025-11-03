@@ -27,39 +27,39 @@ This is the first public release of Enterprise Business Language (EBL) under Apa
 15+ real-world EBL examples across all supported domains
 
 ### Previous Development History
-- v1.2.5: added verbPermissions; ensured Java files included.
+- v0.7: added verbPermissions; ensured Java files included.
 
-## v1.2.6
+## v0.84
 - **Dictionary**: merged domains (retail, logistics, payments, healthcare, afc) + IT meta-domain; verbPermissions & relationshipTypes.
 - **Grammar**: added `Relationship` and `ITAsset` constructs.
 - **Validators**: full action checks (actor/verb whitelist + R/W permissions) + relationship checks (unknown names, type whitelist, hosted_on governance hint).
 - **CI**: GitHub Actions to generate Java/Python ANTLR targets.
 - **Examples**: 5 domain examples + 2 IT examples (placeholders here).
 
-## v1.2.7
+## v0.83
 - ERM-aligned updates (Risk/Control/Metric/SLA, SoD/Traceability).
 
-## v1.2.7 (Full Toolchain)
+## v0.8.2 (Full Toolchain)
 - Merged domains (retail, logistics, payments, healthcare, afc, it) with ERM objects.
 - Grammar supports Relationship endpoints as Actor/Entity/ITAsset.
 - Java/Python validators implement action permission inference + relationship hygiene (name/type/hosted_on governance hint).
 - CI workflow generates Java/Python ANTLR targets.
 
-## v1.2.8
+## v0.81
 - Added **Insurance** and **KYC** domain packs (actors, verbs, DataObjects, permissions).
 - **Validators**: new optional checks
   - Warn on **reserved keyword** misuse inside free-text (Validation, Rule.Trigger/Description, Report.Query).
   - **Enum** default value must be a member of the declared `values` set for Entity properties.
 - CI: runs ANTLR generation + Maven & Gradle builds + Python pytest; publishes artifacts.
 
-## v1.2.9
+## v0.8
 - Insurance: Fraud & Subrogation actors/verbs/data; example added.
 - KYC: Jurisdictional document types (US/UK/DE/IN) & rules DO; example added.
 - Validators: numeric `min`/`max` on DataObject fields; Enum field must specify `values=` (warn); retain reserved-keyword warnings, enum default checks, relationship & permission lint.
 - CI/HOWTO updated.
 
-## v1.3.0
-- **Backward-compatible**: grammar unchanged from v1.2.9; all new rules are warnings (non-breaking).
+## v0.79
+- **Backward-compatible**: grammar unchanged from v0.7; all new rules are warnings (non-breaking).
 - **Dictionary**: 
   - KYC: extended `docTypesByJurisdiction` with EU_EIDAS, AU, NZ, AE, SA, QA, KW.
   - Insurance: reinforced subrogation objects; kept `subrogates_against` relationship type.
