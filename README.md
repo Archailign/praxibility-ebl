@@ -108,57 +108,87 @@ mvn test
 
 ```
 praxibility-ebl/
-├── README.md                          # This file
+├── README.md                          # Project overview and documentation
+├── GETTING_STARTED.md                 # 📘 Comprehensive tutorial with examples
 ├── LICENSE                            # Apache 2.0 License
 ├── CONTRIBUTING.md                    # Contribution guidelines
 ├── CODE_OF_CONDUCT.md                 # Code of Conduct
 ├── .gitignore                         # Git ignore rules
-├── docs/                              # Documentation
-│   ├── business_lexicon_ebl_requirements.md
-│   ├── business-req-sample.md
-│   ├── EBL_ERM_Documentation.markdown
-│   ├── ebl-classes.md                # EBL class documentation
-│   ├── entity_relationship_model.txt # ERM documentation
-│   ├── ERM_Schema.txt                # Entity relationship schema
-│   ├── BimL_ The Enterprise Business Language (EBL).md
-│   └── prompt-studio.md
-└── EBL_v0.85/                        # Current version
-    ├── src/main/antlr4/
-    │   └── EBL.g4                    # ANTLR grammar definition
-    ├── src/main/java/                # Java source code
-    │   └── org/example/ebl/
-    │       ├── EBLSemanticValidator.java
-    │       └── EBLDictionarySymbols.java
-    ├── src/test/java/                # Java tests
-    │   └── org/example/ebl/
-    │       ├── ValidatorV130Test.java
-    │       └── AdTechValidatorTest.java
-    ├── EBL_Dictionary_v0.85.json     # Core domain dictionary
-    ├── EBL_Dictionary_v0.85_all.json # Extended multi-domain dictionary
-    ├── EBL_Dictionary_v0.85.yaml     # YAML format dictionaries
-    ├── EBL_Dictionary_v0.85_all.yaml
-    ├── ebl_validator.py              # Python validator
-    ├── pom.xml                       # Maven build configuration
-    ├── build.gradle.kts              # Gradle build configuration
-    ├── CHANGELOG.md                  # Version history
-    ├── HOWTO.md                      # Detailed usage guide
-    ├── overview-guide.md             # Architecture overview
-    ├── examples/                     # Domain-specific examples
+│
+├── docs/                              # Reference Documentation
+│   ├── BimL-EBL.md                   # BimL architecture and design
+│   ├── ebl-classes.md                # EBL class reference
+│   └── EBL-Lexicon.md                # Enterprise Business Lexicon specification
+│
+└── EBL_v0.85/                        # Current version (v0.85)
+    │
+    ├── CHANGELOG.md                  # Version history and release notes
+    ├── HOWTO.md                      # Quick reference for commands
+    │
+    ├── .github/
+    │   └── workflows/
+    │       └── build-ebl.yml         # GitHub Actions CI/CD workflow
+    │
+    ├── src/
+    │   ├── main/
+    │   │   ├── antlr4/
+    │   │   │   └── EBL.g4           # ANTLR4 grammar definition
+    │   │   └── java/
+    │   │       └── org/example/ebl/
+    │   │           ├── EBLSemanticValidator.java
+    │   │           └── EBLDictionarySymbols.java
+    │   └── test/
+    │       └── java/
+    │           └── org/example/ebl/
+    │               ├── ValidatorV130Test.java
+    │               └── AdTechValidatorTest.java
+    │
+    ├── examples/                     # 17 domain-specific EBL files
     │   ├── AdCampaignManagement.ebl
     │   ├── AdTech_Dynamic_Marketing_Cycle_Full.ebl
+    │   ├── AFC_Fraud_SAR.ebl
     │   ├── Healthcare_PatientIntake.ebl
     │   ├── Insurance_ClaimLifecycle.ebl
+    │   ├── Insurance_Subrogation_Counterparty.ebl
     │   ├── IT_Application_Onboarding.ebl
+    │   ├── IT_Topology_Relationships.ebl
     │   ├── KYC_Onboarding.ebl
+    │   ├── KYC_Verb_NeverPermitted.ebl
     │   ├── Logistics_Tracking.ebl
     │   ├── Payments_Screening.ebl
     │   ├── Retail_Order_Inventory.ebl
-    │   └── ...
-    ├── generated-src/                # ANTLR-generated parsers
-    │   ├── java/
-    │   └── python/
-    └── tests/                        # Test suites
+    │   └── ... (+ 4 .txt placeholders)
+    │
+    ├── tests/                        # Python test suites
+    │   ├── test_adtech_full.py
+    │   └── test_v130.py
+    │
+    ├── generated-src/                # ANTLR-generated parsers (post-build)
+    │   ├── java/                     # Java parser output
+    │   └── python/                   # Python parser output
+    │
+    ├── EBL_Dictionary_v0.85.json     # Core domain dictionary
+    ├── EBL_Dictionary_v0.85_all.json # Extended multi-domain dictionary
+    ├── EBL_Dictionary_v0.85.yaml     # YAML format (core)
+    ├── EBL_Dictionary_v0.85_all.yaml # YAML format (extended)
+    │
+    ├── ebl_validator.py              # Python validator script
+    ├── pom.xml                       # Maven build configuration
+    └── build.gradle.kts              # Gradle build configuration
 ```
+
+### Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `src/main/antlr4/` | ANTLR4 grammar file (EBL.g4) |
+| `src/main/java/` | Java semantic validators and symbol loaders |
+| `src/test/java/` | Java unit tests for validators |
+| `examples/` | Real-world EBL specifications across 8 domains |
+| `tests/` | Python test suites using pytest |
+| `generated-src/` | ANTLR-generated parsers (created during build) |
+| `docs/` | Architecture documentation and lexicon specs |
+| `.github/workflows/` | CI/CD automation with GitHub Actions |
 
 ## Language Features
 

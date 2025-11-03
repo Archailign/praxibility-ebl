@@ -331,18 +331,86 @@ PYTHONPATH=generated-src/python pytest -q
 
 EBL uses **ANTLR4** for parsing. The grammar is defined in `EBL_v0.85/src/main/antlr4/EBL.g4`.
 
-### Key Grammar Rules
+### ANTLR4 Grammar Basics
+
+ANTLR (ANother Tool for Language Recognition) is a powerful parser generator. Here's what you need to know:
+
+#### Grammar File Structure
 
 ```antlr
-// Top-level structure
-eblDefinition:
-  metadata
-  dataObject+
-  entity+
-  (itAsset | process | ruleDef | relationshipDef | report | integration)*
-  EOF;
+grammar EBL;  // Grammar declaration
 
-// DataObject definition
+// Parser rules (lowercase)
+// Define the structure of your language
+
+// Lexer rules (UPPERCASE)
+// Define the tokens (keywords, identifiers, literals)
+```
+
+#### Parser Rules vs Lexer Rules
+
+**Parser Rules** (start with lowercase) define syntax structure:
+```antlr
+// Parser rule: defines WHAT can appear WHERE
+dataObject:
+  'DataObject' IDENTIFIER '{' NL+
+    'Schema' ':' NL+ fieldDef+
+    'Policies' ':' NL+ policyDef+
+  '}';
+```
+
+**Lexer Rules** (start with UPPERCASE) define tokens:
+```antlr
+// Lexer rules: define HOW tokens look
+IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;  // e.g., myVar, DataObject1
+NUMBER: [0-9]+ ('.' [0-9]+)?;         // e.g., 42, 3.14
+STRING: '"' (~["\r\n])* '"';          // e.g., "hello world"
+```
+
+#### Common ANTLR Operators
+
+| Operator | Meaning | Example |
+|----------|---------|---------|
+| `+` | One or more | `fieldDef+` (at least one field) |
+| `*` | Zero or more | `step*` (optional steps) |
+| `?` | Optional (zero or one) | `('Rules' ':' NL+ ruleStatement+)?` |
+| `\|` | Alternative (OR) | `'Application'\|'System'\|'Platform'` |
+| `( )` | Grouping | `(itAsset \| process)*` |
+| `[ ]` | Character class | `[a-zA-Z]` (any letter) |
+| `~` | Negation | `~["\r\n]` (anything except quotes/newlines) |
+
+#### Special Directives
+
+```antlr
+WS: [ \t]+ -> skip;              // Skip whitespace
+LINE_COMMENT: '//' ~[\r\n]* -> skip;  // Skip comments
+EOF                              // End of file marker
+```
+
+### EBL Grammar Structure
+
+The complete EBL grammar defines the following hierarchy:
+
+```antlr
+grammar EBL;
+
+// Top-level: An EBL file must have metadata, DataObjects, Entities, and optional constructs
+eblDefinition:
+  metadata                // Metadata block (required)
+  dataObject+             // One or more DataObjects (required)
+  entity+                 // One or more Entities (required)
+  (itAsset | process | ruleDef | relationshipDef | report | integration)*  // Optional
+  EOF;                    // End of file
+
+// Metadata: Key-value pairs describing the specification
+metadata:
+  'Metadata' ':' NL+
+  (metadataField NL+)*;
+
+metadataField:
+  IDENTIFIER ':' value;   // e.g., Domain: kyc
+
+// DataObject: Defines data schema, policies, and resources
 dataObject:
   'DataObject' IDENTIFIER '{' NL+
     'Schema' ':' NL+ fieldDef+
@@ -351,7 +419,19 @@ dataObject:
     'erMap' ':' IDENTIFIER NL+
   '}';
 
-// Process definition
+fieldDef:
+  IDENTIFIER ':' type (',' fieldAttr)* NL+;
+
+// Entity: Business entity with properties and rules
+entity:
+  'Entity' IDENTIFIER '{' NL+
+    'dataRef' ':' IDENTIFIER NL+           // Must reference a DataObject
+    'Properties' ':' NL+ property+
+    ('Rules' ':' NL+ ruleStatement+)?      // Rules are optional
+    'erMap' ':' IDENTIFIER NL+
+  '}';
+
+// Process: Business workflow with actors and steps
 process:
   'Process' IDENTIFIER '{' NL+
     'Description' ':' STRING NL+
@@ -360,14 +440,146 @@ process:
     'Actors' ':' '[' IDENTIFIER (',' IDENTIFIER)* ']' NL+
     'erMap' ':' IDENTIFIER NL+
     'Starts With' ':' event NL+
-    step+
+    step+                                   // One or more steps
     'Ends With' ':' event NL+
   '}';
 
-// Core types
-type: 'UUID' | 'String' | 'Integer' | 'Currency' | 'Ratio' |
-      'Date' | 'Enum' | 'JSON' | 'Boolean';
+step:
+  'Step' IDENTIFIER '{' NL+
+    ('Inputs' ':' NL+ inputItem+)?         // Optional inputs
+    ('Validation' ':' NL+ validation+)?    // Optional validation
+    ('Actions' ':' NL+ action+)?           // Optional actions
+  '}';
+
+// Core data types
+type:
+  'UUID' | 'String' | 'Integer' | 'Currency' | 'Ratio' |
+  'Date' | 'Enum' | 'JSON' | 'Boolean';
+
+// Lexer rules (tokens)
+IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
+STRING: '"' (~["\r\n])* '"';
+NUMBER: [0-9]+ ('.' [0-9]+)?;
+BOOLEAN: 'true' | 'false';
+UUID: [0-9a-fA-F]{8} '-' [0-9a-fA-F]{4} '-' [0-9a-fA-F]{4} '-'
+      [0-9a-fA-F]{4} '-' [0-9a-fA-F]{12};
+DATE: [0-9]{4} '-' [0-9]{2} '-' [0-9]{2};
+
+// Whitespace and comments
+NL: ('\r'? '\n')+;                        // Newline (significant in EBL)
+WS: [ \t]+ -> skip;                        // Skip spaces and tabs
+LINE_COMMENT: '//' ~[\r\n]* -> skip;       // Skip // comments
+BLOCK_COMMENT: '/*' .*? '*/' -> skip;      // Skip /* */ comments
 ```
+
+### How ANTLR Processes EBL
+
+```mermaid
+graph LR
+    A[EBL File] --> B[Lexer]
+    B --> C[Token Stream]
+    C --> D[Parser]
+    D --> E[Parse Tree]
+    E --> F[Validator]
+    F --> G{Valid?}
+    G -->|Yes| H[Generate Output]
+    G -->|No| I[Error Report]
+```
+
+1. **Lexer** breaks input into tokens (IDENTIFIER, STRING, etc.)
+2. **Parser** builds a parse tree following grammar rules
+3. **Validator** checks semantic rules (actor permissions, dataRef integrity)
+4. **Generator** produces output (ArchiMate, policies, code)
+
+### Example: Parsing a DataObject
+
+Given this EBL input:
+```ebl
+DataObject DO_User {
+  Schema:
+    userId: UUID, required
+    name: String, required
+  Policies:
+    - "PII encrypted at rest"
+  Resources:
+    Input: { Channel: API, Protocol: HTTPS, ... }
+    Output: { Channel: Database, Protocol: SQL, ... }
+  erMap: User
+}
+```
+
+ANTLR generates this parse tree:
+```
+dataObject
+├── 'DataObject'
+├── IDENTIFIER: "DO_User"
+├── '{'
+├── 'Schema' ':' NL
+├── fieldDef
+│   ├── IDENTIFIER: "userId"
+│   ├── ':'
+│   ├── type: 'UUID'
+│   ├── ','
+│   ├── fieldAttr: 'required'
+├── fieldDef
+│   ├── IDENTIFIER: "name"
+│   ├── ':'
+│   ├── type: 'String'
+│   ├── ','
+│   ├── fieldAttr: 'required'
+├── 'Policies' ':' NL
+├── policyDef: "PII encrypted at rest"
+├── ...
+└── '}'
+```
+
+### Grammar Testing Tools
+
+Test the EBL grammar interactively:
+
+```bash
+# Download ANTLR TestRig (grun)
+alias grun='java -cp antlr-4.13.1-complete.jar org.antlr.v4.gui.TestRig'
+
+# Generate parsers
+java -jar antlr-4.13.1-complete.jar EBL.g4
+
+# Test with TestRig
+grun EBL eblDefinition -gui < examples/KYC_Onboarding.ebl
+# Opens a GUI showing the parse tree
+
+# Or print tokens
+grun EBL eblDefinition -tokens < examples/KYC_Onboarding.ebl
+```
+
+### Modifying the Grammar
+
+To extend EBL with new constructs:
+
+1. **Add parser rule** (lowercase):
+```antlr
+// Add a new Workflow construct
+workflow:
+  'Workflow' IDENTIFIER '{' NL+
+    'Description' ':' STRING NL+
+    'Steps' ':' NL+ workflowStep+
+  '}';
+```
+
+2. **Update top-level rule**:
+```antlr
+eblDefinition:
+  metadata dataObject+ entity+
+  (itAsset | process | workflow | ruleDef)*  // Add workflow here
+  EOF;
+```
+
+3. **Regenerate parsers**:
+```bash
+mvn antlr4:antlr4
+```
+
+4. **Update validators** to handle new construct
 
 ---
 
