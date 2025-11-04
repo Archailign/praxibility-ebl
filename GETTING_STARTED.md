@@ -27,7 +27,7 @@ flowchart TD
 - ✅ **Compilable**: Generates architecture models, policies, and code
 - ✅ **Traceable**: Links requirements to data, processes, capabilities, and policies
 
-**BimL (Business Intelligence Modelling Language)** is Praxibility's implementation of EBL, enabling seamless generation of ArchiMate models, policy bundles (OPA/Rego), and Architecture-as-Code artifacts.
+**Archailign EBL** is Praxibility's implementation of a ubiquitous EBL, enabling seamless generation of architecture models (Archimate), policy bundles (OPA/Rego), Infrastructure as Code (IaC) and Architecture-as-Code (AaC) artifacts.
 
 ---
 
@@ -666,7 +666,7 @@ cat examples/AFC_Fraud_SAR.ebl
 ### IT Infrastructure Examples
 ```bash
 cat examples/IT_Application_Onboarding.ebl
-cat examples/IT_Topology_Relationships.ebl
+cat examples/IT-TopologyRelationships.ebl
 ```
 
 ### Logistics Examples
@@ -825,9 +825,10 @@ EBL is ideal for:
 ## Next Steps
 
 ### 📚 Learn More
-- Read [BimL-EBL.md](docs/BimL-EBL.md) for architecture overview
+- Read [ebl-overview.md](docs/ebl-overview.md) for architecture overview
 - Explore [ebl-classes.md](docs/ebl-classes.md) for class reference
-- Review [EBL-Lexicon.md](docs/EBL-Lexicon.md) for lexicon specification
+- Review [ebl-Lexicon.md](docs/ebl-Lexicon.md) for lexicon specification
+- Examine [data_model/](docs/data_model/) for ERM schemas and traceability models
 
 ### 🛠️ Development
 - Review [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines

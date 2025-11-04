@@ -1,6 +1,5 @@
-```
 # Enterprise Business Language (EBL) Definition
-# Version: 1.1.0
+# Version: 0.85
 # License: Apache-2.0
 # Author: OpenEBL Community
 # Description: EBL definition for inventory replenishment in retail CG & FMCG
@@ -11,8 +10,8 @@ Metadata:
   EBLClass: InventoryManagement
   RequirementID: REQ-RETAIL-001
   ProjectID: PRJ-RETAIL-001
-  CreatedAt: 2025-08-08
-  UpdatedAt: 2025-08-08
+  CreatedAt: 2025-01-03
+  UpdatedAt: 2025-01-03
 
 Entity Product {
   Properties:
@@ -104,4 +103,3 @@ Integration SupplyChainSystem {
     - Notify SupplyChainTeam
   erMap: Application
 }
-```

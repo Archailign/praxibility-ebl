@@ -1,1 +1,62 @@
-// Retail example placeholder compatible with v1.2.6
+Metadata:
+  Domain: retail
+  Owner: Merchandising
+  Version: 0.85
+
+DataObject DO_InventorySnapshot {
+  Schema:
+    Sku: String, required
+    OnHand: Integer
+    Location: String
+  Policies:
+    - "Inventory snapshots retained 90 days"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://retail/inventory", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://retail/inventory", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: InventorySnapshot
+}
+
+DataObject DO_OrderHeader {
+  Schema:
+    OrderId: UUID, required, unique
+    CustomerId: UUID
+    Status: Enum, values=["New","Allocated","Packed","Shipped","Returned"]
+  Policies:
+    - "Order changes audited 7 years"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://retail/orders", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://retail/orders", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: OrderHeader
+}
+
+Entity Order {
+  dataRef: DO_OrderHeader
+  Properties:
+    OrderId: { type: UUID, required: true, unique: true }
+    Status: { type: Enum, values: ["New","Allocated","Packed","Shipped","Returned"], default: "New" }
+  erMap: Order
+}
+
+Process RetailFulfilment {
+  Description: "Allocate, pick, pack, and ship order"
+  ObjectiveID: RET1
+  BusinessGoalID: OPS1
+  Actors: [WarehouseManager, Picker, Packer, Courier]
+  erMap: Fulfilment
+  Starts With: Event OrderCreated(Order)
+
+  Step Allocate {
+    Actions:
+      - WarehouseManager Allocate inventory via DO_InventorySnapshot Output
+      - WarehouseManager UpdateStatus via DO_OrderHeader Input
+  }
+
+  Step PickPackShip {
+    Actions:
+      - Picker Pick items for Order via DO_InventorySnapshot Output
+      - Packer Pack Order via DO_OrderHeader Input
+      - Courier Ship Order via DO_OrderHeader Output
+  }
+
+  Ends With: Event OrderShipped(Order)
+}

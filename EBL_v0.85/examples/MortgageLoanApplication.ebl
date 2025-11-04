@@ -1,6 +1,5 @@
-```
 # Enterprise Business Language (EBL) Definition
-# Version: 1.1.0
+# Version: 0.85
 # License: Apache-2.0
 # Author: OpenEBL Community
 # Description: EBL definition for mortgage loan application process in banking
@@ -11,8 +10,8 @@ Metadata:
   EBLClass: MortgageProcessing
   RequirementID: REQ-BAIN-001
   ProjectID: PRJ-BAIN-001
-  CreatedAt: 2025-08-08
-  UpdatedAt: 2025-08-08
+  CreatedAt: 2025-01-03
+  UpdatedAt: 2025-01-03
 
 Entity LoanApplicant {
   Properties:
@@ -117,4 +116,3 @@ Integration CoreBankingSystem {
     - Notify RiskManagementTeam
   erMap: Application
 }
-```

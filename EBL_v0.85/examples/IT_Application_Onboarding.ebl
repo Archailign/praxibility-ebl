@@ -1,1 +1,48 @@
-// IT onboarding example placeholder compatible with v1.2.6
+Metadata:
+  Domain: it
+  Owner: EnterpriseArchitecture
+  Version: 0.85
+
+DataObject DO_ApplicationCatalog {
+  Schema:
+    AppId: UUID, required, unique
+    Name: String, required
+    Owner: String, required
+  Policies:
+    - "Catalog entries must be approved by EnterpriseArchitect"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://it/catalog/apps", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://it/catalog/query", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: ApplicationCatalog
+}
+
+Entity Application {
+  dataRef: DO_ApplicationCatalog
+  Properties:
+    AppId: { type: UUID, required: true, unique: true }
+    Name: { type: String, required: true }
+    Owner: { type: String, required: true }
+  erMap: Application
+}
+
+Process ApplicationOnboarding {
+  Description: "Register and monitor app"
+  ObjectiveID: IT1
+  BusinessGoalID: GOV1
+  Actors: [ApplicationOwner, DevOpsEngineer, PlatformAdmin]
+  erMap: AppOnboarding
+
+  Starts With: Event IntakeReceived(Application)
+
+  Step Register {
+    Actions:
+      - ApplicationOwner Register new record via DO_ApplicationCatalog Input
+  }
+
+  Step Monitor {
+    Actions:
+      - DevOpsEngineer Monitor Application via DO_ApplicationCatalog Output
+  }
+
+  Ends With: Event ApplicationRegistered(Application)
+}

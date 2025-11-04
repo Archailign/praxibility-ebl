@@ -1,6 +1,5 @@
-```
 # Enterprise Business Language (EBL) Definition
-# Version: 1.1.0
+# Version: 0.85
 # License: Apache-2.0
 # Author: OpenEBL Community
 # Description: EBL definition for clinical trial enrollment in pharmaceutical industry
@@ -11,8 +10,8 @@ Metadata:
   EBLClass: ClinicalTrialManagement
   RequirementID: REQ-PHARMA-001
   ProjectID: PRJ-PHARMA-001
-  CreatedAt: 2025-08-08
-  UpdatedAt: 2025-08-08
+  CreatedAt: 2025-01-03
+  UpdatedAt: 2025-01-03
 
 Entity Participant {
   Properties:
@@ -112,4 +111,3 @@ Integration ClinicalDataRegistry {
     - Notify ComplianceTeam
   erMap: Application
 }
-```

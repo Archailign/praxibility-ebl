@@ -1,1 +1,43 @@
-// Healthcare example placeholder compatible with v1.2.6
+Metadata:
+  Domain: healthcare
+  Owner: ClinicalOps
+  Version: 0.85
+
+DataObject DO_PatientFHIR {
+  Schema:
+    PatientId: UUID, required, unique
+    Name: String
+    DOB: Date
+  Policies:
+    - "HIPAA: PHI access logged"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ehr/patient", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ehr/patient", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+  erMap: PatientFHIR
+}
+
+Entity Patient {
+  dataRef: DO_PatientFHIR
+  Properties:
+    PatientId: { type: UUID, required: true, unique: true }
+    Name: { type: String, required: true }
+  erMap: Patient
+}
+
+Process PatientIntake {
+  Description: "Register patient and verify eligibility"
+  ObjectiveID: HC1
+  BusinessGoalID: OPS1
+  Actors: [Registrar, Provider, ComplianceOfficer]
+  erMap: Intake
+
+  Starts With: Event Arrival(Patient)
+
+  Step Register {
+    Actions:
+      - Registrar Register patient via DO_PatientFHIR Input
+      - ComplianceOfficer Verify eligibility via DO_PatientFHIR Output
+  }
+
+  Ends With: Event PatientRegistered(Patient)
+}

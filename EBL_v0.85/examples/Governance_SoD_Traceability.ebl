@@ -1,0 +1,66 @@
+Metadata:
+  Domain: payments
+  Owner: Compliance
+  Version: 0.85
+
+DataObject DO_RiskRegister {
+  Schema:
+    RiskId: UUID, required, unique
+    Name: String, required
+    RiskScore: Integer
+  Policies:
+    - "Risk entries must be reviewed quarterly"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://gov/risk", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://gov/risk", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: RiskRegister
+}
+
+DataObject DO_TransactionLedger {
+  Schema:
+    TxnId: UUID, required, unique
+    Amount: Currency
+    Status: Enum, values=["Pending","Settled","Refunded"]
+  Policies:
+    - "Ledger is immutable after settlement"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://core/ledger", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://core/ledger", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: TransactionLedger
+}
+
+Entity Transaction {
+  dataRef: DO_TransactionLedger
+  Properties:
+    TxnId: { type: UUID, required: true, unique: true }
+    Amount: { type: Currency, required: true }
+    Status: { type: Enum, values: ["Pending","Settled","Refunded"], default: "Pending" }
+  erMap: Txn
+}
+
+Process PaymentSettlement {
+  Description: "Approve and settle transaction with SoD"
+  ObjectiveID: PAY1
+  BusinessGoalID: GOV1
+  Actors: [PaymentProcessor, ComplianceOfficer, DisbursementOfficer]
+  erMap: ProcSettle
+  Starts With: Event TxnReady(Transaction)
+
+  Step Approval {
+    Actions:
+      - ComplianceOfficer Approve via DO_RiskRegister Output
+  }
+
+  Step Disbursement {
+    Actions:
+      - DisbursementOfficer Settle via DO_TransactionLedger Input
+  }
+
+  Ends With: Event TxnSettled(Transaction)
+}
+
+Relationship SoD_Approval_Disbursement {
+  From: ComplianceOfficer
+  To:   DisbursementOfficer
+  Type: segregation_of_duties
+}

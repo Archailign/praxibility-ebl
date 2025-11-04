@@ -8,12 +8,12 @@
 [![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ## Overview
-**BimL**
-BimL (Business Intelligence Modelling Language) is an Enterprise Business Language (EBL)—a domain-specific, extensible controlled language for expressing business requirements as validated, traceable, compilable artefacts. It bridges strategy and implementation by combining a curated enterprise lexicon with a formal grammar and a data/traceability model, enabling a Business analyst's natural business statements to be parsed and compiled into executable outputs.
+**Archailign EBL**
+The Enterprise Business Language (EBL)— is a domain-specific-language, extensible controlled language for expressing business requirements as validated, traceable, compilable artefacts. It bridges strategy and implementation by combining a curated enterprise lexicon with a formal grammar and a data/traceability model, enabling a Business analyst's natural business statements to be parsed and compiled into executable outputs.
 
-BimL is designed for Business Analysts, Product Owners, Developers, Architects, and CXOs, ensuring requirements aren't static documents but living, executable specifications governed by a shared dictionary and modality/temporal constructs (e.g., SHALL, MUST NOT, WITHIN, ON/WHEN/THEN). These are curated by SMEs and enforced at compile time for consistency and auditability.
+EBL is designed for Business Analysts, Product Owners, Developers, Architects, and CXOs, ensuring requirements aren't static documents but living, executable specifications governed by a shared dictionary and modality/temporal constructs (e.g., SHALL, MUST NOT, WITHIN, ON/WHEN/THEN). These are curated by SMEs and enforced at compile time for consistency and auditability.
 
-# What BimL enables #
+# What EBL enables #
 Structured, unambiguous requirements using a controlled vocabulary, sentence frames, and modalities—ready for ANTLR-based parsing and semantic checks. 
 
 End-to-end traceability from goals → objectives → processes → requirements → capabilities → data → policies → applications, that can be modeled into an Enterprise ERM to supports audits and impact analysis. 
@@ -27,7 +27,7 @@ Domain portability via lexicon annexes (banking, pharma, retail, payments/KYC, 
 # How it works (at a glance) #
 - **Dictionary & Grammar:** A versioned Enterprise Business Lexicon and reserved keywords/verbs constrain phrasing and semantics (e.g., ECA: ON… WHEN… THEN…; temporal: BEFORE/WITHIN/BY).
 
-- **Parsing & Validation:** ANTLR parses BimL; semantic rules (units, undefined symbols, modality) ensure the creation of compliant, compilable, and consistent EBL DSL.
+- **Parsing & Validation:** ANTLR parses EBL; semantic rules (units, undefined symbols, modality) ensure the creation of compliant, compilable, and consistent EBL DSL.
 
 - **Model Binding:** Statements bind to the ERM (Goals, Objectives, Processes, Requirements, Capabilities, DataObjects, Policies, Applications, Platforms), preserving links for traceability and reporting. 
 
@@ -40,7 +40,7 @@ Domain portability via lexicon annexes (banking, pharma, retail, payments/KYC, 
 
 - **Architecture-aligned:** cross-walk to enterprise models (e.g., ArchiMate) with dictionary-driven consistency. Fits comfortably alongside TOGAF/Zachman practice.
 
-- **In summary:** BimL turns human-written requirements into standardised, validated EBL that compiles to policy-aware architecture and infrastructure artefacts—closing the loop between intent and implementation.
+- **In summary:** EBL turns human-written requirements into standardised, validated EBL that compiles to policy-aware architecture and infrastructure artefacts—closing the loop between intent and implementation.
 
 ### Key Features
 
@@ -116,9 +116,12 @@ praxibility-ebl/
 ├── .gitignore                         # Git ignore rules
 │
 ├── docs/                              # Reference Documentation
-│   ├── BimL-EBL.md                   # BimL architecture and design
+│   ├── ebl-overview.md               # EBL architecture overview
 │   ├── ebl-classes.md                # EBL class reference
-│   └── EBL-Lexicon.md                # Enterprise Business Lexicon specification
+│   ├── ebl-Lexicon.md                # Enterprise Business Lexicon specification
+│   └── data_model/                   # Data model schemas
+│       ├── entity_relationship_model.txt  # UUID-based ERM schema
+│       └── erm_schema.txt            # INT-based ERM schema
 │
 └── EBL_v0.85/                        # Current version (v0.85)
     │
@@ -147,17 +150,20 @@ praxibility-ebl/
     │   ├── AdCampaignManagement.ebl
     │   ├── AdTech_Dynamic_Marketing_Cycle_Full.ebl
     │   ├── AFC_Fraud_SAR.ebl
+    │   ├── ClinicalTrialEnrollment.ebl
+    │   ├── Governance_SoD_Traceability.ebl
     │   ├── Healthcare_PatientIntake.ebl
     │   ├── Insurance_ClaimLifecycle.ebl
     │   ├── Insurance_Subrogation_Counterparty.ebl
+    │   ├── InventoryReplenishment.ebl
     │   ├── IT_Application_Onboarding.ebl
-    │   ├── IT_Topology_Relationships.ebl
+    │   ├── IT-TopologyRelationships.ebl
     │   ├── KYC_Onboarding.ebl
     │   ├── KYC_Verb_NeverPermitted.ebl
     │   ├── Logistics_Tracking.ebl
+    │   ├── MortgageLoanApplication.ebl
     │   ├── Payments_Screening.ebl
-    │   ├── Retail_Order_Inventory.ebl
-    │   └── ... (+ 4 .txt placeholders)
+    │   └── Retail_Order_Inventory.ebl
     │
     ├── tests/                        # Python test suites
     │   ├── test_adtech_full.py
@@ -262,9 +268,10 @@ Entity Applicant {
 
 ### Reference Documentation
 - [CHANGELOG.md](EBL_v0.85/CHANGELOG.md) - Version history and updates
-- [BimL-EBL.md](docs/BimL-EBL.md) - BimL architecture and design overview
+- [ebl-overview.md](docs/ebl-overview.md) - EBL architecture and design overview
 - [ebl-classes.md](docs/ebl-classes.md) - EBL class reference
-- [EBL-Lexicon.md](docs/EBL-Lexicon.md) - Enterprise Business Lexicon specification
+- [ebl-Lexicon.md](docs/ebl-Lexicon.md) - Enterprise Business Lexicon specification
+- [data_model/](docs/data_model/) - ERM schemas for traceability
 
 ## Use Cases
 

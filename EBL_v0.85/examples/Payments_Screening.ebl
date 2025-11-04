@@ -1,1 +1,57 @@
-// Payments example placeholder compatible with v1.2.6
+Metadata:
+  Domain: payments
+  Owner: Compliance
+  Version: 0.85
+
+DataObject DO_PaymentISO20022 {
+  Schema:
+    MsgId: String, required
+    Amount: Currency, required
+    Debtor: String
+    Creditor: String
+  Policies:
+    - "Retain raw messages 5 years"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/inbound", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/query",   Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: PaymentISO20022
+}
+
+DataObject DO_NameScreeningResult {
+  Schema:
+    MsgId: String, required, unique
+    RiskScore: Integer
+    HitList: JSON
+  Policies:
+    - "Positive matches escalate to manual review"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/screening", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/screening", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+  erMap: NameScreening
+}
+
+Entity Payment {
+  dataRef: DO_PaymentISO20022
+  Properties:
+    MsgId: { type: String, required: true }
+    Amount: { type: Currency, required: true }
+  erMap: Payment
+}
+
+Process NameScreening {
+  Description: "Screen payment against sanctions"
+  ObjectiveID: PAY1
+  BusinessGoalID: AFC1
+  Actors: [PaymentProcessor, ComplianceOfficer, RiskAnalyst]
+  erMap: ScreenProc
+  Starts With: Event PaymentReceived(Payment)
+
+  Step Screen {
+    Actions:
+      - PaymentProcessor Invoke screening via DO_PaymentISO20022 Output
+      - ComplianceOfficer Screen names via DO_PaymentISO20022 Output
+      - ComplianceOfficer Approve via DO_NameScreeningResult Input
+  }
+
+  Ends With: Event ScreeningComplete(Payment)
+}

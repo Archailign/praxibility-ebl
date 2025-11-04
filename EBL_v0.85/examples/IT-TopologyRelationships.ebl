@@ -1,0 +1,141 @@
+# Enterprise Business Language (EBL) Definition
+# Version: 0.85
+# License: Apache-2.0
+# Author: OpenEBL Community
+# Description: EBL definition for IT topology relationships demonstrating application-to-SLA traceability
+# Domain: IT Infrastructure
+# Conforms to: EBL-Spec-1.1
+
+Metadata:
+  EBLClass: ITTopologyManagement
+  RequirementID: REQ-IT-002
+  ProjectID: PRJ-IT-001
+  OrganisationID: ORG-IT-001
+  DomainID: DOM-IT
+  DepartmentID: DEPT-IT-OPERATIONS
+  Domain: it
+  Owner: EnterpriseArchitecture
+  Version: 0.85
+  CreatedAt: 2025-01-03
+  UpdatedAt: 2025-01-03
+
+DataObject DO_ApplicationCatalog {
+  Schema:
+    AppId: UUID, required, unique
+    Name: String, required
+    Owner: String, required
+    Status: Enum, values=["Active","Deprecated","Retired"], default="Active"
+  Policies:
+    - "Catalog entries must be approved by EnterpriseArchitect"
+    - "Application metadata retained indefinitely for governance"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://it/catalog/apps", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://it/catalog/query", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: ApplicationCatalog
+}
+
+DataObject DO_SLARegister {
+  Schema:
+    SLAId: UUID, required, unique
+    Name: String, required
+    ServiceLevel: JSON
+    AvailabilityTarget: String
+    ResponseTime: String
+  Policies:
+    - "SLA changes require CAB approval"
+    - "SLA performance tracked and reported monthly"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://it/sla", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://it/sla", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: SLARegister
+}
+
+Entity Application {
+  dataRef: DO_ApplicationCatalog
+  Properties:
+    AppId: { type: UUID, required: true, unique: true }
+    Name: { type: String, required: true }
+    Owner: { type: String, required: true }
+    Status: { type: Enum, values: [Active, Deprecated, Retired], default: Active }
+  Rules:
+    - Name must not be empty
+    - Owner must be valid organizational unit
+  erMap: Application
+}
+
+Entity SLA {
+  dataRef: DO_SLARegister
+  Properties:
+    SLAId: { type: UUID, required: true, unique: true }
+    Name: { type: String, required: true }
+  Rules:
+    - ServiceLevel must be defined
+  erMap: SLA
+}
+
+Relationship Trace_App_SLA {
+  From: Application
+  To:   SLA
+  Type: traceability
+}
+
+Process ManageApplicationSLA {
+  Description: Manage and trace application service level agreements
+  ObjectiveID: OBJ-IT-002
+  BusinessGoalID: BG-IT-001
+  Actors: [EnterpriseArchitect, ServiceOwner, OperationsManager]
+  erMap: ITTopologyProcess
+
+  Starts With: Event ApplicationRegistered(Application)
+
+  Step DefineSLA {
+    Inputs:
+      - Application.AppId
+      - SLA.SLAId
+    Validation:
+      - Application.Status must be Active
+      - SLA must be approved by CAB
+    Actions:
+      - EnterpriseArchitect Define SLA via DO_SLARegister Input
+      - ServiceOwner Link Application to SLA
+    Output:
+      - SLAAssignment: { AppId: UUID, SLAId: UUID }
+  }
+
+  Step MonitorCompliance {
+    Inputs:
+      - SLAAssignment
+    Actions:
+      - OperationsManager Monitor SLA compliance via DO_SLARegister Output
+      - ServiceOwner Review performance metrics via DO_ApplicationCatalog Output
+    Output:
+      - ComplianceReport: { AppId: UUID, ComplianceStatus: Enum[Compliant, NonCompliant] }
+  }
+
+  Ends With: Event SLALinked(Application, SLA)
+}
+
+Rule SLAComplianceAlert {
+  Description: Alert when application SLA is breached
+  Trigger: SLA.ComplianceStatus changes to NonCompliant
+  Conditions:
+    - Application.Status == Active
+  Actions:
+    - Send Notification SLABreach to ServiceOwner.Email
+    - Send Notification SLABreach to OperationsManager.Slack
+    - Log Incident
+  erMap: Requirement
+}
+
+Report ApplicationSLAStatus {
+  Description: Monthly application SLA compliance report
+  Query:
+    Select Application.Name, SLA.Name, Avg(SLA.ComplianceScore)
+    From Application
+    Join SLA
+    Where Application.Status = Active
+    Group By Application.AppId
+    Order By Avg(SLA.ComplianceScore) Ascending
+  Schedule: Monthly
+  erMap: Application
+}

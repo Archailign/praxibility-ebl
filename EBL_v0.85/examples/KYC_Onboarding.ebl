@@ -1,7 +1,7 @@
 Metadata:
   Domain: kyc
   Owner: Compliance
-  Version: 1.2.8
+  Version: 0.85
 
 DataObject DO_KYCApplication {
   Schema:

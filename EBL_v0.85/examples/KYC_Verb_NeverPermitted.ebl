@@ -1,7 +1,7 @@
 Metadata:
   Domain: kyc
   Owner: Compliance
-  Version: 1.3.0
+  Version: 0.85
 
 DataObject DO_IdentityDocument {
   Schema:

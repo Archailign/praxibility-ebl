@@ -1,1 +1,43 @@
-// AFC example placeholder compatible with v1.2.6
+Metadata:
+  Domain: afc
+  Owner: FinancialCrime
+  Version: 0.85
+
+DataObject DO_SARFiling {
+  Schema:
+    CaseId: UUID, required, unique
+    FilingDate: Date
+    Narrative: String
+  Policies:
+    - "SAR filings immutable after submission"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://afc/sar", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://afc/sar", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+  erMap: SARFiling
+}
+
+Entity Case {
+  dataRef: DO_SARFiling
+  Properties:
+    CaseId: { type: UUID, required: true, unique: true }
+  erMap: Case
+}
+
+Process FraudSAR {
+  Description: "Investigate and file SAR"
+  ObjectiveID: AFC2
+  BusinessGoalID: REG1
+  Actors: [Investigator, FilingOfficer]
+  erMap: FraudSAR
+  Starts With: Event CaseOpened(Case)
+
+  Step Investigate {
+    Actions:
+      - Investigator Investigate via DO_SARFiling Output
+  }
+  Step File {
+    Actions:
+      - FilingOfficer FileSAR via DO_SARFiling Input
+  }
+  Ends With: Event SARFiled(Case)
+}

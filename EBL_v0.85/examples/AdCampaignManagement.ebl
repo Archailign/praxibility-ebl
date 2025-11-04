@@ -1,5 +1,5 @@
 # Enterprise Business Language (EBL) Definition
-# Version: 1.3.0
+# Version: 0.85
 # License: Apache-2.0
 # Author: Innovate Marketing Agency
 # Description: Blended EBL definition for dynamic ad campaign management with predictive budgeting and full marketing cycle in the ad tech domain, aligned with Archailign framework
@@ -13,8 +13,8 @@ Metadata:
   OrganisationID: ORG-002
   DomainID: DOM-ADTECH
   DepartmentID: DEPT-ADTECH-CAMPAIGN
-  CreatedAt: 2025-10-24
-  UpdatedAt: 2025-10-24
+  CreatedAt: 2025-01-03
+  UpdatedAt: 2025-01-03
 
 # --- Data Objects (Blended from sources) ---
 DataObject DO_Campaign {
