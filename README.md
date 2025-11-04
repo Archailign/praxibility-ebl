@@ -95,7 +95,7 @@ mvn antlr4:antlr4
 ```bash
 # Validate an EBL file
 cd EBL_v0.85
-python ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+python ebl_validator.py adTech_Dictionary_v0.85.json examples/AdCampaignManagement.ebl
 
 # View example files
 ls examples/
@@ -167,10 +167,10 @@ praxibility-ebl/
     │   ├── java/                     # Java parser output
     │   └── python/                   # Python parser output
     │
-    ├── EBL_Dictionary_v0.85.json     # Core domain dictionary
+    ├── adTech_Dictionary_v0.85.json  # AdTech domain dictionary
+    ├── adTech_Dictionary_v0.85.yaml  # AdTech domain dictionary (YAML)
     ├── EBL_Dictionary_v0.85_all.json # Extended multi-domain dictionary
-    ├── EBL_Dictionary_v0.85.yaml     # YAML format (core)
-    ├── EBL_Dictionary_v0.85_all.yaml # YAML format (extended)
+    ├── EBL_Dictionary_v0.85_all.yaml # Extended multi-domain dictionary (YAML)
     │
     ├── ebl_validator.py              # Python validator script
     ├── pom.xml                       # Maven build configuration
@@ -281,7 +281,7 @@ EBL is ideal for:
 
 ### Adding Custom Domains
 
-1. Edit `EBL_Dictionary_v0.85.json` to add domain-specific:
+1. Edit `adTech_Dictionary_v0.85.json` or `EBL_Dictionary_v0.85_all.json` to add domain-specific:
    - Actors (roles)
    - Verbs (actions with permissions)
    - Data objects

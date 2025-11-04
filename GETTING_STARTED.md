@@ -73,7 +73,7 @@ pip install antlr4-python3-runtime pytest
 
 # Validate an example
 cd EBL_v0.85
-python ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
 ```
 
 ✅ **Success!** You're now ready to explore EBL.
@@ -101,7 +101,7 @@ EBL files define business requirements using these core constructs:
 
 ## 2. Exploring the Dictionary
 
-The **Enterprise Business Lexicon** (`EBL_Dictionary_v0.85.json`) defines:
+The **Enterprise Business Lexicon** (`adTech_Dictionary_v0.85.json`) defines:
 
 ### Core Types
 
@@ -290,7 +290,7 @@ Process ClaimLifecycle {
 ```bash
 # Validate a single file
 cd EBL_v0.85
-python ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
 
 # Expected output:
 # ✓ Parsing successful
@@ -307,7 +307,7 @@ python ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
 mvn clean package
 java -cp target/classes:generated-src/java \
   org.example.ebl.EBLSemanticValidator \
-  EBL_Dictionary_v0.85.json \
+  adTech_Dictionary_v0.85.json \
   examples/Insurance_ClaimLifecycle.ebl
 ```
 
@@ -701,7 +701,7 @@ EBL validators perform comprehensive checks:
 ### Example Validation Output
 
 ```bash
-$ python ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+$ python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
 
 ✓ Parse successful: examples/KYC_Onboarding.ebl
 ✓ DataObjects: DO_KYCApplication, DO_IdentityDocument
@@ -725,7 +725,7 @@ Validation Summary:
 
 ### Add Custom Actors and Verbs
 
-Edit `EBL_Dictionary_v0.85.json`:
+Edit `adTech_Dictionary_v0.85.json`:
 
 ```json
 {

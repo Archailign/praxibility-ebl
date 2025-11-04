@@ -9,11 +9,11 @@ java -jar antlr-4.13.1-complete.jar -Dlanguage=Python3 -visitor -listener -o gen
 
 ## Validate (Java)
 mvn -q -DskipTests package
-java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator EBL_Dictionary_v0.85.json examples/Insurance_Subrogation_Counterparty.ebl
+java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator adTech_Dictionary_v0.85.json examples/Insurance_Subrogation_Counterparty.ebl
 
 ## Validate (Python)
 python3 -m pip install -q antlr4-python3-runtime pytest
-PYTHONPATH=generated-src/python python3 ebl_validator.py EBL_Dictionary_v0.85.json examples/KYC_Verb_NeverPermitted.ebl
+PYTHONPATH=generated-src/python python3 ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Verb_NeverPermitted.ebl
 
 ## Features
 - **Multi-domain support:** AdTech, Healthcare, Insurance, Finance/Payments, KYC, Logistics, Retail, IT/Infrastructure
@@ -43,4 +43,4 @@ java -jar antlr-4.13.1-complete.jar -Dlanguage=Python3 -visitor -listener -o gen
 PYTHONPATH=generated-src/python pytest -q
 
 # Manual validation example:
-PYTHONPATH=generated-src/python python3 ebl_validator.py EBL_Dictionary_v0.85.json examples/AdTech_Dynamic_Marketing_Cycle_Full.ebl
+PYTHONPATH=generated-src/python python3 ebl_validator.py adTech_Dictionary_v0.85.json examples/AdTech_Dynamic_Marketing_Cycle_Full.ebl
