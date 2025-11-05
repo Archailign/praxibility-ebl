@@ -1,90 +1,45 @@
-# Logistics & Supply Chain Vertical - Archailign Business Engineering EBL v0.85
+# Logistics & Supply Chain Vertical (EBL v0.85)
 
 ## Overview
 
-The **logistics** vertical provides EBL definitions for logistics & supply chain. This vertical includes validated examples, domain-specific dictionaries, and data models for implementing logistics & supply chain workflows.
+Comprehensive DSL for Transportation, Warehousing, Freight, Customs, Last-Mile.
 
-## Directory Structure
+## Structure
 
 ```
 logistics/
-├── README.md                        # This file
-├── examples/                        # Logistics & Supply Chain EBL examples
-│   ├── Logistics_Tracking.ebl                   # Shipment tracking workflow
-├── dictionary/                      # Domain vocabulary
-│   └── logistics_dictionary_v0.85.json
-└── data_model/                      # Database schemas
-    ├── logistics_erm_base.sql
-    └── logistics_erm_extended.sql
+├── dictionary/           # Domain-specific dictionary
+├── grammar/             # ANTLR grammar with logistics keywords
+├── validators/python/   # Python validators
+├── validators/java/     # Java validators
+├── tests/python/        # Python test suite
+└── tests/java/          # Java test suite
 ```
 
-## Domain Dictionary
+## Validators
 
-### Actors
-Dispatcher, Driver, WarehouseManager, Receiver, Coordinator
+### Dictionary Validator
+Validates EBL files against logistics dictionary constraints.
 
-### Key Verbs
-Dispatch, Transport, Track, Receive, Confirm, Update
+**Usage:**
+```bash
+python validators/python/dictionary_validator.py <ebl_file> dictionary/logistics_dictionary_v0.85.json
+```
 
-## Examples
+### Semantic Validator
+Validates business logic and compliance (Customs Compliance, Incoterms Validation, Route Optimization, Hazmat Rules).
 
-### 1. Logistics_Tracking.ebl
-**Purpose:** Shipment tracking workflow
+**Usage:**
+```bash
+python validators/python/semantic_validator.py <ebl_file> dictionary/logistics_dictionary_v0.85.json
+```
 
-## Use Cases
+## Domain Keywords
 
-- Shipment tracking and visibility
-- Warehouse management
-- Route optimization
-- Delivery confirmation
+BOL, AWB, INCOTERMS, HAZMAT, WMS
 
-## Regulatory Compliance
-
-**Key Regulations:** CTPAT, C-TPAT, ISO 28000, IATA regulations
-
-## Validation
+## Testing
 
 ```bash
-# Validate examples
-cd verticals/logistics
-for file in examples/*.ebl; do
-  python ../../ebl_validator.py \
-    dictionary/logistics_dictionary_v0.85.json \
-    "$file"
-done
+cd tests/python && python test_logistics_validator.py
 ```
-
-## Getting Started
-
-1. **Explore Examples**
-   ```bash
-   cd verticals/logistics/examples
-   ls -la
-   ```
-
-2. **Review Dictionary**
-   ```bash
-   cat dictionary/logistics_dictionary_v0.85.json
-   ```
-
-3. **Deploy Data Model**
-   ```bash
-   # For PostgreSQL
-   psql -f data_model/logistics_erm_base.sql
-
-   # For MySQL
-   mysql < data_model/logistics_erm_extended.sql
-   ```
-
-## Resources
-
-- [Logistics & Supply Chain Dictionary](dictionary/logistics_dictionary_v0.85.json)
-- [Main Documentation](../../README.md)
-- [EBL Language Reference](../../../docs/ebl-classes.md)
-
----
-
-**Version:** 0.85
-**Compliance:** CTPAT, C-TPAT, ISO 28000, IATA regulations
-**Last Updated:** 05-11-2025
-**Maintainer:** Praxibility Team

@@ -93,17 +93,21 @@ mvn antlr4:antlr4
 ### Running Examples
 
 ```bash
-# Validate an EBL file from a vertical
+# Generate ANTLR parsers for all verticals
 cd EBL_v0.85
-python ebl_validator.py \
-  verticals/banking/dictionary/banking_dictionary_v0.85.json \
-  verticals/banking/examples/MortgageLoanApplication.ebl
+./utilities/generate_vertical_parsers.sh
+
+# Validate a Banking EBL file (ANTLR-based)
+cd verticals/banking
+python3 validators/python/dictionary_validator.py \
+  examples/MortgageLoanApplication.ebl \
+  dictionary/banking_dictionary_v0.85.json
+
+# Expected output:
+# ✅ VALIDATION PASSED - No errors or warnings
 
 # Explore verticals
 ls verticals/
-
-# Run all tests
-mvn test
 ```
 
 ## Project Structure
@@ -129,108 +133,130 @@ praxibility-ebl/
 └── EBL_v0.85/                        # Current version (v0.85)
     │
     ├── CHANGELOG.md                  # Version history and release notes
+    ├── CLEANUP_SUMMARY.md            # Cleanup documentation
     ├── HOWTO.md                      # Quick reference for commands
+    ├── TESTING.md                    # Testing strategy and guide
     │
-    ├── .github/
-    │   └── workflows/
-    │       └── build-ebl.yml         # GitHub Actions CI/CD workflow
+    ├── src/main/antlr4/
+    │   └── EBL.g4                    # Core grammar (reference only)
     │
-    ├── src/
-    │   ├── main/
-    │   │   ├── antlr4/
-    │   │   │   └── EBL.g4           # ANTLR4 grammar definition
-    │   │   └── java/
-    │   │       └── org/example/ebl/
-    │   │           ├── EBLSemanticValidator.java
-    │   │           └── EBLDictionarySymbols.java
-    │   └── test/
-    │       └── java/
-    │           └── org/example/ebl/
-    │               ├── SemanticValidatorTest.java
-    │               ├── AdTechValidatorTest.java
-    │               ├── BankingValidatorTest.java
-    │               └── ... (all vertical tests)
+    ├── utilities/                    # ✨ Utility Scripts
+    │   ├── README.md                 # Utilities documentation
+    │   └── generate_vertical_parsers.sh  # Generate ANTLR parsers
     │
-    ├── verticals/                    # 🎯 Industry-specific implementations
+    ├── verticals/                    # ✨ Self-Contained Vertical DSLs
     │   ├── README.md                 # Verticals overview
     │   │
-    │   ├── adtech/                   # Advertising Technology
+    │   ├── banking/                  # Financial Services (✅ PRODUCTION-READY)
     │   │   ├── README.md
-    │   │   ├── examples/             # 2 AdTech examples
-    │   │   ├── dictionary/           # AdTech vocabulary
-    │   │   └── data_model/           # AdTech schemas
-    │   │
-    │   ├── banking/                  # Financial Services
-    │   │   ├── README.md
-    │   │   ├── examples/             # 3 Banking examples
-    │   │   ├── dictionary/           # Banking vocabulary
+    │   │   ├── grammar/
+    │   │   │   └── Banking_v0_85.g4  # Banking-specific ANTLR grammar
+    │   │   ├── generated/            # ✨ ANTLR-generated parsers
+    │   │   │   ├── python/          # Banking_v0_85Lexer.py, Parser.py, etc.
+    │   │   │   └── java/            # Java parsers
+    │   │   ├── validators/           # ✅ ANTLR-based validators
+    │   │   │   ├── python/
+    │   │   │   │   ├── dictionary_validator.py  # Uses ANTLR parsers
+    │   │   │   │   └── semantic_validator.py    # PCI-DSS, SOX, AML, etc.
+    │   │   │   └── java/
+    │   │   ├── tests/                # ✅ Test suites
+    │   │   │   ├── python/
+    │   │   │   └── java/
+    │   │   ├── dictionary/
+    │   │   │   └── banking_dictionary_v0.85.json
+    │   │   ├── examples/             # 3 Banking EBL files
     │   │   └── data_model/           # Banking schemas
     │   │
+    │   ├── adtech/                   # Advertising Technology
     │   ├── healthcare/               # Healthcare & Pharma
-    │   │   ├── README.md
-    │   │   ├── examples/             # 2 Healthcare examples
-    │   │   ├── dictionary/           # Healthcare vocabulary
-    │   │   └── data_model/           # Healthcare schemas
-    │   │
     │   ├── insurance/                # Insurance & Risk
-    │   │   ├── README.md
-    │   │   ├── examples/             # 2 Insurance examples
-    │   │   ├── dictionary/           # Insurance vocabulary
-    │   │   └── data_model/           # Insurance schemas
-    │   │
     │   ├── kyc_compliance/           # KYC & Governance
-    │   │   ├── README.md
-    │   │   ├── examples/             # 3 KYC examples
-    │   │   ├── dictionary/           # KYC vocabulary
-    │   │   └── data_model/           # KYC schemas
-    │   │
     │   ├── retail/                   # Retail & E-Commerce
-    │   │   ├── README.md
-    │   │   ├── examples/             # 2 Retail examples
-    │   │   ├── dictionary/           # Retail vocabulary
-    │   │   └── data_model/           # Retail schemas
-    │   │
     │   ├── logistics/                # Logistics & Supply Chain
-    │   │   ├── README.md
-    │   │   ├── examples/             # 1 Logistics example
-    │   │   ├── dictionary/           # Logistics vocabulary
-    │   │   └── data_model/           # Logistics schemas
-    │   │
     │   └── it_infrastructure/        # IT Operations
-    │       ├── README.md
-    │       ├── examples/             # 2 IT examples
-    │       ├── dictionary/           # IT vocabulary
-    │       └── data_model/           # IT schemas
+    │       [Each with: grammar/, generated/, validators/, tests/,
+    │        dictionary/, examples/, data_model/]
     │
-    ├── tests/                        # Python test suites
-    │   ├── test_semantic_validation.py
-    │   ├── test_adtech_full.py
-    │   ├── test_banking.py
-    │   └── ... (all vertical tests)
-    │
-    ├── generated-src/                # ANTLR-generated parsers (post-build)
-    │   ├── java/                     # Java parser output
-    │   └── python/                   # Python parser output
-    │
-    ├── EBL_Dictionary_v0.85_all.json # Master multi-domain dictionary
-    ├── EBL_Dictionary_v0.85_all.yaml # Master multi-domain dictionary (YAML)
-    ├── ebl_validator.py              # Python validator script
-    ├── pom.xml                       # Maven build configuration
-    └── build.gradle.kts              # Gradle build configuration
+    ├── antlr-4.13.1-complete.jar     # ANTLR tool
+    ├── pom.xml                       # Maven build configuration (optional)
+    └── build.gradle.kts              # Gradle build configuration (optional)
 ```
 
 ### Key Directories
 
 | Directory | Purpose |
 |-----------|---------|
-| `src/main/antlr4/` | ANTLR4 grammar file (EBL.g4) |
-| `src/main/java/` | Java semantic validators and symbol loaders |
-| `src/test/java/` | Java unit tests for validators |
-| `verticals/` | Industry-specific implementations with examples, dictionaries, and data models |
-| `tests/` | Python test suites using pytest |
-| `generated-src/` | ANTLR-generated parsers (created during build) |
+| `EBL_v0.85/src/main/antlr4/` | Core ANTLR4 grammar (EBL.g4) - reference only |
+| `EBL_v0.85/utilities/` | ✨ **Utility Scripts** - Parser generation, dictionary tools |
+| `EBL_v0.85/verticals/` | ✨ **Self-Contained Vertical DSLs** - Independent domain implementations |
+| `verticals/[vertical]/grammar/` | Vertical-specific ANTLR grammar with domain keywords |
+| `verticals/[vertical]/generated/` | ✨ **ANTLR-generated parsers** (Python & Java) per-vertical |
+| `verticals/[vertical]/validators/` | ✨ **ANTLR-based validators** (dictionary + semantic + compliance) |
+| `verticals/[vertical]/tests/` | Python & Java test suites for vertical validation |
+| `verticals/[vertical]/dictionary/` | Vertical-specific JSON dictionary (actors, verbs, entities) |
+| `verticals/[vertical]/examples/` | Production-ready EBL example files |
+| `verticals/[vertical]/data_model/` | SQL schemas for vertical data models |
 | `docs/` | Architecture documentation and lexicon specs |
-| `.github/workflows/` | CI/CD automation with GitHub Actions |
+
+---
+
+## ANTLR-Based Architecture
+
+EBL v0.85 uses a **unified ANTLR-based approach** with complete vertical independence.
+
+### Core Principles
+
+1. **ANTLR-Only Parsing** - No regex or string operations. All parsing uses ANTLR-generated parsers from grammars.
+2. **Vertical Independence** - Each vertical generates its own parsers and has isolated validators/tests.
+3. **Domain-Specific Grammars** - Each vertical has its own grammar with domain keywords (e.g., SWIFT, IBAN for Banking).
+
+### How It Works
+
+```
+1. Grammar Definition
+   verticals/banking/grammar/Banking_v0_85.g4
+   ↓
+2. Parser Generation (ANTLR)
+   ./utilities/generate_vertical_parsers.sh
+   ↓
+3. Generated Parsers
+   verticals/banking/generated/python/
+   ├── Banking_v0_85Lexer.py
+   ├── Banking_v0_85Parser.py
+   └── Banking_v0_85Listener.py
+   ↓
+4. Validators Use Parsers
+   verticals/banking/validators/python/dictionary_validator.py
+   ↓
+5. Validation
+   python3 validators/python/dictionary_validator.py \
+     examples/file.ebl dictionary/banking_dictionary_v0.85.json
+```
+
+### Benefits
+
+- ✅ **Proper Parsing** - Grammar-based (not regex patterns)
+- ✅ **Vertical Independence** - No shared dependencies between verticals
+- ✅ **Domain Keywords** - Each grammar has vertical-specific keywords
+- ✅ **Multi-Language** - Same grammar → Python + Java + more
+
+### Quick Start
+
+```bash
+# 1. Generate parsers for all verticals
+cd EBL_v0.85
+./utilities/generate_vertical_parsers.sh
+
+# 2. Validate a Banking EBL file
+cd verticals/banking
+python3 validators/python/dictionary_validator.py \
+  examples/MortgageLoanApplication.ebl \
+  dictionary/banking_dictionary_v0.85.json
+
+# ✅ Output: VALIDATION PASSED
+```
+
+**For complete ANTLR architecture details**, see `EBL_v0.85/CLEANUP_SUMMARY.md`
 
 ## Language Features
 
@@ -340,18 +366,32 @@ EBL is ideal for:
    - Define data objects and entities
    - Define relationship types
 
-3. Add example EBL files to `verticals/my_vertical/examples/`
+3. Create ANTLR grammar in `verticals/my_vertical/grammar/`
+   - Extend base EBL grammar with domain-specific keywords
+   - Add vertical-specific types and lexer rules
 
-4. Create data model schemas in `verticals/my_vertical/data_model/`
+4. Create validators in `verticals/my_vertical/validators/`
+   - Python: `dictionary_validator.py`, `semantic_validator.py`
+   - Java: `MyVerticalDictionaryValidator.java`, `MyVerticalSemanticValidator.java`
+   - Use `verticals/banking/validators/` as template
 
-5. Validate against your vertical dictionary:
+5. Create tests in `verticals/my_vertical/tests/`
+   - Python: `test_my_vertical_validator.py`
+   - Java: `MyVerticalValidatorTest.java`
+
+6. Add example EBL files to `verticals/my_vertical/examples/`
+
+7. Create data model schemas in `verticals/my_vertical/data_model/`
+
+8. Validate with vertical-specific validators:
    ```bash
-   python ebl_validator.py \
-     verticals/my_vertical/dictionary/my_vertical_dictionary_v0.85.json \
-     verticals/my_vertical/examples/MyWorkflow.ebl
+   cd verticals/my_vertical
+   python validators/python/dictionary_validator.py \
+     examples/MyWorkflow.ebl \
+     dictionary/my_vertical_dictionary_v0.85.json
    ```
 
-See [verticals/README.md](EBL_v0.85/verticals/README.md) for detailed guidelines.
+See [verticals/README.md](EBL_v0.85/verticals/README.md) and [VERTICAL_STRUCTURE.md](EBL_v0.85/VERTICAL_STRUCTURE.md) for detailed guidelines.
 
 **Option 2: Extend Existing Dictionary**
 

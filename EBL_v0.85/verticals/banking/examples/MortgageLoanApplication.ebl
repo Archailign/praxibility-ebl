@@ -1,118 +1,1045 @@
 # Enterprise Business Language (EBL) Definition
 # Version: 0.85
 # License: Apache-2.0
-# Author: OpenEBL Community
-# Description: EBL definition for mortgage loan application process in banking
-# Domain: Banking (BAIN)
+# Author: Archailign Business Engineering EBL
+# Description: Comprehensive mortgage loan origination and underwriting process
+# Domain: Banking (BAIN) - Residential Mortgage Lending
 # Conforms to: EBL-Spec-1.1
+# Compliance: TILA, RESPA, HMDA, Fair Lending (Reg B), TRID, QM/ATR, FCRA
 
 Metadata:
-  EBLClass: MortgageProcessing
-  RequirementID: REQ-BAIN-001
-  ProjectID: PRJ-BAIN-001
+  EBLClass: MortgageOriginationWorkflow
+  RequirementID: REQ-BAIN-MLO-001
+  ProjectID: PRJ-BAIN-MORTGAGE-2025
+  BusinessUnit: ResidentialLending
+  Owner: ChiefLendingOfficer
+  ComplianceFrameworks: [TILA, RESPA, HMDA, RegB, TRID, QM, ATR, FCRA, ECOA]
   CreatedAt: 05-11-2025
   UpdatedAt: 05-11-2025
+  Version: 0.85
 
-Entity LoanApplicant {
+# ============================================================================
+# DATA OBJECTS - Complete mortgage data structures
+# ============================================================================
+
+DataObject DO_LoanApplicationData {
+  Schema:
+    ApplicationID: UUID, required, unique
+    ApplicationDate: Date, required
+    LoanPurpose: String, required
+    LoanAmount: Currency, required
+    PropertyAddress: String, required
+    PropertyValue: Currency, required
+    OccupancyType: String, required
+    PropertyType: String, required
+    LoanType: String, required
+    LoanTerm: Integer, required
+    RequestedRate: Currency
+    EstimatedClosingDate: Date
+    PreQualified: Boolean
+    PreApproved: Boolean
+    ApplicationSource: String
+    LoanOfficerID: UUID, required
+    BranchID: String
+  Policies:
+    - "Retain application data for 25 months per HMDA requirements"
+    - "Applications over $1M require senior management approval"
+    - "Applications must be decisioned within 30 days per TRID"
+    - "Collect demographic data for HMDA but separate from underwriting"
+  Resources:
+    Input:  { Channel: WebPortal, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/applications", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: CoreSystem, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/applications/status", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: LoanApplication
+}
+
+DataObject DO_BorrowerData {
+  Schema:
+    BorrowerID: UUID, required, unique
+    SSN: String, required
+    FirstName: String, required
+    MiddleName: String
+    LastName: String, required
+    DateOfBirth: Date, required
+    MaritalStatus: String
+    Citizenship: String, required
+    CurrentAddress: String, required
+    PriorAddresses: JSON
+    ResidencyDuration: Integer
+    Email: String, required
+    PhoneNumber: String, required
+    EmploymentStatus: String, required
+    CreditAuthorizationSigned: Boolean, required
+    ConsentToContact: Boolean, required
+  Policies:
+    - "Encrypt SSN at rest and in transit - AES-256"
+    - "Mask SSN in logs and UI (XXX-XX-1234)"
+    - "Verify identity through KYC process"
+    - "Retain borrower consent forms for 3 years"
+    - "Comply with FCRA adverse action requirements"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/borrowers", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/borrowers/verify", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+  erMap: Borrower
+}
+
+DataObject DO_CreditReport {
+  Schema:
+    ReportID: UUID, required, unique
+    BorrowerID: UUID, required
+    PullDate: Date, required
+    Bureau: String, required
+    FICOScore: Integer, required
+    TradeLinesCount: Integer
+    InquiriesCount: Integer
+    DerogatoryMarks: Integer
+    CollectionsCount: Integer
+    PublicRecords: Integer
+    TotalDebt: Currency
+    MonthlyDebtPayments: Currency
+    CreditUtilization: Currency
+    PaymentHistory: JSON
+    CreditAge: Integer
+    RecentInquiries: JSON
+    DisputeFlag: Boolean
+  Policies:
+    - "Pull credit only with signed authorization"
+    - "Provide adverse action notice if credit causes denial"
+    - "Retain credit reports for 25 months per Reg B"
+    - "Use mid-score of three bureaus for qualification"
+    - "Rescredit if more than 120 days old at closing"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://credit.bureau.com/api/v3/pull", Auth: APIKey, Format: XML, SLA: "P95<2000ms" }
+    Output: { Channel: DataWarehouse, Protocol: HTTPS, Endpoint: "https://dw.bank.com/api/credit", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+  erMap: CreditReport
+}
+
+DataObject DO_IncomeVerification {
+  Schema:
+    VerificationID: UUID, required, unique
+    BorrowerID: UUID, required
+    EmployerName: String, required
+    EmployerAddress: String
+    JobTitle: String, required
+    EmploymentStartDate: Date, required
+    EmploymentType: String, required
+    BaseIncome: Currency, required
+    OvertimeIncome: Currency
+    BonusIncome: Currency
+    CommissionIncome: Currency
+    TotalMonthlyIncome: Currency, required
+    YTDIncome: Currency
+    PriorYearIncome: Currency
+    TwoYearPriorIncome: Currency
+    IncomeStability: String
+    LikelihoodToContinue: String
+    VerificationMethod: String, required
+    VerifiedDate: Date, required
+    VOEReceived: Boolean
+  Policies:
+    - "Verify income through VOE, paystubs, W2s, tax returns"
+    - "Use 2-year average for variable income"
+    - "Document income stability and continuance likelihood"
+    - "Verify employment within 10 days of closing"
+    - "Obtain written VOE for all employment"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/income", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: DocumentRepo, Protocol: HTTPS, Endpoint: "https://docs.bank.com/api/income", Auth: OAuth2, Format: PDF, SLA: "P95<1000ms" }
+  erMap: IncomeVerification
+}
+
+DataObject DO_PropertyAppraisal {
+  Schema:
+    AppraisalID: UUID, required, unique
+    ApplicationID: UUID, required
+    OrderDate: Date, required
+    CompletionDate: Date
+    AppraiserName: String, required
+    AppraiserLicense: String, required
+    PropertyAddress: String, required
+    AppraisedValue: Currency, required
+    PropertyType: String, required
+    YearBuilt: Integer
+    SquareFootage: Integer
+    Bedrooms: Integer
+    Bathrooms: Currency
+    Condition: String, required
+    Neighborhood: String
+    ComparableSales: JSON, required
+    ApproachToValue: String, required
+    FinalValueOpinion: Currency, required
+    EffectiveDate: Date, required
+    ReviewRequired: Boolean
+    ReviewedBy: String
+    ReviewDate: Date
+  Policies:
+    - "Order appraisal from approved AMC only"
+    - "Ensure appraiser independence per FIRREA"
+    - "Review appraisal for USPAP compliance"
+    - "Obtain second review if value >$1M"
+    - "Retain appraisal for loan life + 5 years"
+    - "Provide copy to borrower within 3 days of receipt"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://amc.vendor.com/api/order", Auth: APIKey, Format: JSON, SLA: "P95<1000ms" }
+    Output: { Channel: DocumentRepo, Protocol: HTTPS, Endpoint: "https://docs.bank.com/api/appraisal", Auth: OAuth2, Format: PDF, SLA: "P95<1000ms" }
+  erMap: PropertyAppraisal
+}
+
+DataObject DO_TitleReport {
+  Schema:
+    TitleReportID: UUID, required, unique
+    ApplicationID: UUID, required
+    OrderDate: Date, required
+    CompletionDate: Date
+    TitleCompany: String, required
+    PropertyAddress: String, required
+    CurrentOwner: String, required
+    VestingType: String
+    LegalDescription: String, required
+    EncumbrancesFound: JSON
+    LiensFound: JSON
+    EasementsFound: JSON
+    JudgmentsFound: JSON
+    TaxStatus: String, required
+    OutstandingTaxes: Currency
+    TitleDefects: JSON
+    TitleInsurable: Boolean, required
+    TitleInsurancePremium: Currency
+    ExceptionsToTitle: JSON
+    RequiredCures: JSON
+  Policies:
+    - "Order title search within 5 days of application"
+    - "Resolve all title defects before closing"
+    - "Require title insurance for all loans"
+    - "Verify all liens will be paid at closing"
+    - "Obtain lender's title policy in first position"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://title.vendor.com/api/order", Auth: APIKey, Format: JSON, SLA: "P95<2000ms" }
+    Output: { Channel: DocumentRepo, Protocol: HTTPS, Endpoint: "https://docs.bank.com/api/title", Auth: OAuth2, Format: PDF, SLA: "P95<1000ms" }
+  erMap: TitleSearch
+}
+
+DataObject DO_ClosingDisclosure {
+  Schema:
+    DisclosureID: UUID, required, unique
+    ApplicationID: UUID, required
+    IssueDate: Date, required
+    LoanAmount: Currency, required
+    InterestRate: Currency, required
+    MonthlyPayment: Currency, required
+    APR: Currency, required
+    FinanceCharge: Currency, required
+    AmountFinanced: Currency, required
+    TotalOfPayments: Currency, required
+    CashToClose: Currency, required
+    ClosingCosts: JSON, required
+    LenderCredits: Currency
+    SellerCredits: Currency
+    Prepaids: Currency
+    InitialEscrowPayment: Currency
+    OtherCosts: Currency
+    LoanCostsSubtotals: JSON
+    OtherCostsSubtotals: JSON
+    TotalClosingCosts: Currency, required
+    ProjectedPayments: JSON, required
+    CostsAtClosing: JSON, required
+  Policies:
+    - "Provide to borrower at least 3 business days before closing (TRID)"
+    - "Cannot close until 3-day waiting period expires"
+    - "If APR changes >0.125% or loan product changes, re-disclose"
+    - "Retain copies for 5 years per TILA"
+    - "Ensure all fees match Loan Estimate within tolerances"
+  Resources:
+    Input:  { Channel: LOS, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/disclosures", Auth: OAuth2, Format: JSON, SLA: "P95<1000ms" }
+    Output: { Channel: eSign, Protocol: HTTPS, Endpoint: "https://esign.bank.com/api/send", Auth: OAuth2, Format: PDF, SLA: "P95<2000ms" }
+  erMap: ClosingDisclosure
+}
+
+DataObject DO_UnderwritingDecision {
+  Schema:
+    DecisionID: UUID, required, unique
+    ApplicationID: UUID, required
+    UnderwriterID: UUID, required
+    DecisionDate: Date, required
+    Decision: String, required
+    DecisionReason: String
+    Conditions: JSON
+    Stipulations: JSON
+    LoanAmount: Currency, required
+    ApprovedRate: Currency, required
+    LoanTerm: Integer, required
+    LTV: Currency, required
+    CLTV: Currency
+    DTI: Currency, required
+    FICOScore: Integer, required
+    CompensatingFactors: JSON
+    RiskGrade: String, required
+    ExceptionsGranted: JSON
+    EscalationRequired: Boolean
+    SeniorApproval: String
+    ApprovalConditions: JSON
+  Policies:
+    - "Underwrite to investor guidelines and QM standards"
+    - "Document all exceptions and obtain required approvals"
+    - "Verify ability to repay per ATR rule"
+    - "Ensure DTI ≤ 43% for QM loans"
+    - "Obtain senior management approval for exceptions"
+    - "Clear all conditions before closing"
+  Resources:
+    Input:  { Channel: LOS, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/underwriting", Auth: OAuth2, Format: JSON, SLA: "P95<1000ms" }
+    Output: { Channel: LOS, Protocol: HTTPS, Endpoint: "https://los.bank.com/api/v2/decisions", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+  erMap: UnderwritingDecision
+}
+
+DataObject DO_LoanFile {
+  Schema:
+    LoanFileID: UUID, required, unique
+    ApplicationID: UUID, required
+    Documents: JSON, required
+    Checklist: JSON, required
+    ConditionsCleared: JSON
+    StipulationsMet: JSON
+    AuditTrail: JSON, required
+    QCReview: JSON
+    FraudCheck: JSON
+    ComplianceReview: JSON
+    FileComplete: Boolean
+    ReadyToClose: Boolean
+    ClosingScheduled: Date
+  Policies:
+    - "Maintain complete loan file per investor requirements"
+    - "Conduct pre-funding QC on all loans"
+    - "Perform fraud detection screening"
+    - "Ensure compliance with all applicable regulations"
+    - "Retain loan files for life of loan plus 3 years"
+  Resources:
+    Input:  { Channel: DocumentRepo, Protocol: HTTPS, Endpoint: "https://docs.bank.com/api/files", Auth: OAuth2, Format: JSON, SLA: "P95<1000ms" }
+    Output: { Channel: SecureStorage, Protocol: HTTPS, Endpoint: "https://storage.bank.com/api/files", Auth: OAuth2, Format: JSON, SLA: "P95<2000ms" }
+  erMap: LoanFile
+}
+
+# ============================================================================
+# ENTITIES - Business objects with rules
+# ============================================================================
+
+Entity LoanApplication {
+  dataRef: DO_LoanApplicationData
   Properties:
-    ApplicantID: { type: UUID, required: true, unique: true, erMap: DataObject }
-    Name: { type: String, required: true }
-    CreditScore: { type: Integer, range: [300, 850], required: true }
-    Income: { type: Currency, required: true }
+    ApplicationID: { type: UUID, required: true, unique: true, erMap: DataObject }
     LoanAmount: { type: Currency, required: true }
     PropertyValue: { type: Currency, required: true }
     LTV: { type: Ratio, calculated: LoanAmount / PropertyValue }
+    Status: { type: String, default: "Submitted", values: ["Submitted", "InProcess", "Underwriting", "Approved", "Denied", "Withdrawn", "Closed"] }
+    LoanPurpose: { type: String, required: true, values: ["Purchase", "Refinance", "CashOut", "HomeImprovement"] }
+    OccupancyType: { type: String, required: true, values: ["PrimaryResidence", "SecondHome", "Investment"] }
+    DecisionDate: { type: Date }
+    ClosingDate: { type: Date }
   Rules:
-    - LTV must be <= 0.95
-    - CreditScore must be >= 680 for approval
-  erMap: DataObject
+    - LTV must be <= 0.97 for FHA loans
+    - LTV must be <= 0.95 for conventional loans
+    - LTV must be <= 1.00 for VA loans
+    - LoanAmount must be <= conforming limit for area ($766,550 standard)
+    - OccupancyType must be PrimaryResidence for FHA/VA loans
+    - Application must be decisioned within 30 days of submission
+  erMap: LoanApplication
 }
 
-Process MortgageLoanApplication {
-  Description: Processes a mortgage loan application
-  ObjectiveID: OBJ-BAIN-001
-  BusinessGoalID: BG-BAIN-001
-  Actors: [LoanOfficer, Underwriter]
-  erMap: BusinessProcess
+Entity Borrower {
+  dataRef: DO_BorrowerData
+  Properties:
+    BorrowerID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    Name: { type: String, required: true }
+    CreditScore: { type: Integer, range: [300, 850], required: true }
+    MonthlyIncome: { type: Currency, required: true }
+    MonthlyDebtPayments: { type: Currency, required: true }
+    DTI: { type: Ratio, calculated: MonthlyDebtPayments / MonthlyIncome }
+    Employment Status: { type: String, required: true }
+    YearsEmployed: { type: Integer }
+  Rules:
+    - CreditScore must be >= 580 for FHA loans
+    - CreditScore must be >= 620 for conventional loans
+    - DTI must be <= 0.43 for QM loans
+    - Employment must be verified and stable for 2+ years
+    - Income must be sufficient to repay loan per ATR rule
+  erMap: Borrower
+}
 
-  Starts With: Event LoanApplicationSubmitted(ApplicantData)
+Entity PropertyCollateral {
+  dataRef: DO_PropertyAppraisal
+  Properties:
+    PropertyID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    Address: { type: String, required: true }
+    AppraisedValue: { type: Currency, required: true }
+    PropertyType: { type: String, required: true, values: ["SingleFamily", "Condo", "TownHouse", "MultiFamily"] }
+    Condition: { type: String, required: true, values: ["Excellent", "Good", "Average", "Fair", "Poor"] }
+    Occupancy: { type: String, required: true }
+  Rules:
+    - PropertyType must be eligible for loan program
+    - Condition must be at least "Average" for financing
+    - Property must meet minimum property standards
+    - Appraisal must be current (< 120 days old at closing)
+  erMap: Collateral
+}
 
-  Step CollectApplicationData {
+Entity UnderwritingDecision {
+  dataRef: DO_UnderwritingDecision
+  Properties:
+    DecisionID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    ApplicationID: { type: UUID, required: true, erMap: Relationship }
+    Decision: { type: String, required: true, values: ["Approved", "ApprovedWithConditions", "Suspended", "Denied"] }
+    DecisionDate: { type: Date, required: true }
+    UnderwriterID: { type: UUID, required: true, erMap: Actor }
+    RiskGrade: { type: String, required: true, values: ["A", "B", "C", "D"] }
+  Rules:
+    - All conditions must be cleared before closing
+    - Exceptions require senior management approval
+    - Denied applications must provide adverse action notice within 30 days
+    - Approved loans must close within 90 days or require re-underwriting
+  erMap: UnderwritingDecision
+}
+
+# ============================================================================
+# PROCESS - Complete mortgage origination workflow
+# ============================================================================
+
+Process MortgageLoanOriginationWorkflow {
+  Description: Comprehensive end-to-end mortgage loan origination from application through closing
+  ObjectiveID: OBJ-BAIN-MLO-001
+  BusinessGoalID: BG-BAIN-GROWTH-2025
+  Actors: [
+    MortgageLoanOfficer,
+    LoanProcessor,
+    Underwriter,
+    SeniorUnderwriter,
+    CreditAnalyst,
+    AppraisalReviewer,
+    TitleOfficer,
+    ClosingCoordinator,
+    ComplianceOfficer,
+    QualityControlAnalyst,
+    LoanOriginationSystem,
+    CreditBureau,
+    CoreBankingSystem
+  ]
+  erMap: MortgageLoanOriginationProcess
+
+  Starts With: Event LoanApplicationSubmitted(ApplicationID, BorrowerID, LoanAmount, PropertyValue)
+
+  Step InitialApplicationReview {
+    Description: Loan Officer reviews application for completeness and eligibility
     Inputs:
-      - LoanApplicant.Name
-      - LoanApplicant.Income
-      - LoanApplicant.CreditScore
-      - LoanApplicant.LoanAmount
-      - LoanApplicant.PropertyValue
+      - LoanApplication.LoanAmount
+      - LoanApplication.PropertyValue
+      - LoanApplication.LoanPurpose
+      - LoanApplication.OccupancyType
+      - Borrower.CreditScore
+      - Borrower.MonthlyIncome
     Validation:
-      - Income must be >= 0
-      - LoanAmount must be > 0
-    Output:
-      - ApplicationRecord: Partial<LoanApplicant>
-  }
-
-  Step CreditCheck {
-    Inputs:
-      - ApplicationRecord
-    Service: CreditBureau.CheckCredit(ApplicantID)
-    Output:
-      - CreditResult: { score: Integer, status: Enum[Pass, Fail] }
-  }
-
-  Step RiskAssessment {
-    Condition: CreditResult.status == "Pass"
-    Invoke: RiskEngine.EvaluateMortgageRisk(LoanApplicant)
-    Ruleset: Policy.RegulatoryCompliance2025
-    Output:
-      - RiskScore: Integer
-  }
-
-  Step UnderwritingDecision {
-    Condition: RiskScore <= 50 and LTV <= 0.95
+      - LoanAmount must be > 0 and <= $3,000,000
+      - PropertyValue must be > 0
+      - CreditScore must be >= 500 (minimum for any program)
+      - MonthlyIncome must be >= $2,000
+      - Application must be complete with all required fields
     Actions:
-      - Create LoanApplicant
-      - Set LoanApplicant.Status = Approved
+      - MortgageLoanOfficer Create LoanApplication
+      - MortgageLoanOfficer Review application completeness
+      - MortgageLoanOfficer Verify basic eligibility criteria
+      - LoanOriginationSystem Create ApplicationID in system
+      - LoanOriginationSystem Set LoanApplication.Status = "InProcess"
     ErrorHandling:
-      - If Condition fails, set Status = Rejected
-      - Send Notification RejectionNotice to Applicant.Email
+      - If validation fails, MortgageLoanOfficer Notify Borrower of missing information
+      - If ineligible, MortgageLoanOfficer Set Status = "Denied" and send adverse action notice
     Output:
-      - Decision: Enum[Approved, Rejected]
+      - ApplicationStatus: Enum[Accepted, Incomplete, Ineligible]
   }
 
-  Ends With: Event LoanApplicationProcessed(ApplicantID, Decision)
+  Step PullCreditReport {
+    Description: Pull tri-merge credit report and calculate FICO score
+    Condition: ApplicationStatus == "Accepted"
+    Actions:
+      - LoanProcessor PullCreditReport via DO_BorrowerData Input with signed authorization
+      - CreditBureau Read borrower credit data
+      - LoanOriginationSystem Create DO_CreditReport record
+      - CreditAnalyst Review credit report for accuracy
+      - CreditAnalyst Verify no identity theft or fraud indicators
+    Service: CreditBureau.PullTriMerge(BorrowerID, SSN)
+    Validation:
+      - Credit authorization must be signed and dated
+      - Credit pull must be successful from all 3 bureaus
+      - FICO scores must be calculable
+    ErrorHandling:
+      - If credit frozen, MortgageLoanOfficer Notify Borrower to unfreeze
+      - If fraud alert, CreditAnalyst Escalate to ComplianceOfficer
+      - If credit pull fails, retry after 1 hour
+    Output:
+      - CreditResult: {
+          TransUnionScore: Integer,
+          ExperianScore: Integer,
+          EquifaxScore: Integer,
+          MidScore: Integer,
+          TotalDebt: Currency,
+          MonthlyDebtPayments: Currency
+        }
+  }
+
+  Step VerifyIncomeAndEmployment {
+    Description: Verify borrower income and employment stability
+    Inputs:
+      - DO_IncomeVerification.EmployerName
+      - DO_IncomeVerification.BaseIncome
+      - DO_IncomeVerification.TotalMonthlyIncome
+    Actions:
+      - LoanProcessor VerifyIncome through paystubs, W2s, tax returns
+      - LoanProcessor VerifyEmployment through VOE to employer
+      - LoanProcessor Create DO_IncomeVerification record
+      - Underwriter ReviewIncome stability and continuance likelihood
+      - Underwriter CalculateDTI ratio
+    Validation:
+      - Income documents must be recent (< 90 days)
+      - Employment must be verified in writing
+      - VOE must confirm current employment and salary
+      - 2-year employment history required (or explanation for gaps)
+      - Self-employed borrowers require 2 years tax returns
+    ErrorHandling:
+      - If VOE not received in 10 days, LoanProcessor Escalate to MortgageLoanOfficer
+      - If income insufficient, Underwriter Reject application with adverse action notice
+      - If employment gaps, Underwriter require written explanation
+    Output:
+      - IncomeVerified: Boolean
+      - QualifyingIncome: Currency
+      - DTI: Ratio
+  }
+
+  Step OrderAndReviewAppraisal {
+    Description: Order property appraisal and review for accuracy and compliance
+    Actions:
+      - LoanProcessor OrderAppraisal from approved AMC
+      - LoanOriginationSystem Create DO_PropertyAppraisal order record
+      - External Appraiser conducts property inspection
+      - AppraisalReviewer ReviewAppraisal for USPAP compliance
+      - AppraisalReviewer Verify comparables are appropriate
+      - Underwriter Calculate LTV based on appraisedValue
+    Validation:
+      - Appraiser must be licensed and independent
+      - Appraisal must be USPAP compliant
+      - Comparables must be recent (< 6 months) and similar
+      - Appraisal must meet minimum property standards
+      - Value must support requested loan amount
+    ErrorHandling:
+      - If value too low, MortgageLoanOfficer Notify Borrower of options (reduce loan, increase down payment)
+      - If appraisal deficient, AppraisalReviewer request revision from appraiser
+      - If property condition issues, require repairs before closing
+    Output:
+      - AppraisedValue: Currency
+      - LTV: Ratio
+      - PropertyCondition: String
+      - AppraisalAcceptable: Boolean
+  }
+
+  Step OrderTitleSearch {
+    Description: Order title search and resolve any title issues
+    Actions:
+      - LoanProcessor OrderTitleSearch from title company
+      - TitleOfficer ReviewTitle for liens, encumbrances, judgments
+      - TitleOfficer Verify property ownership
+      - TitleOfficer Identify required cures
+      - ClosingCoordinator Notify seller of payoff requirements
+    Validation:
+      - Title must be insurable
+      - All liens must be identified and payoff amounts obtained
+      - Property taxes must be current or escrowed
+      - No judgments or liens that cannot be cleared at closing
+    ErrorHandling:
+      - If title defects found, TitleOfficer require cure before closing
+      - If liens present, ensure payoffs are included in closing
+      - If ownership disputed, Escalate to legal counsel
+    Output:
+      - TitleInsurable: Boolean
+      - RequiredPayoffs: JSON
+      - TitleDefects: JSON
+  }
+
+  Step UnderwritingAnalysis {
+    Description: Comprehensive underwriting analysis and decision
+    Condition: CreditResult.MidScore >= 580 AND IncomeVerified == true AND AppraisalAcceptable == true
+    Inputs:
+      - LoanApplication
+      - Borrower
+      - DO_CreditReport
+      - DO_IncomeVerification
+      - DO_PropertyAppraisal
+      - DO_TitleReport
+    Actions:
+      - Underwriter Underwrite loan to investor guidelines
+      - Underwriter VerifyAssets for down payment and reserves
+      - Underwriter ReviewDebt obligations and calculate DTI
+      - Underwriter CalculateAPR and verify QM compliance
+      - Underwriter CalculateLTV and verify within guidelines
+      - Underwriter ReviewRisk factors and compensating factors
+      - Underwriter DocumentAbilityToRepay per ATR rule
+    Ruleset: Policy.InvestorGuidelines2025, Policy.QM_ATR_Standards
+    Validation:
+      - LTV must be within program guidelines
+      - DTI must be <= 43% for QM loans (or with strong compensating factors)
+      - Borrower must have verified ability to repay
+      - Loan must meet investor purchase criteria
+      - All conditions must be reasonable and achievable
+    ErrorHandling:
+      - If LTV too high, Underwriter require higher down payment or PMI
+      - If DTI too high, Underwriter Suspend for compensating factors or Deny
+      - If exceptions needed, Underwriter Escalate to SeniorUnderwriter
+      - If fraud suspected, Escalate to ComplianceOfficer and FraudInvestigator
+    Output:
+      - UnderwritingDecision: Enum[Approved, ApprovedWithConditions, Suspended, Denied]
+      - Conditions: JSON
+      - RiskGrade: String
+  }
+
+  Step SeniorUnderwriterReview {
+    Condition: UnderwritingDecision == "Suspended" OR RiskGrade == "D" OR LoanAmount > $1,000,000
+    Actions:
+      - SeniorUnderwriter Review underwriting analysis
+      - SeniorUnderwriter Approve exceptions if justified
+      - SeniorUnderwriter Verify compensating factors are sufficient
+      - SeniorUnderwriter Make final approval decision
+    ErrorHandling:
+      - If not approvable, SeniorUnderwriter Deny application
+      - If additional documentation needed, SeniorUnderwriter request conditions
+    Output:
+      - FinalDecision: Enum[Approved, ApprovedWithConditions, Denied]
+  }
+
+  Step ClearConditionsAndStipulations {
+    Condition: UnderwritingDecision == "ApprovedWithConditions"
+    Actions:
+      - LoanProcessor Notify Borrower of required conditions
+      - LoanProcessor CollectDocuments to satisfy conditions
+      - LoanProcessor Update DO_LoanFile with received documents
+      - Underwriter ReviewDocuments for condition clearance
+      - Underwriter Mark conditions as satisfied
+    Validation:
+      - All conditions must be cleared before closing
+      - Documents must be recent and acceptable
+      - Any new information must be re-underwritten
+    ErrorHandling:
+      - If conditions cannot be met, MortgageLoanOfficer Notify Borrower
+      - If new adverse information, Underwriter re-underwrite or Deny
+    Output:
+      - AllConditionsCleared: Boolean
+  }
+
+  Step ComplianceAndQCReview {
+    Condition: AllConditionsCleared == true
+    Actions:
+      - ComplianceOfficer Review loan file for regulatory compliance
+      - ComplianceOfficer Verify TILA-RESPA disclosures provided timely
+      - ComplianceOfficer Verify fair lending compliance
+      - ComplianceOfficer Verify HMDA data accuracy
+      - QualityControlAnalyst Perform pre-funding QC review
+      - QualityControlAnalyst Verify data accuracy
+      - QualityControlAnalyst Verify documentation completeness
+      - QualityControlAnalyst Screen for fraud indicators
+    Validation:
+      - All required disclosures provided within regulatory timeframes
+      - No fair lending violations
+      - HMDA data complete and accurate
+      - Loan file complete per investor requirements
+      - No fraud indicators present
+    ErrorHandling:
+      - If compliance issues, ComplianceOfficer require corrections before closing
+      - If fraud suspected, Escalate to investigation and suspend closing
+      - If QC defects, QualityControlAnalyst send back to Underwriter for corrections
+    Output:
+      - ComplianceApproved: Boolean
+      - QCPassed: Boolean
+      - FraudClear: Boolean
+  }
+
+  Step GenerateClosingDisclosure {
+    Condition: ComplianceApproved == true AND QCPassed == true AND FraudClear == true
+    Actions:
+      - ClosingCoordinator GenerateClosingDisclosure with all loan terms and costs
+      - ComplianceOfficer Review Closing Disclosure for accuracy
+      - MortgageLoanOfficer DeliverClosingDisclosure to Borrower (3 business days before closing)
+      - LoanOriginationSystem TrackDelivery and calculate earliest closing date
+      - MortgageLoanOfficer Schedule closing after 3-day waiting period
+    Validation:
+      - APR must match Loan Estimate within tolerance (0.125%)
+      - Loan costs must match Loan Estimate within tolerance
+      - All fees must be disclosed and accurate
+      - Closing Disclosure must be delivered at least 3 business days before closing
+    ErrorHandling:
+      - If APR changes > 0.125%, re-disclose and restart 3-day waiting period
+      - If loan program changes, re-disclose and restart 3-day waiting period
+      - If fees outside tolerance, obtain borrower consent or adjust
+    Output:
+      - ClosingDisclosureDelivered: Boolean
+      - EarliestClosingDate: Date
+  }
+
+  Step FinalReviewAndFunding {
+    Condition: ClosingDisclosureDelivered == true AND 3-day waiting period expired
+    Actions:
+      - ClosingCoordinator Verify all closing documents prepared
+      - ClosingCoordinator Verify closing funds wired to title company
+      - Underwriter Perform final review of loan file
+      - Underwriter VerifyEmployment within 10 days of closing
+      - Underwriter PullCredit to verify no new debt
+      - SeniorUnderwriter Issue clear to close authorization
+      - CoreBankingSystem Disburse funds to title company
+      - LoanOriginationSystem Set LoanApplication.Status = "Closed"
+    Validation:
+      - Employment still current
+      - No new debt incurred since application
+      - All closing conditions met
+      - Closing documents executed properly
+      - Funds disbursed correctly
+    ErrorHandling:
+      - If employment terminated, Suspend closing and re-underwrite
+      - If new debt found, re-calculate DTI and re-underwrite
+      - If documents defective, correct before recording
+    Output:
+      - LoanFunded: Boolean
+      - LoanNumber: String
+      - ClosingDate: Date
+  }
+
+  Ends With: Event LoanClosedAndFunded(ApplicationID, LoanNumber, LoanAmount, ClosingDate)
+}
+
+# ============================================================================
+# RULES - Business and compliance rules
+# ============================================================================
+
+Rule QualifiedMortgageCompliance {
+  Description: Ensure loan meets QM standards for safe harbor or rebuttable presumption
+  Trigger: UnderwritingDecision == "Approved"
+  Conditions:
+    - LoanApplication.APR <= APOR + 1.5% (safe harbor threshold)
+    - Borrower.DTI <= 0.43 OR strong compensating factors documented
+    - LoanApplication.LoanTerm <= 30 years
+    - No negative amortization, interest-only, or balloon features
+    - Points and fees <= 3% of loan amount
+    - Ability to repay verified per ATR requirements
+  Actions:
+    - Mark loan as "Qualified Mortgage - Safe Harbor"
+    - DocumentCompensatingFactors if DTI > 43%
+    - VerifyAbilityToRepay analysis complete
+    - Notify Underwriter of QM status
+  erMap: ComplianceRule
+}
+
+Rule HighCostMortgageTest {
+  Description: Test for HOEPA high-cost mortgage thresholds
+  Trigger: LoanApplication.Status = "Underwriting"
+  Conditions:
+    - IF APR > APOR + 6.5% (for first liens) THEN flag as high-cost mortgage
+    - IF APR > APOR + 8.5% (for subordinate liens) THEN flag as high-cost mortgage
+    - IF points and fees > 5% of loan amount THEN flag as high-cost mortgage
+  Actions:
+    - If high-cost, apply HOEPA restrictions
+    - Prohibit balloon payments
+    - Prohibit prepayment penalties
+    - Require counseling for borrower
+    - Notify ComplianceOfficer for review
+  erMap: ComplianceRule
+}
+
+Rule FairLendingMonitoring {
+  Description: Monitor for fair lending violations and disparate treatment
+  Trigger: UnderwritingDecision created
+  Conditions:
+    - Decision must be based on legitimate credit factors only
+    - No prohibited basis discrimination (race, color, religion, national origin, sex, familial status, disability)
+    - Pricing must be consistent with risk-based pricing matrix
+    - Exceptions must be justified and documented
+  Actions:
+    - Log decision rationale with specific credit factors
+    - ComplianceOfficer Review for disparate treatment
+    - Generate fair lending monitoring report
+    - Escalate any suspected violations to ChiefComplianceOfficer
+  erMap: ComplianceRule
+}
+
+Rule HMDAReportingRequirement {
+  Description: Collect and report HMDA data for covered loans
+  Trigger: LoanApplication created
+  Conditions:
+    - Loan is for home purchase, refinance, or home improvement
+    - Property is 1-4 family dwelling
+    - Loan purpose is HMDA-reportable
+  Actions:
+    - Collect borrower demographic information (voluntary)
+    - Collect property location and census tract
+    - Record application date, decision date, and decision
+    - Record loan pricing information (rate spread)
+    - Segregate demographic data from underwriting
+    - Generate HMDA LAR entry
+    - File HMDA report annually
+  erMap: RegulatoryReportingRequirement
 }
 
 Rule MortgageInsuranceRequirement {
-  Description: Requires insurance for high LTV loans
-  Trigger: LoanApplicant.LTV > 0.80
+  Description: Require mortgage insurance for high LTV loans
+  Trigger: LoanApplication.LTV > 0.80 AND LoanType != "VA"
   Conditions:
-    - LoanApplicant.Status = Approved
+    - LoanApplication.LTV > 0.80
+    - LoanApplication.Status = "Approved"
+    - LoanType = "Conventional" OR "FHA"
   Actions:
-    - Require InsurancePolicy
-    - Notify Applicant of InsuranceRequirement
-  erMap: Requirement
+    - Require PMI for conventional loans with LTV > 80%
+    - Require MIP for all FHA loans
+    - Calculate monthly MI premium
+    - Add MI premium to monthly payment
+    - Notify Borrower of MI requirement and costs
+    - Obtain MI approval before closing
+  erMap: PolicyRule
 }
 
-Report LoanPortfolioPerformance {
-  Description: Monthly loan approval metrics
+Rule EscrowAccountRequirement {
+  Description: Require escrow account for property taxes and insurance
+  Trigger: LoanApplication.Status = "Approved"
+  Conditions:
+    - LoanApplication.LTV > 0.80 OR
+    - Borrower.CreditScore < 680 OR
+    - FirstTimeHomebuyer == true
+  Actions:
+    - SetupEscrow account for property taxes
+    - SetupEscrow account for homeowners insurance
+    - SetupEscrow account for mortgage insurance if applicable
+    - Calculate monthly escrow payment
+    - Add escrow to monthly payment
+    - Conduct annual escrow analysis
+  erMap: PolicyRule
+}
+
+Rule Anti-SteeringRequirements {
+  Description: Ensure borrower presented with range of loan options
+  Trigger: LoanApplication.Status = "InProcess"
+  Conditions:
+    - Present borrower with loans for which they qualify
+    - Include one loan with lowest rate
+    - Include one loan with lowest rate without risky features
+    - Include one loan with lowest total cost
+    - Document borrower's choice of loan
+  Actions:
+    - MortgageLoanOfficer present multiple loan options
+    - Document borrower selection
+    - Obtain borrower acknowledgment
+    - Retain documentation in loan file
+  erMap: ComplianceRule
+}
+
+# ============================================================================
+# REPORTS - Operational and regulatory reports
+# ============================================================================
+
+Report MortgagePipelineReport {
+  Description: Daily snapshot of mortgage pipeline status and aging
   Query:
-    Select Count(LoanApplicant.ID), Avg(LoanApplicant.LTV)
-    From LoanApplicant
-    Where Status = Approved
-    Group By Month(DecisionDate)
+    Select ApplicationID, Borrower.Name, LoanAmount, PropertyAddress, Status, DaysInPipeline, AssignedTo
+    From LoanApplication
+    Where Status IN ['InProcess', 'Underwriting', 'ApprovedWithConditions']
+    Order By DaysInPipeline Descending
+  Schedule: Daily at 8:00 AM
+  erMap: OperationalReport
+}
+
+Report UnderwritingProductivityReport {
+  Description: Underwriter productivity and turn-time metrics
+  Query:
+    Select UnderwriterID, Count(UnderwritingDecision.DecisionID), Avg(DecisionTurnTime), Avg(ConditionsPerLoan)
+    From UnderwritingDecision
+    Where DecisionDate >= CurrentMonth
+    Group By UnderwriterID
     Order By Count Descending
+  Schedule: Weekly on Monday
+  erMap: ManagementReport
+}
+
+Report LoanQualityReport {
+  Description: Loan quality metrics for risk management
+  Query:
+    Select Month, Avg(LTV), Avg(DTI), Avg(CreditScore), Count(Exceptions), PullThroughRate, FalloutRate
+    From LoanApplication
+    Where Status = 'Closed' AND ClosingDate >= CurrentYear
+    Group By Month(ClosingDate)
+    Order By Month Ascending
   Schedule: Monthly
-  erMap: Application
+  erMap: RiskReport
+}
+
+Report HMDASubmissionReport {
+  Description: Annual HMDA LAR submission
+  Query:
+    Select All HMDA fields per regulation
+    From LoanApplication
+    Where ApplicationDate >= PriorYear-01-01 AND ApplicationDate <= PriorYear-12-31
+    Format Per HMDA File Specification
+  Schedule: Annually by March 1
+  erMap: RegulatoryReport
+}
+
+Report FairLendingAnalysis {
+  Description: Quarterly fair lending statistical analysis
+  Query:
+    Select DecisionType, Count, AvgRate, AvgFees
+    From LoanApplication
+    Group By Borrower.ProhibitedBasis, DecisionType
+    Analyze For Disparate Impact
+  Schedule: Quarterly
+  erMap: ComplianceReport
+}
+
+# ============================================================================
+# INTEGRATIONS - External system integrations
+# ============================================================================
+
+Integration LoanOriginationSystem {
+  Provider: Encompass by ICE
+  Credentials: SystemConfig.Encompass_API_Key
+  Operations:
+    - CreateLoanApplication(ApplicationData)
+    - UpdateLoanStatus(ApplicationID, Status)
+    - UploadDocument(ApplicationID, DocumentType, DocumentData)
+    - GenerateClosingDisclosure(ApplicationID)
+    - PullCreditReport(BorrowerID, Authorization)
+    - OrderAppraisal(ApplicationID, PropertyAddress)
+    - OrderTitleSearch(ApplicationID, PropertyAddress)
+    - CalculateAPR(LoanTerms)
+    - RunAUS(ApplicationData) // Automated Underwriting System
+  ErrorHandling:
+    - Log all API errors to ErrorLog
+    - Retry failed requests up to 3 times with exponential backoff
+    - Notify LoanProcessor of system failures
+    - Escalate to ITSupport if system unavailable > 30 minutes
+  erMap: CoreSystem
 }
 
 Integration CoreBankingSystem {
-  Provider: Finacle
-  Credentials: SystemConfig.BankingAPI_Key
+  Provider: FIS
+  Credentials: SystemConfig.FIS_API_Key
   Operations:
-    - CreateLoanAccount(ApplicantID, LoanDetails)
-    - UpdateCreditProfile(ApplicantID, CreditScore)
+    - CreateLoanAccount(ApplicationID, LoanNumber, LoanAmount, Terms)
+    - DisburseFunds(LoanNumber, Amount, Destination)
+    - SetupEscrow(LoanNumber, PropertyTaxes, Insurance)
+    - GeneratePaymentSchedule(LoanNumber)
+    - PostPayment(LoanNumber, PaymentAmount, PaymentDate)
   ErrorHandling:
-    - Log ErrorDetails
-    - Notify RiskManagementTeam
-  erMap: Application
+    - Log all errors
+    - Notify ClosingCoordinator of disbursement failures
+    - Escalate to TreasuryManager if funding issues
+  erMap: CoreBankingSystem
+}
+
+Integration CreditBureauServices {
+  Provider: Experian, TransUnion, Equifax
+  Credentials: SystemConfig.CreditBureau_Credentials
+  Operations:
+    - PullTriMergeReport(SSN, Authorization)
+    - PullSoftCredit(SSN) // Pre-qualification
+    - RescorerCredit(ApplicationID) // Refresh before closing
+    - DisputeResolution(BorrowerID, DisputeDetails)
+  ErrorHandling:
+    - Log all credit pull failures
+    - Notify LoanProcessor if credit pull fails
+    - Retry after resolving authorization issues
+  erMap: ExternalService
+}
+
+Integration FloodDeterminationService {
+  Provider: CoreLogic
+  Credentials: SystemConfig.CoreLogic_API_Key
+  Operations:
+    - DetermineFloodZone(PropertyAddress)
+    - RequireFloodInsurance(PropertyAddress, FloodZone)
+    - MonitorFloodMapChanges(PropertyAddress)
+  ErrorHandling:
+    - Log determination results
+    - Notify ClosingCoordinator if flood insurance required
+  erMap: ExternalService
+}
+
+Integration TitleAndClosingServices {
+  Provider: First American Title
+  Credentials: SystemConfig.FirstAm_API_Key
+  Operations:
+    - OrderTitleSearch(PropertyAddress, SalePrice)
+    - OrderTitleInsurance(PolicyAmount, PolicyType)
+    - ScheduleClosing(ApplicationID, ClosingDate, Location)
+    - FundClosing(LoanNumber, Amount, Instructions)
+  ErrorHandling:
+    - Log all title orders and results
+    - Notify ClosingCoordinator of title issues
+    - Escalate if closing cannot be scheduled
+  erMap: ExternalService
+}
+
+Integration RegulatoryReportingSystem {
+  Provider: CMBS (Compliance Management and Broker Solutions)
+  Credentials: SystemConfig.CMBS_API_Key
+  Operations:
+    - GenerateHMDALAR(LoanApplicationData)
+    - FileHMDAReport(Year, LARData)
+    - ValidateHMDAData(LARData)
+    - GenerateFairLendingAnalysis(DateRange)
+  ErrorHandling:
+    - Log all regulatory reporting activities
+    - Notify ComplianceOfficer of validation errors
+    - Escalate to ChiefComplianceOfficer if filing deadlines at risk
+  erMap: RegulatorySystem
+}
+
+# ============================================================================
+# RELATIONSHIPS - Entity relationships for traceability
+# ============================================================================
+
+Relationship LoanApplicationToBorrower {
+  From: LoanApplication
+  To: Borrower
+  Type: consists_of
+  Attributes:
+    BorrowerType: Primary or CoBorrower
+    ResponsibilityPercent: 100% for primary, shared for co-borrowers
+  erMap: EntityRelationship
+}
+
+Relationship LoanApplicationToCollateral {
+  From: LoanApplication
+  To: PropertyCollateral
+  Type: secures
+  Attributes:
+    LienPosition: First or Second
+    CollateralType: RealEstate
+  erMap: SecurityRelationship
+}
+
+Relationship UnderwriterSeniorUnderwriterSoD {
+  From: Underwriter
+  To: SeniorUnderwriter
+  Type: segregation_of_duties
+  Attributes:
+    SeparationReason: Independent review of high-risk loans
+    EscalationThreshold: RiskGrade D or LoanAmount > $1M
+  erMap: ControlRelationship
+}
+
+Relationship LoanProcessorUnderwriterSoD {
+  From: LoanProcessor
+  To: Underwriter
+  Type: segregation_of_duties
+  Attributes:
+    SeparationReason: Independence in credit decision
+    ProcessorCannotApprove: true
+  erMap: ControlRelationship
+}
+
+Relationship ApplicationToDecisionTraceability {
+  From: LoanApplication
+  To: UnderwritingDecision
+  Type: traceability
+  Attributes:
+    TraceField: ApplicationID
+    AuditRequired: true
+    RetentionPeriod: 25 months per Reg B
+  erMap: AuditTrail
 }

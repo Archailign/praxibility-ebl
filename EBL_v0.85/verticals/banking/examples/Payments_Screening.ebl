@@ -1,57 +1,998 @@
+# Enterprise Business Language (EBL) Definition
+# Version: 0.85
+# License: Apache-2.0
+# Author: Archailign Business Engineering EBL
+# Description: Comprehensive OFAC and sanctions screening for payment transactions
+# Domain: Banking (BAIN) - Payments & Compliance
+# Conforms to: EBL-Spec-1.1
+# Compliance: OFAC, BSA/AML, USA PATRIOT Act, Sanctions Regulations, 31 CFR 501
+
 Metadata:
-  Domain: payments
-  Owner: Compliance
+  EBLClass: PaymentsScreeningWorkflow
+  RequirementID: REQ-BAIN-OFAC-001
+  ProjectID: PRJ-BAIN-SANCTIONS-2025
+  BusinessUnit: PaymentsCompliance
+  Owner: ChiefComplianceOfficer
+  ComplianceFrameworks: [OFAC, BSA/AML, PATRIOT_Act, Sanctions, CTR, SAR, FinCEN]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
-DataObject DO_PaymentISO20022 {
+# ============================================================================
+# DATA OBJECTS - Complete payments and screening data structures
+# ============================================================================
+
+DataObject DO_PaymentTransaction {
   Schema:
-    MsgId: String, required
+    TransactionID: UUID, required, unique
+    MessageID: String, required, unique
+    MessageType: String, required
+    TransactionDate: Date, required
+    TransactionTime: String, required
     Amount: Currency, required
-    Debtor: String
-    Creditor: String
+    Currency: String, required
+    DebitAccount: String, required
+    CreditAccount: String, required
+    DebtorName: String, required
+    DebtorAddress: String
+    DebtorCountry: String, required
+    DebtorBankBIC: String
+    CreditorName: String, required
+    CreditorAddress: String
+    CreditorCountry: String, required
+    CreditorBankBIC: String
+    IntermediaryBanks: JSON
+    PaymentPurpose: String
+    ReferenceNumber: String
+    OriginatingChannel: String, required
+    Priority: String
+    ValueDate: Date
+    SettlementDate: Date
+    TransactionType: String, required
   Policies:
-    - "Retain raw messages 5 years"
+    - "Screen all outbound wire transfers against OFAC SDN list"
+    - "Screen all inbound wire transfers against sanctions lists"
+    - "Retain payment records for 5 years per BSA requirements"
+    - "Block transactions matching SDN list immediately"
+    - "Report blocked transactions to OFAC within 10 days"
+    - "File CTR for cash transactions ≥ $10,000"
+    - "Monitor for structuring patterns"
   Resources:
-    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/inbound", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
-    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/query",   Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
-  erMap: PaymentISO20022
+    Input:  { Channel: PaymentNetwork, Protocol: HTTPS, Endpoint: "https://payments.bank.com/api/v2/transactions", Auth: OAuth2, Format: ISO20022, SLA: "P95<100ms" }
+    Output: { Channel: CoreBanking, Protocol: HTTPS, Endpoint: "https://core.bank.com/api/payments/post", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: PaymentTransaction
 }
 
-DataObject DO_NameScreeningResult {
+DataObject DO_OFACScreeningRequest {
   Schema:
-    MsgId: String, required, unique
-    RiskScore: Integer
-    HitList: JSON
+    ScreeningID: UUID, required, unique
+    TransactionID: UUID, required
+    ScreeningTimestamp: Date, required
+    NameToScreen: String, required
+    AddressToScreen: String
+    CountryToScreen: String
+    DateOfBirthToScreen: Date
+    IDNumberToScreen: String
+    EntityType: String, required
+    ScreeningType: String, required
+    ScreeningLists: JSON, required
+    FuzzyMatchThreshold: Currency, required
+    PhoneticMatchEnabled: Boolean
   Policies:
-    - "Positive matches escalate to manual review"
+    - "Screen against SDN, Non-SDN, FSE, SSI, and sectoral sanctions lists"
+    - "Use fuzzy matching algorithm with 85% threshold"
+    - "Enable phonetic matching for name variations"
+    - "Screen both originator and beneficiary"
+    - "Screen all parties in transaction chain"
+    - "Re-screen if transaction held > 24 hours"
   Resources:
-    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/screening", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
-    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://pay/screening", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
-  erMap: NameScreening
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://screening.bank.com/api/v2/screen", Auth: APIKey, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: DataWarehouse, Protocol: HTTPS, Endpoint: "https://dw.bank.com/api/screening", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: OFACScreeningRequest
 }
+
+DataObject DO_OFACScreeningResult {
+  Schema:
+    ResultID: UUID, required, unique
+    ScreeningID: UUID, required
+    TransactionID: UUID, required
+    ScreeningDate: Date, required
+    OverallResult: String, required
+    MatchesFound: Integer, required
+    HighRiskMatches: JSON
+    MediumRiskMatches: JSON
+    LowRiskMatches: JSON
+    FalsePositiveLikelihood: Currency
+    MatchDetails: JSON
+    ListsHit: JSON
+    RiskScore: Integer, required
+    RecommendedAction: String, required
+    AutoDecision: String
+    RequiresManualReview: Boolean, required
+    ReviewAssignedTo: String
+    ReviewDeadline: Date
+  Policies:
+    - "Auto-block transactions with 100% SDN name match"
+    - "Flag for manual review if match score > 95%"
+    - "Auto-clear if match score < 50%"
+    - "Escalate country-specific matches to sanctions team"
+    - "Document all screening decisions"
+    - "Maintain audit trail for regulatory review"
+  Resources:
+    Input:  { Channel: ScreeningEngine, Protocol: HTTPS, Endpoint: "https://screening.bank.com/api/v2/results", Auth: APIKey, Format: JSON, SLA: "P95<200ms" }
+    Output: { Channel: AlertingSystem, Protocol: HTTPS, Endpoint: "https://alerts.bank.com/api/sanctions", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+  erMap: OFACScreeningResult
+}
+
+DataObject DO_SanctionsList {
+  Schema:
+    ListID: UUID, required, unique
+    ListName: String, required
+    ListType: String, required
+    Jurisdiction: String, required
+    LastUpdateDate: Date, required
+    NextUpdateDate: Date
+    EntriesCount: Integer, required
+    Entries: JSON, required
+    ListVersion: String, required
+    SourceURL: String
+    HashChecksum: String, required
+  Policies:
+    - "Update SDN list daily from OFAC website"
+    - "Update EU sanctions list daily"
+    - "Update UN sanctions list weekly"
+    - "Verify list integrity with checksum"
+    - "Maintain historical versions for audit"
+    - "Alert if list update fails for 24 hours"
+  Resources:
+    Input:  { Channel: OFACWebsite, Protocol: HTTPS, Endpoint: "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports", Auth: None, Format: XML, SLA: "P95<5000ms" }
+    Output: { Channel: LocalDatabase, Protocol: JDBC, Endpoint: "jdbc:postgresql://db.bank.com:5432/sanctions", Auth: DBCredentials, Format: SQL, SLA: "P95<1000ms" }
+  erMap: SanctionsListData
+}
+
+DataObject DO_BlockedTransaction {
+  Schema:
+    BlockID: UUID, required, unique
+    TransactionID: UUID, required
+    BlockDate: Date, required
+    BlockTime: String, required
+    BlockReason: String, required
+    MatchedSDNEntry: JSON, required
+    BlockingOfficer: String, required
+    NotificationSent: Boolean, required
+    OFACReportFiled: Boolean
+    OFACReportDate: Date
+    FundsHeldAccount: String
+    BlockDuration: Integer
+    ResolutionStatus: String, required
+    ReleasedDate: Date
+    ReleasedBy: String
+    ReleaseReason: String
+    ApprovalChain: JSON
+  Policies:
+    - "Block transactions immediately upon SDN match"
+    - "Freeze funds in suspense account"
+    - "Notify sender and receiver of block"
+    - "File OFAC report within 10 business days"
+    - "Prohibit tipping off the subject"
+    - "Escalate to legal for guidance"
+    - "Maintain block until OFAC authorizes release"
+  Resources:
+    Input:  { Channel: PaymentSystem, Protocol: HTTPS, Endpoint: "https://payments.bank.com/api/v2/block", Auth: OAuth2, Format: JSON, SLA: "P95<100ms" }
+    Output: { Channel: OFACReporting, Protocol: HTTPS, Endpoint: "https://ofac.treasury.gov/api/report", Auth: APIKey, Format: XML, SLA: "P95<2000ms" }
+  erMap: BlockedTransaction
+}
+
+DataObject DO_FalsePositiveReview {
+  Schema:
+    ReviewID: UUID, required, unique
+    ScreeningResultID: UUID, required
+    TransactionID: UUID, required
+    ReviewDate: Date, required
+    ReviewerID: String, required
+    ReviewerName: String, required
+    MatchScore: Currency, required
+    MatchDetails: JSON
+    CustomerInformation: JSON
+    HistoricalScreening: JSON
+    FalsePositiveDetermination: Boolean, required
+    DeterminationReason: String, required
+    SupportingDocumentation: JSON
+    WhitelistRecommendation: Boolean
+    EscalatedToSenior: Boolean
+    ApprovalChain: JSON
+    ResolutionTime: Integer
+    QualityReview: JSON
+  Policies:
+    - "Review all alerts within 4 hours of generation"
+    - "Senior analyst approval required for release"
+    - "Document all false positive determinations"
+    - "Consider whitelisting for repeat false positives"
+    - "QC review sample of determinations monthly"
+    - "Track false positive rate by reviewer"
+  Resources:
+    Input:  { Channel: AlertQueue, Protocol: HTTPS, Endpoint: "https://alerts.bank.com/api/queue", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: CaseManagement, Protocol: HTTPS, Endpoint: "https://cases.bank.com/api/resolutions", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: FalsePositiveReview
+}
+
+DataObject DO_WhitelistEntry {
+  Schema:
+    WhitelistID: UUID, required, unique
+    CustomerID: UUID, required
+    CustomerName: String, required
+    CustomerAddress: String
+    CustomerCountry: String, required
+    WhitelistReason: String, required
+    ApprovedBy: String, required
+    ApprovalDate: Date, required
+    ExpirationDate: Date, required
+    ReviewFrequency: String, required
+    LastReviewDate: Date
+    NextReviewDate: Date, required
+    FalsePositiveCount: Integer, required
+    RiskRating: String, required
+    SupportingDocumentation: JSON
+    Active: Boolean, required
+  Policies:
+    - "Require manager approval for whitelist entries"
+    - "Review whitelist entries quarterly"
+    - "Expire whitelist entries after 12 months"
+    - "Re-screen whitelisted parties annually"
+    - "Remove from whitelist if risk profile changes"
+    - "Audit whitelist for appropriateness semi-annually"
+  Resources:
+    Input:  { Channel: ComplianceSystem, Protocol: HTTPS, Endpoint: "https://compliance.bank.com/api/whitelist", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: ScreeningEngine, Protocol: HTTPS, Endpoint: "https://screening.bank.com/api/whitelist/sync", Auth: APIKey, Format: JSON, SLA: "P95<1000ms" }
+  erMap: WhitelistEntry
+}
+
+DataObject DO_OFACRegulatoryReport {
+  Schema:
+    ReportID: UUID, required, unique
+    ReportType: String, required
+    ReportingPeriod: String, required
+    FilingDate: Date, required
+    BlockedTransactionsCount: Integer, required
+    BlockedTransactionDetails: JSON, required
+    TotalValueBlocked: Currency, required
+    RejectedTransactionsCount: Integer
+    RejectedTransactionDetails: JSON
+    FundsHeldAmount: Currency
+    FundsReleasedAmount: Currency
+    OFACLicensesObtained: Integer
+    OFACLicenseDetails: JSON
+    PendingBlocks: Integer
+    ResolvedBlocks: Integer
+    ComplianceOfficerName: String, required
+    ComplianceOfficerTitle: String, required
+    CertificationStatement: String, required
+  Policies:
+    - "File blocked property reports within 10 business days"
+    - "Report all SDN matches to OFAC"
+    - "Report rejected transactions annually"
+    - "Certify accuracy of all reports"
+    - "Retain reports for 5 years"
+    - "Provide to examiners upon request"
+  Resources:
+    Input:  { Channel: ComplianceReporting, Protocol: HTTPS, Endpoint: "https://compliance.bank.com/api/reports/ofac", Auth: OAuth2, Format: JSON, SLA: "P95<1000ms" }
+    Output: { Channel: OFACeFiling, Protocol: HTTPS, Endpoint: "https://ofac.treasury.gov/api/efile", Auth: CertificateAuth, Format: XML, SLA: "P95<5000ms" }
+  erMap: OFACReport
+}
+
+# ============================================================================
+# ENTITIES - Business objects with rules
+# ============================================================================
 
 Entity Payment {
-  dataRef: DO_PaymentISO20022
+  dataRef: DO_PaymentTransaction
   Properties:
-    MsgId: { type: String, required: true }
+    TransactionID: { type: UUID, required: true, unique: true, erMap: DataObject }
     Amount: { type: Currency, required: true }
-  erMap: Payment
+    Currency: { type: String, required: true, default: "USD" }
+    Status: { type: String, required: true, values: ["Pending", "Screening", "Cleared", "Blocked", "Rejected", "Settled"] }
+    RiskLevel: { type: String, values: ["Low", "Medium", "High", "Critical"] }
+    ScreeningRequired: { type: Boolean, required: true, default: true }
+    HighValueTransaction: { type: Boolean, calculated: Amount >= 10000 }
+  Rules:
+    - All wire transfers must be screened before processing
+    - Transactions to high-risk countries require enhanced screening
+    - Transactions ≥ $10,000 require CTR filing consideration
+    - Blocked transactions must remain blocked until OFAC authorization
+    - Customer must be notified of delays within 24 hours
+  erMap: PaymentTransaction
 }
 
-Process NameScreening {
-  Description: "Screen payment against sanctions"
-  ObjectiveID: PAY1
-  BusinessGoalID: AFC1
-  Actors: [PaymentProcessor, ComplianceOfficer, RiskAnalyst]
-  erMap: ScreenProc
-  Starts With: Event PaymentReceived(Payment)
+Entity ScreeningAlert {
+  dataRef: DO_OFACScreeningResult
+  Properties:
+    AlertID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    TransactionID: { type: UUID, required: true, erMap: Relationship }
+    AlertType: { type: String, required: true, values: ["OFACMatch", "SanctionsMatch", "CountryRisk", "PEPMatch", "AdverseMedia"] }
+    AlertStatus: { type: String, required: true, values: ["Open", "InReview", "Cleared", "Escalated", "Blocked"] }
+    MatchScore: { type: Integer, range: [0, 100], required: true }
+    Priority: { type: String, required: true, values: ["Critical", "High", "Medium", "Low"] }
+    AssignedAnalyst: { type: String }
+    ReviewDeadline: { type: Date, required: true }
+  Rules:
+    - Critical alerts (match score > 95%) must be reviewed within 1 hour
+    - High priority alerts must be reviewed within 4 hours
+    - Medium priority alerts must be reviewed within 24 hours
+    - All alerts must be resolved before payment processing
+    - Escalate if analyst cannot resolve within SLA
+  erMap: Alert
+}
 
-  Step Screen {
+Entity BlockedPayment {
+  dataRef: DO_BlockedTransaction
+  Properties:
+    BlockID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    TransactionID: { type: UUID, required: true, erMap: Relationship }
+    BlockReason: { type: String, required: true }
+    BlockStatus: { type: String, required: true, values: ["Blocked", "UnderReview", "PendingOFACGuidance", "Released", "Rejected"] }
+    OFACReported: { type: Boolean, required: true, default: false }
+    FundsHeld: { type: Currency, required: true }
+  Rules:
+    - Report to OFAC within 10 business days of blocking
+    - Do not tip off customer about OFAC match
+    - Maintain block until explicit OFAC authorization
+    - Freeze all related accounts if SDN party identified
+    - Escalate to legal and senior management immediately
+  erMap: BlockedTransaction
+}
+
+Entity SanctionsListEntry {
+  dataRef: DO_SanctionsList
+  Properties:
+    EntryID: { type: UUID, required: true, unique: true, erMap: DataObject }
+    Name: { type: String, required: true }
+    AliasNames: { type: JSON }
+    Country: { type: String }
+    Program: { type: String, required: true }
+    ListType: { type: String, required: true, values: ["SDN", "NonSDN", "FSE", "SSI", "Sectoral"] }
+    AddedDate: { type: Date, required: true }
+    LastUpdated: { type: Date }
+    Active: { type: Boolean, required: true, default: true }
+  Rules:
+    - Update list daily from authoritative source
+    - Validate list integrity before deploying
+    - Alert if list update fails
+    - Screen against all active lists
+    - Maintain audit trail of list versions
+  erMap: SanctionsListData
+}
+
+# ============================================================================
+# PROCESS - Comprehensive payments screening workflow
+# ============================================================================
+
+Process PaymentsScreeningWorkflow {
+  Description: Real-time OFAC and sanctions screening for payment transactions with automated decision-making and manual review escalation
+  ObjectiveID: OBJ-BAIN-SCREEN-001
+  BusinessGoalID: BG-BAIN-COMPLIANCE-2025
+  Actors: [
+    WireTransferOperator,
+    OFACOfficer,
+    SanctionsScreeningAnalyst,
+    AMLOfficer,
+    ComplianceOfficer,
+    SeniorAMLAnalyst,
+    LegalCounsel,
+    PaymentProcessingSystem,
+    OFACScreeningSystem,
+    TransactionMonitoringSystem,
+    NotificationService,
+    CoreBankingSystem
+  ]
+  erMap: PaymentsScreeningProcess
+
+  Starts With: Event PaymentReceived(TransactionID, Amount, DebtorName, CreditorName, Countries)
+
+  Step ValidatePaymentData {
+    Description: Validate payment message format and required data fields
+    Inputs:
+      - Payment.TransactionID
+      - Payment.Amount
+      - Payment.DebtorName
+      - Payment.CreditorName
+      - Payment.DebtorCountry
+      - Payment.CreditorCountry
+    Validation:
+      - TransactionID must be unique and valid
+      - Amount must be > 0
+      - DebtorName and CreditorName must not be empty
+      - Country codes must be valid ISO 3166-1 alpha-2
+      - Message format must conform to ISO 20022 or SWIFT MT
+      - All required fields must be populated
     Actions:
-      - PaymentProcessor Invoke screening via DO_PaymentISO20022 Output
-      - ComplianceOfficer Screen names via DO_PaymentISO20022 Output
-      - ComplianceOfficer Approve via DO_NameScreeningResult Input
+      - PaymentProcessingSystem Validate message format
+      - PaymentProcessingSystem Create Payment entity
+      - PaymentProcessingSystem Set Payment.Status = "Pending"
+      - WireTransferOperator Verify data completeness
+    ErrorHandling:
+      - If validation fails, PaymentProcessingSystem Reject payment
+      - If data incomplete, PaymentProcessingSystem Notify sender to correct
+      - If format invalid, PaymentProcessingSystem Return with error code
+    Output:
+      - ValidationResult: Enum[Valid, Invalid, Incomplete]
   }
 
-  Ends With: Event ScreeningComplete(Payment)
+  Step DetermineScreeningRequirements {
+    Description: Determine which screening checks are required based on transaction characteristics
+    Condition: ValidationResult == "Valid"
+    Inputs:
+      - Payment.Amount
+      - Payment.DebtorCountry
+      - Payment.CreditorCountry
+      - Payment.TransactionType
+    Actions:
+      - TransactionMonitoringSystem Assess transaction risk factors
+      - TransactionMonitoringSystem Check if countries are high-risk
+      - TransactionMonitoringSystem Determine if enhanced screening needed
+      - PaymentProcessingSystem Set Payment.RiskLevel based on assessment
+      - PaymentProcessingSystem Flag for CTR if Amount >= $10,000
+    Validation:
+      - High-risk countries require enhanced screening
+      - Large value transactions (> $100,000) require senior review
+      - Cross-border transactions require full screening
+    Output:
+      - ScreeningLevel: Enum[Standard, Enhanced, Comprehensive]
+      - RequiresCTR: Boolean
+      - RequiresEnhancedDueDiligence: Boolean
+  }
+
+  Step ScreenAgainstOFACLists {
+    Description: Screen debtor and creditor against OFAC SDN and sanctions lists
+    Actions:
+      - OFACScreeningSystem ScreenName debtor name against all active lists
+      - OFACScreeningSystem ScreenName creditor name against all active lists
+      - OFACScreeningSystem Check debtor and creditor addresses
+      - OFACScreeningSystem Check country sanctions programs
+      - OFACScreeningSystem Calculate match scores using fuzzy logic
+      - OFACScreeningSystem Apply phonetic matching for name variations
+      - OFACScreeningSystem Check intermediary banks if present
+      - OFACScreeningSystem Create DO_OFACScreeningResult record
+    Service: OFACScreeningSystem.ComprehensiveScreen(Transaction)
+    Validation:
+      - All parties must be screened (debtor, creditor, intermediaries)
+      - Match score threshold must be >= 50% to generate alert
+      - Exact name matches (100%) must auto-block
+      - Country-based sanctions must be checked
+    ErrorHandling:
+      - If screening system unavailable, hold transaction and escalate
+      - If timeout, retry screening up to 3 times
+      - If repeated failures, manual screening required
+    Output:
+      - ScreeningResult: {
+          DebtorMatches: JSON,
+          CreditorMatches: JSON,
+          IntermediaryMatches: JSON,
+          OverallRiskScore: Integer,
+          AutoDecision: Enum[Clear, Review, Block]
+        }
+  }
+
+  Step AutomatedDecisionMaking {
+    Description: Automatically clear low-risk transactions or escalate high-risk ones
+    Condition: ScreeningResult != null
+    Inputs:
+      - ScreeningResult.OverallRiskScore
+      - ScreeningResult.DebtorMatches
+      - ScreeningResult.CreditorMatches
+    Actions:
+      - OFACScreeningSystem Evaluate match scores and risk factors
+      - OFACScreeningSystem Apply auto-decision rules
+    Validation:
+      - Match score < 50% → Auto-clear
+      - Match score 50-95% → Manual review
+      - Match score > 95% or exact SDN match → Auto-block
+    Output:
+      - Decision: Enum[AutoClear, RequiresReview, AutoBlock]
+  }
+
+  Step ProcessAutoCleared {
+    Condition: Decision == "AutoClear"
+    Actions:
+      - PaymentProcessingSystem Set Payment.Status = "Cleared"
+      - CoreBankingSystem ProcessPayment and settle funds
+      - PaymentProcessingSystem PostTransaction to accounts
+      - NotificationService Notify sender of successful processing
+    Output:
+      - PaymentCleared: Boolean
+      - SettlementComplete: Boolean
+  }
+
+  Step ProcessAutoBlocked {
+    Condition: Decision == "AutoBlock"
+    Actions:
+      - PaymentProcessingSystem BlockTransaction immediately
+      - PaymentProcessingSystem Set Payment.Status = "Blocked"
+      - CoreBankingSystem FreezeAccount funds in suspense account
+      - PaymentProcessingSystem Create DO_BlockedTransaction record
+      - OFACOfficer Review blocking details
+      - NotificationService Notify sender of payment delay (no mention of OFAC)
+      - ComplianceOfficer Escalate to legal and senior management
+      - OFACOfficer Schedule OFAC report filing within 10 days
+    Validation:
+      - Funds must be frozen immediately
+      - Cannot tip off customer about OFAC investigation
+      - Must maintain audit trail of blocking decision
+    ErrorHandling:
+      - If freeze fails, manually hold payment
+      - Escalate to operations if system issues
+    Output:
+      - TransactionBlocked: Boolean
+      - FundsHeld: Currency
+      - OFACReportRequired: Boolean
+  }
+
+  Step ManualAlertReview {
+    Condition: Decision == "RequiresReview"
+    Actions:
+      - PaymentProcessingSystem Create ScreeningAlert
+      - PaymentProcessingSystem Set Payment.Status = "Screening"
+      - PaymentProcessingSystem Assign alert to SanctionsScreeningAnalyst
+      - NotificationService Notify analyst of new alert
+      - SanctionsScreeningAnalyst Review match details
+      - SanctionsScreeningAnalyst ReviewCustomer information and history
+      - SanctionsScreeningAnalyst Compare against sanctions list entry
+      - SanctionsScreeningAnalyst Check for false positive indicators
+      - SanctionsScreeningAnalyst Research using open sources
+    Validation:
+      - Alert must be reviewed within SLA (1-24 hours based on priority)
+      - Analyst must document review rationale
+      - Supporting evidence must be attached
+    Output:
+      - ReviewDecision: Enum[ClearAsFalsePositive, EscalateToSenior, RecommendBlock]
+      - ReviewNotes: String
+      - SupportingEvidence: JSON
+  }
+
+  Step SeniorAnalystEscalation {
+    Condition: ReviewDecision == "EscalateToSenior" OR Payment.Amount > 100000
+    Actions:
+      - SeniorAMLAnalyst Review initial analyst determination
+      - SeniorAMLAnalyst Verify analysis and supporting evidence
+      - SeniorAMLAnalyst Consult sanctions guidance and precedents
+      - SeniorAMLAnalyst Make final determination
+      - SeniorAMLAnalyst Document approval or escalation to legal
+    Validation:
+      - Senior analyst must have appropriate authority level
+      - Review must be completed within 24 hours of escalation
+      - All high-value transactions require senior review
+    ErrorHandling:
+      - If senior unavailable, escalate to AMLOfficer
+      - If still uncertain, escalate to LegalCounsel
+    Output:
+      - SeniorDecision: Enum[ApproveClear, RecommendBlock, EscalateToLegal]
+  }
+
+  Step FalsePositiveClearance {
+    Condition: ReviewDecision == "ClearAsFalsePositive" OR SeniorDecision == "ApproveClear"
+    Actions:
+      - SanctionsScreeningAnalyst Create DO_FalsePositiveReview record
+      - SanctionsScreeningAnalyst Document determination rationale
+      - SeniorAMLAnalyst Approve false positive determination
+      - PaymentProcessingSystem Set Payment.Status = "Cleared"
+      - PaymentProcessingSystem Update ScreeningAlert.AlertStatus = "Cleared"
+      - CoreBankingSystem ProcessPayment and settle funds
+      - SanctionsScreeningAnalyst Check if whitelist appropriate
+      - NotificationService Notify sender of processing completion
+    Validation:
+      - Senior approval required for false positive clearances
+      - Documentation must be complete and retained
+      - Consider whitelisting if 3+ false positives for same party
+    Output:
+      - PaymentCleared: Boolean
+      - FalsePositiveDocumented: Boolean
+      - WhitelistCandidate: Boolean
+  }
+
+  Step BlockPaymentDecision {
+    Condition: ReviewDecision == "RecommendBlock" OR SeniorDecision == "RecommendBlock"
+    Actions:
+      - OFACOfficer Review recommendation and evidence
+      - OFACOfficer Verify SDN match is accurate
+      - LegalCounsel Review legal obligations
+      - ComplianceOfficer Approve blocking decision
+      - PaymentProcessingSystem BlockTransaction
+      - PaymentProcessingSystem Set Payment.Status = "Blocked"
+      - CoreBankingSystem FreezeAccount funds
+      - PaymentProcessingSystem Create DO_BlockedTransaction record
+      - OFACOfficer File OFAC blocked property report
+      - NotificationService Notify sender of payment delay
+      - AMLOfficer Update customer risk rating
+      - ComplianceOfficer Notify senior management and board
+    Validation:
+      - Legal and compliance approval required
+      - OFAC report must be filed within 10 business days
+      - Related accounts must be reviewed for freeze
+      - Cannot tip off customer about sanctions match
+    Output:
+      - TransactionBlocked: Boolean
+      - OFACReportFiled: Boolean
+      - AccountsFrozen: JSON
+  }
+
+  Step WhitelistManagement {
+    Condition: WhitelistCandidate == true AND FalsePositiveCount >= 3
+    Actions:
+      - SanctionsScreeningAnalyst Propose whitelist entry
+      - SeniorAMLAnalyst Review whitelist request
+      - AMLOfficer Approve whitelist entry
+      - PaymentProcessingSystem Create DO_WhitelistEntry record
+      - OFACScreeningSystem Update whitelist configuration
+      - PaymentProcessingSystem Set quarterly review reminder
+    Validation:
+      - Manager approval required for whitelist
+      - Whitelist entries expire after 12 months
+      - Quarterly reviews required
+      - Document rationale for whitelist
+    Output:
+      - WhitelistCreated: Boolean
+      - NextReviewDate: Date
+  }
+
+  Step MonitorBlockedTransaction {
+    Condition: TransactionBlocked == true
+    Actions:
+      - ComplianceOfficer Monitor for OFAC guidance or license
+      - OFACOfficer Track blocked transaction aging
+      - PaymentProcessingSystem Generate monthly blocked assets report
+      - ComplianceOfficer Seek OFAC license if appropriate
+      - LegalCounsel Advise on release procedures
+    Validation:
+      - Monthly reporting to management required
+      - Annual OFAC report required
+      - Cannot release without OFAC authorization
+    Output:
+      - MonitoringActive: Boolean
+      - OFACLicenseRequested: Boolean
+  }
+
+  Ends With: Event PaymentProcessed(TransactionID, Status, ScreeningResult, CompletionTime)
+}
+
+# ============================================================================
+# RULES - Compliance and business rules
+# ============================================================================
+
+Rule SDNAutoBlockRule {
+  Description: Automatically block transactions matching SDN list with 100% name match
+  Trigger: ScreeningResult.OverallRiskScore >= 100 OR ExactSDNMatch == true
+  Conditions:
+    - Match score = 100% on SDN list
+    - Name match is exact (not fuzzy)
+    - SDN entry is active
+  Actions:
+    - BlockTransaction immediately
+    - FreezeAccount in suspense
+    - Escalate to OFACOfficer and Legal
+    - File OFAC report within 10 business days
+    - Notify senior management
+    - Do not tip off customer
+  erMap: AutomatedComplianceRule
+}
+
+Rule HighRiskCountryEnhancedScreening {
+  Description: Apply enhanced screening for transactions involving high-risk jurisdictions
+  Trigger: Payment.DebtorCountry IN HighRiskCountries OR Payment.CreditorCountry IN HighRiskCountries
+  Conditions:
+    - Country is on OFAC sanctions list
+    - Country is on FATF high-risk list
+    - Country has comprehensive sanctions program
+  Actions:
+    - Set ScreeningLevel = "Enhanced"
+    - Screen against country-specific sanctions programs
+    - Require senior analyst review
+    - Document country risk assessment
+    - Consider EDD for customer if frequent transactions
+  erMap: RiskBasedRule
+}
+
+Rule LargeValueTransactionReview {
+  Description: Require senior management review for large value transactions
+  Trigger: Payment.Amount >= 100000
+  Conditions:
+    - Transaction amount >= $100,000
+    - Any screening alert generated
+  Actions:
+    - Escalate to SeniorAMLAnalyst automatically
+    - Require dual approval for clearance
+    - Document enhanced review rationale
+    - Notify ChiefComplianceOfficer if amount > $1M
+  erMap: ControlRule
+}
+
+Rule CTRFilingRequirement {
+  Description: File Currency Transaction Report for large cash transactions
+  Trigger: Payment.Amount >= 10000 AND Payment.TransactionType == "Cash"
+  Conditions:
+    - Transaction involves currency >= $10,000
+    - Transaction is cash or cash equivalent
+    - Aggregation rules apply if multiple related transactions
+  Actions:
+    - Generate CTR report
+    - File with FinCEN within 15 days
+    - Check for structuring patterns
+    - Document exemption if applicable
+  erMap: RegulatoryReportingRule
+}
+
+Rule SARFilingForSuspiciousScreening {
+  Description: File SAR if screening pattern indicates potential evasion
+  Trigger: Customer has pattern of near-miss screening alerts
+  Conditions:
+    - Customer has 5+ screening alerts in 90 days
+    - Pattern suggests deliberate misspelling or evasion
+    - Customer resists providing information
+    - Transactions structured to avoid detection
+  Actions:
+    - AMLOfficer Investigate suspicious pattern
+    - FileSAR if suspicious activity confirmed
+    - Update customer risk rating to high
+    - Consider account closure or restriction
+    - Escalate to senior management
+  erMap: SuspiciousActivityRule
+}
+
+Rule WhitelistExpirationAndReview {
+  Description: Automatically expire and review whitelist entries
+  Trigger: WhitelistEntry.NextReviewDate <= Today
+  Conditions:
+    - Whitelist entry approaching expiration
+    - Quarterly review due
+    - Entry active for 12+ months
+  Actions:
+    - Notify SanctionsScreeningAnalyst to review entry
+    - Re-screen whitelisted party against current lists
+    - Verify customer information still accurate
+    - Update risk rating
+    - Extend or remove whitelist entry based on review
+    - Document review decision
+  erMap: PeriodicReviewRule
+}
+
+Rule SanctionsListUpdateMandatory {
+  Description: Ensure sanctions lists are updated daily and validated
+  Trigger: SanctionsList.LastUpdateDate < Today
+  Conditions:
+    - Last update was not today
+    - List is due for update per schedule
+  Actions:
+    - OFACScreeningSystem Download latest OFAC SDN list
+    - OFACScreeningSystem Validate list integrity with checksum
+    - OFACScreeningSystem Deploy to production screening engine
+    - OFACScreeningSystem Archive previous version
+    - NotificationService Alert if update fails
+    - Escalate if update not completed within 24 hours
+  erMap: DataGovernanceRule
+}
+
+# ============================================================================
+# REPORTS - Operational and regulatory reports
+# ============================================================================
+
+Report DailyScreeningActivityReport {
+  Description: Daily summary of screening activity and alerts
+  Query:
+    Select Count(TransactionID) AS TotalScreened,
+           Count(AlertID) AS AlertsGenerated,
+           Avg(ScreeningResult.RiskScore) AS AvgRiskScore,
+           Count(BlockedTransactionID) AS Blocked,
+           Count(ClearedTransactionID) AS Cleared,
+           Avg(ResolutionTime) AS AvgResolutionTime
+    From Payment
+    Where TransactionDate = Today
+    Group By Status
+  Schedule: Daily at 6:00 AM
+  erMap: OperationalReport
+}
+
+Report WeeklyBlockedTransactionsReport {
+  Description: Weekly summary of blocked transactions and OFAC matches
+  Query:
+    Select BlockID, TransactionID, BlockDate, Amount, MatchedSDNEntry, BlockReason, ResolutionStatus
+    From BlockedPayment
+    Where BlockDate >= Last7Days
+    Order By Amount Descending
+  Schedule: Weekly on Monday
+  erMap: ComplianceReport
+}
+
+Report MonthlyFalsePositiveAnalysis {
+  Description: Monthly analysis of false positive rate and screening effectiveness
+  Query:
+    Select Count(AlertID) AS TotalAlerts,
+           Count(FalsePositiveID) AS FalsePositives,
+           (Count(FalsePositiveID) / Count(AlertID)) AS FalsePositiveRate,
+           Avg(ReviewTime) AS AvgReviewTime,
+           Count(WhitelistID) AS WhitelistCreated
+    From ScreeningAlert
+    Where AlertDate >= CurrentMonth
+    Group By AlertType, ReviewerID
+  Schedule: Monthly on 1st
+  erMap: QualityReport
+}
+
+Report QuarterlyOFACComplianceReport {
+  Description: Quarterly OFAC compliance summary for senior management
+  Query:
+    Select Count(TransactionID) AS TotalTransactionsScreened,
+           Count(BlockID) AS TotalBlocked,
+           Sum(FundsHeld) AS TotalFundsHeld,
+           Count(OFACReportID) AS OFACReportsFiled,
+           Count(LicenseRequestID) AS LicensesRequested,
+           FalsePositiveRate,
+           AvgScreeningTime,
+           SystemUptime
+    From PaymentsScreeningMetrics
+    Where Period = CurrentQuarter
+  Schedule: Quarterly
+  erMap: ExecutiveReport
+}
+
+Report AnnualSanctionsRejectedTransactionsReport {
+  Description: Annual report of rejected transactions for OFAC filing
+  Query:
+    Select TransactionID, TransactionDate, Amount, DebtorName, CreditorName, RejectionReason
+    From Payment
+    Where Status = "Rejected" AND RejectionReason LIKE "%sanctions%" AND TransactionDate >= PriorYear
+    Format Per OFAC Rejected Transactions Reporting Format
+  Schedule: Annually by February 15
+  erMap: RegulatoryReport
+}
+
+# ============================================================================
+# INTEGRATIONS - External system integrations
+# ============================================================================
+
+Integration OFACScreeningEngine {
+  Provider: Fircosoft (Accuity)
+  Credentials: SystemConfig.Fircosoft_API_Key
+  Operations:
+    - ComprehensiveScreen(TransactionData)
+    - RealTimeNameScreen(Name, Country, DOB)
+    - BatchScreening(TransactionList)
+    - UpdateSanctionsList(ListData)
+    - ValidateListIntegrity(Checksum)
+    - GetMatchDetails(ScreeningID)
+    - CalibrateMatchingEngine(Threshold)
+  ErrorHandling:
+    - Log all screening errors
+    - Retry failed screens up to 3 times
+    - Hold transaction if screening unavailable
+    - Escalate if system down > 15 minutes
+    - Manual screening required if extended outage
+  erMap: ExternalScreeningService
+}
+
+Integration OFACWebsiteAPI {
+  Provider: OFAC Treasury
+  Credentials: None (public API)
+  Operations:
+    - DownloadSDNList(Format)
+    - DownloadConsolidatedList()
+    - GetSanctionsPrograms()
+    - GetSDNByID(SDNID)
+    - VerifyListChecksum(Hash)
+  ErrorHandling:
+    - Retry download if timeout
+    - Validate list integrity before deployment
+    - Alert if download fails repeatedly
+    - Use cached list if download unavailable
+  erMap: RegulatoryDataSource
+}
+
+Integration PaymentNetworkGateway {
+  Provider: SWIFT/Fedwire
+  Credentials: SystemConfig.SWIFT_Credentials
+  Operations:
+    - ReceivePaymentMessage(MT103, MT202)
+    - SendPaymentMessage(ISO20022)
+    - QueryTransactionStatus(TransactionID)
+    - SendRejectionNotice(TransactionID, Reason)
+  ErrorHandling:
+    - Log all network messages
+    - Retry send if temporary failure
+    - Escalate if repeated transmission failures
+    - Notify sender of delays
+  erMap: PaymentNetwork
+}
+
+Integration CoreBankingLedger {
+  Provider: FIS
+  Credentials: SystemConfig.FIS_API_Key
+  Operations:
+    - PostTransaction(DebitAccount, CreditAccount, Amount)
+    - FreezeAccount(AccountNumber, Reason)
+    - UnfreezeAccount(AccountNumber, Authorization)
+    - CreateSuspenseAccount(TransactionID)
+    - TransferToSuspense(Amount, TransactionID)
+    - ReleaseFromSuspense(Amount, Authorization)
+  ErrorHandling:
+    - Log all ledger operations
+    - Require dual authorization for large amounts
+    - Alert if freeze fails
+    - Escalate to operations if system issues
+  erMap: CoreBankingSystem
+}
+
+Integration FinCENReportingSystem {
+  Provider: FinCEN BSA E-Filing System
+  Credentials: SystemConfig.FinCEN_Certificate
+  Operations:
+    - FileCTR(CTRData)
+    - FileSAR(SARData)
+    - ValidateReport(ReportXML)
+    - GetFilingStatus(FilingID)
+  ErrorHandling:
+    - Validate report before submission
+    - Retry if submission fails
+    - Alert if filing deadline approaching
+    - Escalate to ComplianceOfficer if repeated failures
+  erMap: RegulatoryReportingSystem
+}
+
+Integration OFACReportingPortal {
+  Provider: OFAC Report Portal
+  Credentials: SystemConfig.OFAC_Certificate
+  Operations:
+    - FileBlockedPropertyReport(BlockedTransactionData)
+    - FileRejectedTransactionsReport(RejectedTransactionsData)
+    - RequestOFACLicense(LicenseRequest)
+    - QueryLicenseStatus(LicenseID)
+    - ReportComplianceMetrics(QuarterlyData)
+  ErrorHandling:
+    - Validate report format before submission
+    - Retain copy of all filed reports
+    - Track filing deadlines
+    - Escalate if filing rejected
+  erMap: OFACReportingSystem
+}
+
+# ============================================================================
+# RELATIONSHIPS - Entity relationships for traceability
+# ============================================================================
+
+Relationship PaymentToScreeningAlert {
+  From: Payment
+  To: ScreeningAlert
+  Type: traceability
+  Attributes:
+    ScreeningTimestamp: Date
+    AlertGenerated: Boolean
+    AuditTrail: JSON
+  erMap: ProcessTraceability
+}
+
+Relationship ScreeningAlertToBlockedPayment {
+  From: ScreeningAlert
+  To: BlockedPayment
+  Type: traceability
+  Attributes:
+    EscalationPath: JSON
+    DecisionChain: JSON
+    RetentionRequired: 5 years per BSA
+  erMap: ComplianceTraceability
+}
+
+Relationship AnalystSeniorAnalystSoD {
+  From: SanctionsScreeningAnalyst
+  To: SeniorAMLAnalyst
+  Type: segregation_of_duties
+  Attributes:
+    SeparationReason: Independent review of alert determinations
+    EscalationThreshold: Match score > 85% or amount > $100K
+  erMap: ControlRelationship
+}
+
+Relationship OFACOfficerLegalCounselEscalation {
+  From: OFACOfficer
+  To: LegalCounsel
+  Type: depends_on
+  Attributes:
+    EscalationReason: Legal guidance required for blocking decisions
+    ConsultationRequired: All SDN matches
+  erMap: ConsultationRelationship
 }

@@ -20,14 +20,14 @@ flowchart TD
 
 ## What is EBL?
 
-**Enterprise Business Language (EBL)** is a domain-specific language that enables business analysts, architects, and developers to express business requirements in a structured, machine-readable format that is:
+**Archailign EBL** is Praxibility's implementation of a ubiquitous EBL, enabling seamless generation of architecture models (Archimate for now), policy bundles (OPA/Rego), Infrastructure as Code (IaC) and Architecture-as-Code (AaC) artifacts as later release due in Archailign.
+
+The **EBL** is a domain-specific language that enables business analysts, architects, and developers to express business requirements in a structured, machine-readable format that is:
 
 - ✅ **Human-readable**: Natural business language with clear semantics
 - ✅ **Machine-verifiable**: Validated against grammar and domain dictionaries
 - ✅ **Compilable**: Generates architecture models, policies, and code
 - ✅ **Traceable**: Links requirements to data, processes, capabilities, and policies
-
-**Archailign EBL** is Praxibility's implementation of a ubiquitous EBL, enabling seamless generation of architecture models (Archimate), policy bundles (OPA/Rego), Infrastructure as Code (IaC) and Architecture-as-Code (AaC) artifacts.
 
 ---
 
@@ -52,30 +52,23 @@ mvn -version
 ```bash
 # Clone the repository
 git clone https://github.com/Archailign/praxibility-ebl.git
-cd praxibility-ebl
+cd praxibility-ebl/EBL_v0.85
 
-# Build with Maven
-cd EBL_v0.85
-mvn clean install
+# Install Python dependencies
+pip install antlr4-python3-runtime pytest
 
-# Or build with Gradle
-gradle build
-
-# Generate ANTLR parsers
-mvn antlr4:antlr4
+# Generate ANTLR parsers for all verticals
+./utilities/generate_vertical_parsers.sh
 ```
 
 ### Validate Your First EBL File
 
 ```bash
-# Install Python dependencies
-pip install antlr4-python3-runtime pytest
-
-# Validate an example from the KYC vertical
-cd EBL_v0.85
-python ebl_validator.py \
-  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
-  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
+# Validate a Banking example using ANTLR-based validator
+cd verticals/banking
+python3 validators/python/dictionary_validator.py \
+  examples/MortgageLoanApplication.ebl \
+  dictionary/banking_dictionary_v0.85.json
 ```
 
 ✅ **Success!** You're now ready to explore EBL.
@@ -103,9 +96,11 @@ EBL files define business requirements using these core constructs:
 
 ## 2. Exploring the Dictionary
 
-The **Enterprise Business Lexicon** (`adTech_Dictionary_v0.85.json`) defines:
+Each vertical has its own **Enterprise Business Lexicon** dictionary defining domain-specific vocabulary.
 
 ### Core Types
+
+All dictionaries support these core types:
 
 ```json
 {
@@ -120,23 +115,23 @@ The **Enterprise Business Lexicon** (`adTech_Dictionary_v0.85.json`) defines:
 }
 ```
 
-### Domain Packs
+### Vertical Dictionaries
 
-EBL includes pre-built vocabularies for multiple industries:
+EBL includes pre-built vocabularies for 8 industry verticals:
 
 ```bash
-# View available domains
-cat EBL_v0.85/EBL_Dictionary_v0.85_all.json | jq '.domains | keys'
+# View available vertical dictionaries
+ls -1 EBL_v0.85/verticals/*/dictionary/*.json
 
-# Domains included:
-# - adtech: Campaigns, audiences, bidding
-# - healthcare: Trials, patients, protocols
+# Verticals included:
+# - banking: Payments, screening, accounts, fraud detection
+# - healthcare: Trials, patients, protocols, HIPAA compliance
 # - insurance: Claims, policies, underwriting
-# - kyc: Identity verification, compliance
-# - payments: Transactions, screening, accounts
+# - kyc_compliance: Identity verification, AML compliance
+# - adtech: Campaigns, audiences, bidding
 # - logistics: Tracking, warehouses, routes
 # - retail: Inventory, orders, customers
-# - it: Applications, systems, infrastructure
+# - it_infrastructure: Applications, systems, infrastructure
 ```
 
 ### Actors and Verbs
@@ -287,48 +282,47 @@ Process ClaimLifecycle {
 
 ## 4. Validating EBL Specifications
 
-### Python Validator
+### Vertical-Specific Validators (ANTLR-Based)
 
+Each vertical has its own validators for production use. These validators include both dictionary validation and semantic/compliance validation:
+
+**Python Validators:**
 ```bash
-# Validate a single file from a vertical
-cd EBL_v0.85
-python ebl_validator.py \
-  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
-  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
+# Banking vertical - Dictionary validation
+cd EBL_v0.85/verticals/banking
+python validators/python/dictionary_validator.py \
+  examples/MortgageLoanApplication.ebl \
+  dictionary/banking_dictionary_v0.85.json
 
-# Expected output:
-# ✓ Parsing successful
-# ✓ Semantic validation passed
-# ✓ All actors defined in dictionary
-# ✓ All verbs permitted by actors
-# ✓ All relationships valid
+# Banking vertical - Semantic validation (PCI-DSS, SOX, AML, etc.)
+python validators/python/semantic_validator.py \
+  examples/Payments_Screening.ebl \
+  dictionary/banking_dictionary_v0.85.json
 ```
 
-### Java Validator
-
+**Java Validators:**
 ```bash
-# Build and run Java validator
-cd EBL_v0.85
-mvn clean package
-java -cp target/classes:generated-src/java \
-  org.example.ebl.EBLSemanticValidator \
-  verticals/insurance/dictionary/insurance_dictionary_v0.85.json \
-  verticals/insurance/examples/Insurance_ClaimLifecycle.ebl
+# Compile and run Banking validator
+cd EBL_v0.85/verticals/banking
+javac validators/java/BankingDictionaryValidator.java
+java validators.java.BankingDictionaryValidator \
+  examples/MortgageLoanApplication.ebl \
+  dictionary/banking_dictionary_v0.85.json
 ```
 
-### Run All Tests
-
+**Run Vertical Tests:**
 ```bash
-# Maven
-mvn test
-
-# Gradle
-gradle test
-
 # Python tests
-cd EBL_v0.85
-PYTHONPATH=generated-src/python pytest -q
+cd EBL_v0.85/verticals/banking/tests/python
+python test_banking_validator.py
+
+# Java tests
+cd EBL_v0.85/verticals/banking/tests/java
+javac BankingValidatorTest.java
+java BankingValidatorTest
 ```
+
+> **Note**: The Banking vertical has fully implemented ANTLR-based validators and tests. Other verticals have template stubs ready for customization using Banking as a template.
 
 ---
 
@@ -588,49 +582,44 @@ mvn antlr4:antlr4
 
 ---
 
-## 6. Generate Parsers for Different Languages
+## 6. Generate Parsers for All Verticals
 
-### Python Parser
+### Automated Parser Generation (Recommended)
 
 ```bash
-# Download ANTLR
+# Download ANTLR (if not already present)
 curl -LO https://www.antlr.org/download/antlr-4.13.1-complete.jar
 
-# Generate Python parser
-java -jar antlr-4.13.1-complete.jar \
-  -Dlanguage=Python3 \
-  -visitor -listener \
-  -o generated-src/python \
-  src/main/antlr4/EBL.g4
+# Generate parsers for all verticals
+cd EBL_v0.85
+./utilities/generate_vertical_parsers.sh
 
-# Install runtime
+# Install Python runtime
 pip install antlr4-python3-runtime
 ```
 
-### Java Parser
+This generates Python and Java parsers for all 8 verticals:
+- `verticals/banking/generated/python/` - Banking Python parsers
+- `verticals/banking/generated/java/` - Banking Java parsers
+- `verticals/healthcare/generated/python/` - Healthcare Python parsers
+- And so on for all verticals...
+
+### Manual Parser Generation (Optional)
 
 ```bash
-# Generate Java parser
+# Generate parsers for a specific vertical (e.g., Banking)
+java -jar antlr-4.13.1-complete.jar \
+  -Dlanguage=Python3 \
+  -visitor -listener \
+  -o verticals/banking/generated/python \
+  verticals/banking/grammar/Banking_v0_85.g4
+
 java -jar antlr-4.13.1-complete.jar \
   -Dlanguage=Java \
   -visitor -listener \
-  -package org.example.ebl \
-  -o generated-src/java \
-  src/main/antlr4/EBL.g4
-```
-
-### Go Parser (Optional)
-
-```bash
-# Generate Go parser
-java -jar antlr-4.13.1-complete.jar \
-  -Dlanguage=Go \
-  -visitor -listener \
-  -o generated-src/go \
-  src/main/antlr4/EBL.g4
-
-# Install Go runtime
-go get github.com/antlr/antlr4/runtime/Go/antlr/v4
+  -package com.archailign.ebl.banking \
+  -o verticals/banking/generated/java \
+  verticals/banking/grammar/Banking_v0_85.g4
 ```
 
 ---
@@ -723,22 +712,25 @@ EBL validators perform comprehensive checks:
 ### Example Validation Output
 
 ```bash
-$ python ebl_validator.py \
-  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
-  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
+$ cd verticals/banking
+$ python3 validators/python/dictionary_validator.py \
+  examples/MortgageLoanApplication.ebl \
+  dictionary/banking_dictionary_v0.85.json
 
-✓ Parse successful: verticals/kyc_compliance/examples/KYC_Onboarding.ebl
-✓ DataObjects: DO_KYCApplication, DO_IdentityDocument
-✓ Entities: Application
-✓ Processes: KYCOnboarding
+✓ Parse successful: examples/MortgageLoanApplication.ebl
+✓ DataObjects: DO_MortgageApplication, DO_CreditReport
+✓ Entities: MortgageApplication, Applicant
+✓ Processes: MortgageLoanProcessing
 
 Validation Summary:
-✓ 4 actors validated: Customer, Registrar, KYCAnalyst, ComplianceOfficer
-✓ 4 actions validated with permissions
+✓ 5 actors validated: Applicant, LoanOfficer, Underwriter, ComplianceOfficer, LoanProcessor
+✓ 8 actions validated with permissions
 ✓ 2 DataObjects have required Policies and Resources
-✓ Entity 'Application' has valid dataRef
+✓ All entities have valid dataRef
 ✓ No reserved keyword violations
 ✓ All enum defaults are valid
+✓ PCI-DSS compliance checks passed
+✓ SOX compliance checks passed
 
 0 errors, 0 warnings
 ```
@@ -749,7 +741,7 @@ Validation Summary:
 
 ### Add Custom Actors and Verbs
 
-Edit `adTech_Dictionary_v0.85.json`:
+Create or edit your vertical's dictionary (e.g., `verticals/manufacturing/dictionary/manufacturing_dictionary_v0.85.json`):
 
 ```json
 {
@@ -885,8 +877,13 @@ curl -LO https://www.antlr.org/download/antlr-4.13.1-complete.jar
 # Install dependencies
 pip install antlr4-python3-runtime
 
-# Set PYTHONPATH
-export PYTHONPATH=generated-src/python:$PYTHONPATH
+# Ensure parsers are generated
+cd EBL_v0.85
+./utilities/generate_vertical_parsers.sh
+
+# Run validators from within vertical directory
+cd verticals/banking
+python3 validators/python/dictionary_validator.py examples/MortgageLoanApplication.ebl dictionary/banking_dictionary_v0.85.json
 ```
 
 **Q: Maven build fails**

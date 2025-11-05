@@ -1,7 +1,25 @@
 {
   "version": "0.85",
-  "name": "Retail Business Lexicon (EBL)",
+  "name": "Retail & E-Commerce Business Lexicon (EBL)",
   "vertical": "retail",
+  "description": "Comprehensive Domain Specific Language for Retail, E-Commerce, Omnichannel, Supply Chain, Merchandising, Store Operations, Loss Prevention, and Customer Loyalty",
+  "compliance_frameworks": [
+    "PCI-DSS (Payment Card Industry Data Security Standard)",
+    "Consumer Protection Act (FTC)",
+    "GDPR (EU Data Protection - Retail)",
+    "CCPA (California Consumer Privacy Act)",
+    "Fair Credit Reporting Act (FCRA)",
+    "Electronic Funds Transfer Act (EFTA - Reg E)",
+    "Americans with Disabilities Act (ADA - Store Access)",
+    "Fair Pricing & Deceptive Trade Practices",
+    "Weights and Measures Regulations",
+    "Product Safety (CPSC)",
+    "Food Safety Modernization Act (FSMA)",
+    "Textile Fiber Products Identification Act",
+    "FTC Mail/Internet/Telephone Order Rule",
+    "CAN-SPAM Act (Marketing)",
+    "Telephone Consumer Protection Act (TCPA)"
+  ],
   "core": {
     "types": [
       "Entity",
@@ -44,6 +62,63 @@
         "NOT",
         "IN",
         "BETWEEN"
+      ],
+      "retail_specific": [
+        "SKU",
+        "UPC",
+        "EAN",
+        "GTIN",
+        "PLU",
+        "BARCODE",
+        "POS",
+        "EOD",
+        "BOD",
+        "Z_OUT",
+        "X_REPORT",
+        "BOGO",
+        "BOGOHP",
+        "MSRP",
+        "MAP",
+        "FIFO",
+        "LIFO",
+        "FEFO",
+        "DSD",
+        "DC",
+        "CROSS_DOCK",
+        "DROPSHIP",
+        "SHIP_FROM_STORE",
+        "BOPIS",
+        "ROPIS",
+        "SAME_DAY_DELIVERY",
+        "CURBSIDE_PICKUP",
+        "ENDLESS_AISLE",
+        "SHOWROOM",
+        "MARKDOWN",
+        "CLEARANCE",
+        "COMP_SALES",
+        "SSS",
+        "SHRINK",
+        "MARKOUT",
+        "SPOILAGE",
+        "BREAKAGE",
+        "UNITS_PER_CASE",
+        "INNER_PACK",
+        "OUTER_PACK",
+        "EACH",
+        "CATCH_WEIGHT",
+        "PLANOGRAM",
+        "FACINGS",
+        "GONDOLA",
+        "ENDCAP",
+        "POWER_AISLE",
+        "IMPULSE_BUY",
+        "LOSS_LEADER",
+        "PRIVATE_LABEL",
+        "VENDOR_MANAGED_INVENTORY",
+        "EDI",
+        "ASN",
+        "GS1",
+        "RFID"
       ]
     },
     "verbPermissions": {
@@ -80,40 +155,75 @@
       "Adjust": "write",
       "Forecast": "read",
       "Plan": "write",
-      "Disburse": "write",
+      "Merchandise": "write",
+      "Assort": "write",
+      "Promote": "write",
+      "Discount": "write",
+      "Markdown": "write",
+      "Clearance": "write",
+      "Price": "write",
+      "Reprice": "write",
+      "Override": "write",
+      "Scan": "read",
+      "Ring": "write",
+      "Tender": "write",
+      "Void": "write",
+      "Suspend": "write",
+      "Resume": "write",
+      "Return": "write",
+      "Exchange": "write",
+      "Refund": "write",
+      "Issue": "write",
+      "Redeem": "write",
+      "Enroll": "write",
+      "Register": "write",
+      "Count": "write",
+      "CycleCount": "write",
+      "Transfer": "write",
+      "Quarantine": "write",
+      "Dispose": "write",
+      "Recall": "write",
+      "Surveil": "read",
+      "Investigate": "read",
+      "Apprehend": "write",
+      "Prosecute": "write",
+      "Tag": "write",
+      "Detag": "write",
+      "Display": "write",
+      "Restock": "write",
+      "Stock": "write",
+      "Unload": "write",
+      "Load": "write",
+      "Backorder": "write",
+      "Cancel": "write",
+      "Fulfill": "write",
+      "Route": "write",
+      "Dispatch": "write",
+      "Track": "read",
+      "Deliver": "write",
+      "SignFor": "write",
+      "PickUp": "write",
+      "HoldForPickup": "write",
+      "Authorize": "write",
+      "Capture": "write",
       "Settle": "write",
       "Reverse": "write",
-      "Capture": "write",
-      "Authorize": "write",
-      "Bid": "write",
-      "Investigate": "read",
-      "ReportSAR": "write",
-      "ScreenName": "read",
-      "Enroll": "write",
-      "Randomise": "write",
-      "Titrate": "write",
-      "Consent": "write",
-      "Assess": "read",
-      "Underwrite": "write",
-      "AssessClaim": "read",
-      "Subrogate": "write",
-      "Recover": "write",
-      "Define": "write",
-      "Integrate": "both",
-      "Assemble": "write",
-      "Target": "both",
-      "Identify": "read",
-      "Evaluate": "read",
-      "Deliver": "write",
-      "Track": "write",
-      "Test": "write",
-      "Learn": "write",
-      "Optimise": "write",
-      "Retire": "write",
-      "Scale": "write",
-      "Analyse": "read",
+      "Chargeback": "write",
+      "Segment": "write",
+      "Target": "write",
+      "Campaign": "write",
+      "Personalize": "write",
+      "Recommend": "read",
+      "Upsell": "write",
+      "CrossSell": "write",
+      "Attribute": "read",
+      "Analyze": "read",
       "Report": "write",
-      "Attribute": "read"
+      "Audit": "read",
+      "Inspect": "read",
+      "Sample": "write",
+      "Test": "write",
+      "Expire": "write"
     },
     "relationshipTypes": [
       "consists_of",
@@ -123,179 +233,1945 @@
       "communicates_with",
       "segregation_of_duties",
       "traceability",
-      "subrogates_against"
+      "variant_of",
+      "substitute_for",
+      "complementary_to",
+      "bundled_with",
+      "cross_dock_to",
+      "replenishes_from"
     ]
   },
   "domain": {
     "entities": [
       "Customer",
+      "CustomerProfile",
+      "LoyaltyMember",
+      "LoyaltyAccount",
+      "LoyaltyPoints",
+      "LoyaltyTier",
+      "Rewards",
+      "Coupon",
+      "GiftCard",
+      "StoreCredit",
       "Order",
+      "OnlineOrder",
+      "InStoreOrder",
+      "PhoneOrder",
+      "OrderLine",
       "OrderItem",
-      "Product",
-      "Inventory",
-      "Store",
+      "Fulfillment",
       "Shipment",
-      "Return"
+      "Delivery",
+      "Pickup",
+      "Return",
+      "ReturnItem",
+      "Exchange",
+      "Refund",
+      "Product",
+      "SKU",
+      "ItemMaster",
+      "ProductVariant",
+      "ProductAttribute",
+      "Category",
+      "SubCategory",
+      "Brand",
+      "Supplier",
+      "Vendor",
+      "Manufacturer",
+      "Price",
+      "PriceZone",
+      "PriceTier",
+      "MSRP",
+      "MAP",
+      "Promotion",
+      "PromotionRule",
+      "Discount",
+      "Markdown",
+      "Clearance",
+      "Sale",
+      "SpecialOffer",
+      "Bundle",
+      "Inventory",
+      "InventoryLevel",
+      "StockOnHand",
+      "ReservedStock",
+      "InTransitStock",
+      "SafetyStock",
+      "InventoryCount",
+      "CycleCount",
+      "PhysicalInventory",
+      "InventoryAdjustment",
+      "InventoryTransfer",
+      "InventoryAllocation",
+      "Replenishment",
+      "ReplenishmentOrder",
+      "PurchaseOrder",
+      "ReceivingOrder",
+      "AdvancedShipNotice",
+      "Store",
+      "StoreLocation",
+      "Department",
+      "Aisle",
+      "Fixture",
+      "Shelf",
+      "Planogram",
+      "Display",
+      "Endcap",
+      "Warehouse",
+      "DistributionCenter",
+      "FulfillmentCenter",
+      "CrossDock",
+      "POSTransaction",
+      "POSLine",
+      "Tender",
+      "Payment",
+      "CashTender",
+      "CardTender",
+      "DigitalWalletTender",
+      "CheckTender",
+      "Receipt",
+      "Invoice",
+      "PackingSlip",
+      "ShippingLabel",
+      "PickList",
+      "PickWave",
+      "PackingList",
+      "Manifest",
+      "Cart",
+      "Wishlist",
+      "Registry",
+      "Subscription",
+      "AutoReplenishment",
+      "PreOrder",
+      "Backorder",
+      "DropShipment",
+      "Vendor_DropShip",
+      "Store_Transfer",
+      "ShipFromStore",
+      "BOPIS_Order",
+      "Curbside_Pickup",
+      "SameDayDelivery",
+      "IncidentReport",
+      "LossPreventionCase",
+      "ShrinkageReport",
+      "AuditLog",
+      "Recall",
+      "RMA"
     ],
     "dataObjects": [
       "DO_Customer",
+      "DO_CustomerProfile",
+      "DO_CustomerPreferences",
+      "DO_LoyaltyAccount",
+      "DO_LoyaltyTransaction",
+      "DO_PointsBalance",
+      "DO_RewardsCatalog",
+      "DO_Coupon",
+      "DO_GiftCard",
+      "DO_StoreCredit",
       "DO_Order",
-      "DO_OrderItem",
-      "DO_Product",
-      "DO_Inventory",
+      "DO_OrderHeader",
+      "DO_OrderLine",
+      "DO_OrderStatus",
+      "DO_FulfillmentRequest",
+      "DO_FulfillmentStatus",
       "DO_Shipment",
+      "DO_TrackingInfo",
+      "DO_Delivery",
+      "DO_DeliveryConfirmation",
+      "DO_Pickup",
+      "DO_PickupConfirmation",
       "DO_Return",
-      "DO_ReplenishmentPlan"
+      "DO_ReturnItem",
+      "DO_ReturnReason",
+      "DO_Exchange",
+      "DO_Refund",
+      "DO_RefundAuthorization",
+      "DO_Product",
+      "DO_SKU",
+      "DO_ItemMaster",
+      "DO_UPC",
+      "DO_Barcode",
+      "DO_ProductAttribute",
+      "DO_ProductImage",
+      "DO_ProductDescription",
+      "DO_Category",
+      "DO_CategoryHierarchy",
+      "DO_Brand",
+      "DO_Supplier",
+      "DO_VendorMaster",
+      "DO_Price",
+      "DO_PriceBook",
+      "DO_PriceZone",
+      "DO_PricingRule",
+      "DO_MSRP",
+      "DO_CostPrice",
+      "DO_Promotion",
+      "DO_PromotionCalendar",
+      "DO_PromotionRule",
+      "DO_Discount",
+      "DO_DiscountRule",
+      "DO_Markdown",
+      "DO_MarkdownSchedule",
+      "DO_Clearance",
+      "DO_ClearanceEvent",
+      "DO_Bundle",
+      "DO_BundleConfiguration",
+      "DO_Inventory",
+      "DO_InventorySnapshot",
+      "DO_StockLevel",
+      "DO_AvailableToPromise",
+      "DO_ReservedInventory",
+      "DO_InTransitInventory",
+      "DO_SafetyStock",
+      "DO_ReorderPoint",
+      "DO_InventoryCount",
+      "DO_CycleCountSchedule",
+      "DO_CountSheet",
+      "DO_InventoryVariance",
+      "DO_InventoryAdjustment",
+      "DO_AdjustmentReason",
+      "DO_InventoryTransfer",
+      "DO_TransferRequest",
+      "DO_TransferReceipt",
+      "DO_Allocation",
+      "DO_AllocationRule",
+      "DO_Replenishment",
+      "DO_ReplenishmentPlan",
+      "DO_ReplenishmentOrder",
+      "DO_MinMaxLevels",
+      "DO_PurchaseOrder",
+      "DO_PO_Header",
+      "DO_PO_Line",
+      "DO_Receiving",
+      "DO_ReceiptHeader",
+      "DO_ReceiptLine",
+      "DO_ASN",
+      "DO_ASN_Header",
+      "DO_ASN_Line",
+      "DO_Store",
+      "DO_StoreProfile",
+      "DO_StoreHours",
+      "DO_Department",
+      "DO_Planogram",
+      "DO_PlanogramCompliance",
+      "DO_FixtureLayout",
+      "DO_Warehouse",
+      "DO_WarehouseLocation",
+      "DO_Bin",
+      "DO_Zone",
+      "DO_DistributionCenter",
+      "DO_POSTransaction",
+      "DO_POSHeader",
+      "DO_POSLine",
+      "DO_POSTender",
+      "DO_Tender",
+      "DO_Payment",
+      "DO_PaymentAuthorization",
+      "DO_PaymentCapture",
+      "DO_PaymentSettlement",
+      "DO_Chargeback",
+      "DO_Receipt",
+      "DO_DigitalReceipt",
+      "DO_Invoice",
+      "DO_PackingSlip",
+      "DO_ShippingLabel",
+      "DO_PickList",
+      "DO_PickWave",
+      "DO_PickConfirmation",
+      "DO_PackingList",
+      "DO_PackConfirmation",
+      "DO_Manifest",
+      "DO_BillOfLading",
+      "DO_Cart",
+      "DO_CartItem",
+      "DO_AbandonedCart",
+      "DO_Wishlist",
+      "DO_Registry",
+      "DO_RegistryItem",
+      "DO_Subscription",
+      "DO_SubscriptionPlan",
+      "DO_AutoReplenishment",
+      "DO_PreOrder",
+      "DO_Backorder",
+      "DO_DropShipment",
+      "DO_DropShipVendor",
+      "DO_CustomerSegment",
+      "DO_MarketingCampaign",
+      "DO_EmailCampaign",
+      "DO_SMSCampaign",
+      "DO_PushNotification",
+      "DO_Personalization",
+      "DO_Recommendation",
+      "DO_ProductRecommendation",
+      "DO_CrossSell",
+      "DO_Upsell",
+      "DO_Attribution",
+      "DO_ConversionFunnel",
+      "DO_IncidentReport",
+      "DO_LossPreventionCase",
+      "DO_ShrinkageReport",
+      "DO_SpoilageReport",
+      "DO_BreakageReport",
+      "DO_TheftIncident",
+      "DO_SurveillanceFootage",
+      "DO_AuditLog",
+      "DO_ComplianceAudit",
+      "DO_PCI_Audit",
+      "DO_ProductRecall",
+      "DO_RecallNotification",
+      "DO_RMA",
+      "DO_WarrantyClaim"
     ],
     "verbs": [
       "Create",
       "Update",
-      "Reserve",
+      "Set",
+      "Persist",
+      "Delete",
+      "Approve",
+      "Reject",
+      "Escalate",
+      "Notify",
+      "Read",
+      "View",
+      "Fetch",
+      "Verify",
+      "Screen",
+      "Validate",
+      "Monitor",
+      "Reconcile",
+      "Emit",
+      "Invoke",
+      "Post",
+      "Schedule",
+      "File",
+      "Archive",
       "Allocate",
       "Pick",
       "Pack",
       "Ship",
       "Receive",
       "Replenish",
+      "Reserve",
       "Adjust",
       "Forecast",
       "Plan",
-      "Notify",
-      "Read",
-      "View"
+      "Merchandise",
+      "Assort",
+      "Promote",
+      "Discount",
+      "Markdown",
+      "Clearance",
+      "Price",
+      "Reprice",
+      "Override",
+      "Scan",
+      "Ring",
+      "Tender",
+      "Void",
+      "Suspend",
+      "Resume",
+      "Return",
+      "Exchange",
+      "Refund",
+      "Issue",
+      "Redeem",
+      "Enroll",
+      "Register",
+      "Count",
+      "CycleCount",
+      "Transfer",
+      "Quarantine",
+      "Dispose",
+      "Recall",
+      "Surveil",
+      "Investigate",
+      "Apprehend",
+      "Prosecute",
+      "Tag",
+      "Detag",
+      "Display",
+      "Restock",
+      "Stock",
+      "Unload",
+      "Load",
+      "Backorder",
+      "Cancel",
+      "Fulfill",
+      "Route",
+      "Dispatch",
+      "Track",
+      "Deliver",
+      "SignFor",
+      "PickUp",
+      "HoldForPickup",
+      "Authorize",
+      "Capture",
+      "Settle",
+      "Reverse",
+      "Chargeback",
+      "Segment",
+      "Target",
+      "Campaign",
+      "Personalize",
+      "Recommend",
+      "Upsell",
+      "CrossSell",
+      "Attribute",
+      "Analyze",
+      "Report",
+      "Audit",
+      "Inspect",
+      "Sample",
+      "Test",
+      "Expire"
     ],
     "actors": [
+      "StoreManager",
+      "AssistantStoreManager",
+      "DepartmentManager",
       "StoreAssociate",
-      "CustomerService",
+      "SalesAssociate",
+      "FloorAssociate",
+      "Cashier",
+      "HeadCashier",
+      "CustomerServiceRep",
+      "CustomerServiceManager",
+      "PersonalShopper",
+      "StylingConsultant",
+      "ProductSpecialist",
+      "TechSpecialist",
+      "PharmacyTechnician",
+      "Pharmacist",
+      "VisualMerchandiser",
+      "StockAssociate",
+      "Receiver",
+      "Stocker",
+      "BackroomLead",
       "WarehouseManager",
+      "WarehouseAssociate",
+      "WarehouseSupervisor",
+      "InventoryManager",
+      "InventoryAnalyst",
+      "InventoryController",
+      "CycleCountSpecialist",
       "Picker",
       "Packer",
+      "Sorter",
+      "Loader",
+      "Shipper",
+      "ShippingClerk",
+      "ReceivingClerk",
+      "ReceivingManager",
       "LogisticsCoordinator",
-      "InventoryAnalyst",
-      "EComPlatform"
+      "TransportationManager",
+      "FleetManager",
+      "RouteOptimizer",
+      "DispatchManager",
+      "DeliveryDriver",
+      "CourierDriver",
+      "FulfillmentAssociate",
+      "FulfillmentManager",
+      "DCManager",
+      "DCOperations",
+      "CrossDockCoordinator",
+      "Merchandiser",
+      "Buyer",
+      "AssociateBuyer",
+      "SeniorBuyer",
+      "CategoryManager",
+      "AssortmentPlanner",
+      "MerchandisePlanner",
+      "AllocationAnalyst",
+      "ReplenishmentAnalyst",
+      "DemandPlanner",
+      "SupplyPlanner",
+      "ForecastAnalyst",
+      "PricingAnalyst",
+      "PricingManager",
+      "PromotionPlanner",
+      "MarkdownAnalyst",
+      "RevenueManager",
+      "LossPreventionManager",
+      "LossPreventionAssociate",
+      "SecurityGuard",
+      "SecurityManager",
+      "InvestigationSpecialist",
+      "AuditManager",
+      "InternalAuditor",
+      "ComplianceOfficer",
+      "SafetyOfficer",
+      "QualityAssuranceManager",
+      "ProductSafetyOfficer",
+      "ECommerceManager",
+      "DigitalMerchandiser",
+      "WebContentManager",
+      "ProductInformationManager",
+      "CatalogManager",
+      "MarketingManager",
+      "CampaignManager",
+      "EmailMarketingSpecialist",
+      "SocialMediaManager",
+      "SEOSpecialist",
+      "AnalyticsManager",
+      "DataAnalyst",
+      "BusinessIntelligenceAnalyst",
+      "ReportingAnalyst",
+      "LoyaltyProgramManager",
+      "CustomerInsightsAnalyst",
+      "CRMManager",
+      "CustomerExperienceManager",
+      "OmniChannelManager",
+      "ChannelOperationsManager",
+      "VendorManager",
+      "SupplierRelationsManager",
+      "ProcurementManager",
+      "ContractsManager",
+      "FinanceManager",
+      "AccountingClerk",
+      "APClerk",
+      "ARClerk",
+      "Reconciler",
+      "PayrollClerk",
+      "TreasuryAnalyst",
+      "ITManager",
+      "SystemAdministrator",
+      "DatabaseAdministrator",
+      "NetworkAdministrator",
+      "POSSupport",
+      "HelpDeskTechnician",
+      "DevOpsEngineer",
+      "DataEngineer",
+      "IntegrationSpecialist",
+      "EDISpecialist",
+      "EComPlatform",
+      "POSSystem",
+      "InventoryManagementSystem",
+      "WarehouseManagementSystem",
+      "OrderManagementSystem",
+      "CustomerDataPlatform",
+      "LoyaltySystem",
+      "PricingEngine",
+      "PromotionEngine",
+      "RecommendationEngine",
+      "FraudDetectionSystem",
+      "PaymentGateway",
+      "ShippingCarrier",
+      "ThirdPartyLogistics",
+      "DropShipVendor",
+      "MarketplaceIntegration"
     ],
     "actorVerbs": {
+      "StoreManager": [
+        "Approve",
+        "Override",
+        "Escalate",
+        "Authorize",
+        "Audit",
+        "Report",
+        "Schedule",
+        "Plan",
+        "Monitor",
+        "View"
+      ],
+      "AssistantStoreManager": [
+        "Approve",
+        "Override",
+        "Escalate",
+        "Schedule",
+        "Monitor",
+        "View"
+      ],
+      "DepartmentManager": [
+        "Plan",
+        "Merchandise",
+        "Display",
+        "Schedule",
+        "Monitor",
+        "Report",
+        "View"
+      ],
       "StoreAssociate": [
         "Create",
         "Update",
-        "Reserve",
+        "Scan",
+        "Stock",
+        "Restock",
+        "Display",
+        "Tag",
+        "View",
+        "Notify"
+      ],
+      "SalesAssociate": [
+        "Create",
+        "Scan",
+        "Ring",
+        "View",
+        "Recommend",
+        "Upsell",
+        "CrossSell",
+        "Notify"
+      ],
+      "FloorAssociate": [
+        "Stock",
+        "Restock",
+        "Display",
+        "Tag",
+        "Count",
+        "View"
+      ],
+      "Cashier": [
+        "Scan",
+        "Ring",
+        "Tender",
+        "Void",
+        "Suspend",
+        "Resume",
+        "Refund",
+        "Issue",
+        "Redeem",
+        "View"
+      ],
+      "HeadCashier": [
+        "Scan",
+        "Ring",
+        "Tender",
+        "Void",
+        "Override",
+        "Approve",
+        "Reconcile",
+        "View"
+      ],
+      "CustomerServiceRep": [
+        "Create",
+        "Update",
+        "Return",
+        "Exchange",
+        "Refund",
+        "Issue",
+        "Redeem",
+        "Investigate",
         "Notify",
         "View"
       ],
-      "CustomerService": [
+      "CustomerServiceManager": [
         "Create",
         "Update",
-        "Notify",
+        "Return",
+        "Exchange",
+        "Refund",
+        "Approve",
+        "Override",
+        "Escalate",
+        "Investigate",
+        "View"
+      ],
+      "PersonalShopper": [
+        "Create",
+        "View",
+        "Recommend",
+        "Personalize",
+        "Notify"
+      ],
+      "StylingConsultant": [
+        "View",
+        "Recommend",
+        "Personalize",
+        "Notify"
+      ],
+      "ProductSpecialist": [
+        "View",
+        "Recommend",
+        "Demonstrate",
+        "Notify"
+      ],
+      "TechSpecialist": [
+        "View",
+        "Recommend",
+        "Test",
+        "Demonstrate",
+        "Notify"
+      ],
+      "PharmacyTechnician": [
+        "View",
+        "Fetch",
+        "Count",
+        "Verify",
+        "Notify"
+      ],
+      "Pharmacist": [
+        "View",
+        "Verify",
+        "Approve",
+        "Dispense",
+        "Counsel",
+        "Audit"
+      ],
+      "VisualMerchandiser": [
+        "Display",
+        "Merchandise",
+        "Plan",
+        "Create",
+        "Update"
+      ],
+      "StockAssociate": [
+        "Receive",
+        "Stock",
+        "Restock",
+        "Tag",
+        "Count",
+        "Transfer",
+        "View"
+      ],
+      "Receiver": [
+        "Receive",
+        "Verify",
+        "Count",
+        "Update",
+        "Quarantine",
+        "View"
+      ],
+      "Stocker": [
+        "Stock",
+        "Restock",
+        "Tag",
+        "Display",
+        "View"
+      ],
+      "BackroomLead": [
+        "Receive",
+        "Stock",
+        "Schedule",
+        "Monitor",
+        "Count",
+        "Transfer",
         "View"
       ],
       "WarehouseManager": [
         "Allocate",
+        "Schedule",
+        "Plan",
+        "Monitor",
+        "Approve",
+        "Report",
+        "View"
+      ],
+      "WarehouseAssociate": [
         "Pick",
         "Pack",
         "Ship",
-        "Receive"
-      ],
-      "Picker": [
-        "Pick"
-      ],
-      "Packer": [
-        "Pack"
-      ],
-      "LogisticsCoordinator": [
-        "Ship",
         "Receive",
-        "Notify"
+        "Unload",
+        "Load",
+        "Count",
+        "View"
+      ],
+      "WarehouseSupervisor": [
+        "Allocate",
+        "Schedule",
+        "Monitor",
+        "Approve",
+        "View"
+      ],
+      "InventoryManager": [
+        "Plan",
+        "Allocate",
+        "Adjust",
+        "Transfer",
+        "Approve",
+        "Reconcile",
+        "Report",
+        "View"
       ],
       "InventoryAnalyst": [
         "Forecast",
         "Plan",
+        "Analyze",
         "Replenish",
         "Adjust",
+        "Report",
+        "View"
+      ],
+      "InventoryController": [
+        "Adjust",
+        "Reconcile",
+        "Audit",
+        "Approve",
+        "View"
+      ],
+      "CycleCountSpecialist": [
+        "Count",
+        "CycleCount",
+        "Verify",
+        "Adjust",
+        "Reconcile",
+        "Report",
+        "View"
+      ],
+      "Picker": [
+        "Pick",
+        "Verify",
+        "Update",
+        "View"
+      ],
+      "Packer": [
+        "Pack",
+        "Verify",
+        "Update",
+        "View"
+      ],
+      "Sorter": [
+        "Sort",
+        "Route",
+        "View"
+      ],
+      "Loader": [
+        "Load",
+        "Unload",
+        "Verify",
+        "View"
+      ],
+      "Shipper": [
+        "Ship",
+        "Create",
+        "Track",
+        "Notify",
+        "View"
+      ],
+      "ShippingClerk": [
+        "Ship",
+        "Create",
+        "Track",
+        "Update",
+        "View"
+      ],
+      "ReceivingClerk": [
+        "Receive",
+        "Verify",
+        "Count",
+        "Update",
+        "View"
+      ],
+      "ReceivingManager": [
+        "Receive",
+        "Approve",
+        "Quarantine",
+        "Schedule",
+        "Monitor",
+        "View"
+      ],
+      "LogisticsCoordinator": [
+        "Ship",
+        "Route",
+        "Track",
+        "Schedule",
+        "Notify",
+        "View"
+      ],
+      "TransportationManager": [
+        "Route",
+        "Schedule",
+        "Plan",
+        "Monitor",
+        "Approve",
+        "View"
+      ],
+      "FleetManager": [
+        "Schedule",
+        "Dispatch",
+        "Monitor",
+        "Track",
+        "Plan",
+        "View"
+      ],
+      "RouteOptimizer": [
+        "Route",
+        "Plan",
+        "Optimize",
+        "Analyze",
+        "View"
+      ],
+      "DispatchManager": [
+        "Dispatch",
+        "Route",
+        "Schedule",
+        "Monitor",
+        "Notify",
+        "View"
+      ],
+      "DeliveryDriver": [
+        "Deliver",
+        "PickUp",
+        "SignFor",
+        "Track",
+        "Update",
+        "View"
+      ],
+      "CourierDriver": [
+        "Deliver",
+        "PickUp",
+        "SignFor",
+        "Track",
+        "Update",
+        "View"
+      ],
+      "FulfillmentAssociate": [
+        "Pick",
+        "Pack",
+        "Ship",
+        "Fulfill",
+        "Update",
+        "View"
+      ],
+      "FulfillmentManager": [
+        "Fulfill",
+        "Allocate",
+        "Schedule",
+        "Monitor",
+        "Approve",
+        "Report",
+        "View"
+      ],
+      "DCManager": [
+        "Plan",
+        "Allocate",
+        "Schedule",
+        "Monitor",
+        "Approve",
+        "Report",
+        "View"
+      ],
+      "DCOperations": [
+        "Receive",
+        "Pick",
+        "Pack",
+        "Ship",
+        "Transfer",
+        "Count",
+        "View"
+      ],
+      "CrossDockCoordinator": [
+        "Route",
+        "Transfer",
+        "Schedule",
+        "Monitor",
+        "Track",
+        "View"
+      ],
+      "Merchandiser": [
+        "Merchandise",
+        "Assort",
+        "Plan",
+        "Create",
+        "Update",
+        "View"
+      ],
+      "Buyer": [
+        "Plan",
+        "Forecast",
+        "Create",
+        "Approve",
+        "Negotiate",
+        "View"
+      ],
+      "AssociateBuyer": [
+        "Plan",
+        "Forecast",
+        "Create",
+        "View"
+      ],
+      "SeniorBuyer": [
+        "Plan",
+        "Forecast",
+        "Create",
+        "Approve",
+        "Negotiate",
+        "Override",
+        "View"
+      ],
+      "CategoryManager": [
+        "Assort",
+        "Merchandise",
+        "Plan",
+        "Approve",
+        "Analyze",
+        "Report",
+        "View"
+      ],
+      "AssortmentPlanner": [
+        "Assort",
+        "Plan",
+        "Forecast",
+        "Analyze",
+        "Create",
+        "View"
+      ],
+      "MerchandisePlanner": [
+        "Plan",
+        "Forecast",
+        "Allocate",
+        "Analyze",
+        "Report",
+        "View"
+      ],
+      "AllocationAnalyst": [
+        "Allocate",
+        "Analyze",
+        "Plan",
+        "Optimize",
+        "View"
+      ],
+      "ReplenishmentAnalyst": [
+        "Replenish",
+        "Forecast",
+        "Plan",
+        "Analyze",
+        "Create",
+        "View"
+      ],
+      "DemandPlanner": [
+        "Forecast",
+        "Plan",
+        "Analyze",
+        "Model",
+        "View"
+      ],
+      "SupplyPlanner": [
+        "Plan",
+        "Schedule",
+        "Allocate",
+        "Analyze",
+        "View"
+      ],
+      "ForecastAnalyst": [
+        "Forecast",
+        "Analyze",
+        "Model",
+        "Report",
+        "View"
+      ],
+      "PricingAnalyst": [
+        "Price",
+        "Reprice",
+        "Analyze",
+        "Model",
+        "Report",
+        "View"
+      ],
+      "PricingManager": [
+        "Price",
+        "Reprice",
+        "Approve",
+        "Override",
+        "Analyze",
+        "View"
+      ],
+      "PromotionPlanner": [
+        "Promote",
+        "Plan",
+        "Create",
+        "Analyze",
+        "Report",
+        "View"
+      ],
+      "MarkdownAnalyst": [
+        "Markdown",
+        "Clearance",
+        "Analyze",
+        "Plan",
+        "Report",
+        "View"
+      ],
+      "RevenueManager": [
+        "Price",
+        "Promote",
+        "Approve",
+        "Override",
+        "Analyze",
+        "Report",
+        "View"
+      ],
+      "LossPreventionManager": [
+        "Surveil",
+        "Investigate",
+        "Apprehend",
+        "Prosecute",
+        "Audit",
+        "Report",
+        "View"
+      ],
+      "LossPreventionAssociate": [
+        "Surveil",
+        "Investigate",
+        "Apprehend",
+        "Report",
+        "View"
+      ],
+      "SecurityGuard": [
+        "Surveil",
+        "Monitor",
+        "Apprehend",
+        "Report",
+        "View"
+      ],
+      "SecurityManager": [
+        "Surveil",
+        "Investigate",
+        "Schedule",
+        "Monitor",
+        "Report",
+        "View"
+      ],
+      "InvestigationSpecialist": [
+        "Investigate",
+        "Analyze",
+        "Prosecute",
+        "Report",
+        "View"
+      ],
+      "AuditManager": [
+        "Audit",
+        "Inspect",
+        "Verify",
+        "Report",
+        "Approve",
+        "View"
+      ],
+      "InternalAuditor": [
+        "Audit",
+        "Inspect",
+        "Verify",
+        "Sample",
+        "Report",
+        "View"
+      ],
+      "ComplianceOfficer": [
+        "Audit",
+        "Verify",
+        "Approve",
+        "Report",
+        "Escalate",
+        "View"
+      ],
+      "SafetyOfficer": [
+        "Inspect",
+        "Audit",
+        "Report",
+        "Approve",
+        "View"
+      ],
+      "QualityAssuranceManager": [
+        "Test",
+        "Inspect",
+        "Sample",
+        "Approve",
+        "Quarantine",
+        "Report",
+        "View"
+      ],
+      "ProductSafetyOfficer": [
+        "Test",
+        "Inspect",
+        "Recall",
+        "Quarantine",
+        "Report",
+        "Notify",
+        "View"
+      ],
+      "ECommerceManager": [
+        "Plan",
+        "Merchandise",
+        "Promote",
+        "Approve",
+        "Monitor",
+        "Analyze",
+        "Report",
+        "View"
+      ],
+      "DigitalMerchandiser": [
+        "Merchandise",
+        "Create",
+        "Update",
+        "Promote",
+        "Personalize",
+        "View"
+      ],
+      "WebContentManager": [
+        "Create",
+        "Update",
+        "Publish",
+        "Approve",
+        "View"
+      ],
+      "ProductInformationManager": [
+        "Create",
+        "Update",
+        "Verify",
+        "Approve",
+        "Publish",
+        "View"
+      ],
+      "CatalogManager": [
+        "Create",
+        "Update",
+        "Merchandise",
+        "Approve",
+        "Publish",
+        "View"
+      ],
+      "MarketingManager": [
+        "Campaign",
+        "Segment",
+        "Target",
+        "Approve",
+        "Analyze",
+        "Report",
+        "View"
+      ],
+      "CampaignManager": [
+        "Campaign",
+        "Create",
+        "Schedule",
+        "Monitor",
+        "Analyze",
+        "View"
+      ],
+      "EmailMarketingSpecialist": [
+        "Campaign",
+        "Create",
+        "Target",
+        "Segment",
+        "Send",
+        "Analyze",
+        "View"
+      ],
+      "SocialMediaManager": [
+        "Create",
+        "Publish",
+        "Engage",
+        "Monitor",
+        "Analyze",
+        "View"
+      ],
+      "SEOSpecialist": [
+        "Optimize",
+        "Analyze",
+        "Monitor",
+        "Report",
+        "View"
+      ],
+      "AnalyticsManager": [
+        "Analyze",
+        "Report",
+        "Model",
+        "Forecast",
+        "Monitor",
+        "View"
+      ],
+      "DataAnalyst": [
+        "Analyze",
+        "Report",
+        "Model",
+        "Visualize",
+        "View"
+      ],
+      "BusinessIntelligenceAnalyst": [
+        "Analyze",
+        "Report",
+        "Model",
+        "Dashboard",
+        "View"
+      ],
+      "ReportingAnalyst": [
+        "Report",
+        "Analyze",
+        "Create",
+        "Schedule",
+        "View"
+      ],
+      "LoyaltyProgramManager": [
+        "Enroll",
+        "Issue",
+        "Redeem",
+        "Create",
+        "Approve",
+        "Analyze",
+        "View"
+      ],
+      "CustomerInsightsAnalyst": [
+        "Segment",
+        "Analyze",
+        "Model",
+        "Predict",
+        "Report",
+        "View"
+      ],
+      "CRMManager": [
+        "Segment",
+        "Target",
+        "Campaign",
+        "Personalize",
+        "Analyze",
+        "View"
+      ],
+      "CustomerExperienceManager": [
+        "Monitor",
+        "Analyze",
+        "Improve",
+        "Report",
+        "View"
+      ],
+      "OmniChannelManager": [
+        "Plan",
+        "Allocate",
+        "Fulfill",
+        "Monitor",
+        "Analyze",
+        "Report",
+        "View"
+      ],
+      "ChannelOperationsManager": [
+        "Plan",
+        "Schedule",
+        "Monitor",
+        "Approve",
+        "Report",
+        "View"
+      ],
+      "VendorManager": [
+        "Negotiate",
+        "Approve",
+        "Monitor",
+        "Audit",
+        "Report",
+        "View"
+      ],
+      "SupplierRelationsManager": [
+        "Negotiate",
+        "Approve",
+        "Monitor",
+        "Collaborate",
+        "View"
+      ],
+      "ProcurementManager": [
+        "Plan",
+        "Create",
+        "Approve",
+        "Negotiate",
+        "Monitor",
+        "View"
+      ],
+      "ContractsManager": [
+        "Create",
+        "Negotiate",
+        "Approve",
+        "Monitor",
+        "Audit",
+        "View"
+      ],
+      "FinanceManager": [
+        "Approve",
+        "Reconcile",
+        "Report",
+        "Audit",
+        "Monitor",
+        "View"
+      ],
+      "AccountingClerk": [
+        "Post",
+        "Reconcile",
+        "Create",
+        "Update",
+        "View"
+      ],
+      "APClerk": [
+        "Create",
+        "Post",
+        "Pay",
+        "Reconcile",
+        "View"
+      ],
+      "ARClerk": [
+        "Create",
+        "Post",
+        "Collect",
+        "Reconcile",
+        "View"
+      ],
+      "Reconciler": [
+        "Reconcile",
+        "Verify",
+        "Adjust",
+        "Report",
+        "View"
+      ],
+      "PayrollClerk": [
+        "Create",
+        "Post",
+        "Process",
+        "Verify",
+        "View"
+      ],
+      "TreasuryAnalyst": [
+        "Forecast",
+        "Analyze",
+        "Monitor",
+        "Report",
+        "View"
+      ],
+      "ITManager": [
+        "Plan",
+        "Approve",
+        "Monitor",
+        "Audit",
+        "Report",
+        "View"
+      ],
+      "SystemAdministrator": [
+        "Create",
+        "Update",
+        "Configure",
+        "Monitor",
+        "Patch",
+        "Backup",
+        "View"
+      ],
+      "DatabaseAdministrator": [
+        "Create",
+        "Update",
+        "Backup",
+        "Restore",
+        "Optimize",
+        "Monitor",
+        "View"
+      ],
+      "NetworkAdministrator": [
+        "Configure",
+        "Monitor",
+        "Troubleshoot",
+        "Patch",
+        "View"
+      ],
+      "POSSupport": [
+        "Monitor",
+        "Troubleshoot",
+        "Reset",
+        "Update",
+        "View"
+      ],
+      "HelpDeskTechnician": [
+        "Create",
+        "Update",
+        "Troubleshoot",
+        "Resolve",
+        "View"
+      ],
+      "DevOpsEngineer": [
+        "Deploy",
+        "Monitor",
+        "Troubleshoot",
+        "Optimize",
+        "Automate",
+        "View"
+      ],
+      "DataEngineer": [
+        "Create",
+        "Update",
+        "Transform",
+        "Load",
+        "Monitor",
+        "View"
+      ],
+      "IntegrationSpecialist": [
+        "Integrate",
+        "Configure",
+        "Test",
+        "Monitor",
+        "Troubleshoot",
+        "View"
+      ],
+      "EDISpecialist": [
+        "Create",
+        "Send",
+        "Receive",
+        "Map",
+        "Monitor",
+        "Troubleshoot",
         "View"
       ],
       "EComPlatform": [
         "Create",
         "Update",
+        "Notify",
+        "Process",
+        "Fulfill",
+        "Track"
+      ],
+      "POSSystem": [
+        "Scan",
+        "Ring",
+        "Tender",
+        "Create",
+        "Update",
+        "Post"
+      ],
+      "InventoryManagementSystem": [
+        "Create",
+        "Update",
+        "Reserve",
+        "Allocate",
+        "Adjust",
+        "Replenish",
+        "Track"
+      ],
+      "WarehouseManagementSystem": [
+        "Pick",
+        "Pack",
+        "Ship",
+        "Receive",
+        "Allocate",
+        "Track"
+      ],
+      "OrderManagementSystem": [
+        "Create",
+        "Update",
+        "Route",
+        "Fulfill",
+        "Track",
         "Notify"
+      ],
+      "CustomerDataPlatform": [
+        "Create",
+        "Update",
+        "Segment",
+        "Track",
+        "Analyze"
+      ],
+      "LoyaltySystem": [
+        "Enroll",
+        "Issue",
+        "Redeem",
+        "Track",
+        "Notify"
+      ],
+      "PricingEngine": [
+        "Price",
+        "Reprice",
+        "Calculate",
+        "Update"
+      ],
+      "PromotionEngine": [
+        "Promote",
+        "Discount",
+        "Calculate",
+        "Apply",
+        "Validate"
+      ],
+      "RecommendationEngine": [
+        "Recommend",
+        "Personalize",
+        "Rank",
+        "Filter"
+      ],
+      "FraudDetectionSystem": [
+        "Screen",
+        "Analyze",
+        "Flag",
+        "Block",
+        "Notify"
+      ],
+      "PaymentGateway": [
+        "Authorize",
+        "Capture",
+        "Settle",
+        "Reverse",
+        "Validate"
+      ],
+      "ShippingCarrier": [
+        "Ship",
+        "Track",
+        "Deliver",
+        "Update",
+        "Notify"
+      ],
+      "ThirdPartyLogistics": [
+        "Receive",
+        "Store",
+        "Pick",
+        "Pack",
+        "Ship",
+        "Track"
+      ],
+      "DropShipVendor": [
+        "Receive",
+        "Fulfill",
+        "Ship",
+        "Track",
+        "Notify"
+      ],
+      "MarketplaceIntegration": [
+        "Create",
+        "Update",
+        "Sync",
+        "Fulfill",
+        "Track"
       ]
     },
     "actorDataPerms": {
-      "StoreAssociate": {
+      "StoreManager": {
+        "read": [
+          "DO_Order",
+          "DO_Inventory",
+          "DO_Product",
+          "DO_POSTransaction",
+          "DO_Return",
+          "DO_Customer",
+          "DO_Store",
+          "DO_ShrinkageReport"
+        ],
+        "write": [
+          "DO_Order",
+          "DO_IncidentReport",
+          "DO_AuditLog"
+        ]
+      },
+      "Cashier": {
         "read": [
           "DO_Product",
-          "DO_Inventory",
-          "DO_Order"
+          "DO_Price",
+          "DO_Promotion",
+          "DO_Customer",
+          "DO_LoyaltyAccount"
         ],
         "write": [
-          "DO_Order",
+          "DO_POSTransaction",
+          "DO_Tender",
+          "DO_Receipt",
           "DO_Return"
         ]
       },
-      "CustomerService": {
+      "CustomerServiceRep": {
         "read": [
           "DO_Order",
-          "DO_Customer"
-        ],
-        "write": [
-          "DO_Order",
-          "DO_Return"
-        ]
-      },
-      "WarehouseManager": {
-        "read": [
-          "DO_Order",
-          "DO_OrderItem",
+          "DO_Customer",
+          "DO_Product",
           "DO_Inventory",
           "DO_Shipment"
         ],
         "write": [
-          "DO_Shipment",
-          "DO_Inventory"
+          "DO_Return",
+          "DO_Exchange",
+          "DO_Refund",
+          "DO_RMA"
         ]
       },
       "Picker": {
         "read": [
-          "DO_OrderItem",
-          "DO_Inventory"
+          "DO_PickList",
+          "DO_OrderLine",
+          "DO_Inventory",
+          "DO_WarehouseLocation"
         ],
-        "write": []
+        "write": [
+          "DO_PickConfirmation"
+        ]
       },
       "Packer": {
         "read": [
-          "DO_OrderItem"
+          "DO_OrderLine",
+          "DO_PickConfirmation"
         ],
         "write": [
-          "DO_Shipment"
-        ]
-      },
-      "LogisticsCoordinator": {
-        "read": [
-          "DO_Shipment",
-          "DO_Order"
-        ],
-        "write": [
+          "DO_PackingSlip",
+          "DO_ShippingLabel",
           "DO_Shipment"
         ]
       },
       "InventoryAnalyst": {
         "read": [
           "DO_Inventory",
-          "DO_ReplenishmentPlan"
+          "DO_Product",
+          "DO_Order",
+          "DO_Forecast"
         ],
         "write": [
           "DO_ReplenishmentPlan",
-          "DO_Inventory"
+          "DO_InventoryAdjustment",
+          "DO_AllocationRule"
+        ]
+      },
+      "Buyer": {
+        "read": [
+          "DO_Product",
+          "DO_Inventory",
+          "DO_Forecast",
+          "DO_Supplier"
+        ],
+        "write": [
+          "DO_PurchaseOrder",
+          "DO_VendorMaster"
+        ]
+      },
+      "PricingAnalyst": {
+        "read": [
+          "DO_Product",
+          "DO_Price",
+          "DO_CostPrice",
+          "DO_Promotion",
+          "DO_Markdown"
+        ],
+        "write": [
+          "DO_PriceBook",
+          "DO_PricingRule",
+          "DO_MarkdownSchedule"
+        ]
+      },
+      "LossPreventionAssociate": {
+        "read": [
+          "DO_POSTransaction",
+          "DO_Return",
+          "DO_InventoryCount",
+          "DO_SurveillanceFootage"
+        ],
+        "write": [
+          "DO_IncidentReport",
+          "DO_LossPreventionCase",
+          "DO_TheftIncident"
+        ]
+      },
+      "MarketingManager": {
+        "read": [
+          "DO_Customer",
+          "DO_CustomerSegment",
+          "DO_Order",
+          "DO_Product"
+        ],
+        "write": [
+          "DO_MarketingCampaign",
+          "DO_EmailCampaign",
+          "DO_Promotion"
         ]
       },
       "EComPlatform": {
         "read": [
           "DO_Product",
-          "DO_Inventory"
+          "DO_Price",
+          "DO_Inventory",
+          "DO_Customer"
         ],
         "write": [
-          "DO_Order"
+          "DO_Order",
+          "DO_Cart",
+          "DO_Wishlist"
+        ]
+      },
+      "POSSystem": {
+        "read": [
+          "DO_Product",
+          "DO_Price",
+          "DO_Promotion",
+          "DO_Customer",
+          "DO_LoyaltyAccount"
+        ],
+        "write": [
+          "DO_POSTransaction",
+          "DO_Tender",
+          "DO_Receipt"
+        ]
+      },
+      "WarehouseManagementSystem": {
+        "read": [
+          "DO_Order",
+          "DO_OrderLine",
+          "DO_Inventory",
+          "DO_WarehouseLocation"
+        ],
+        "write": [
+          "DO_PickList",
+          "DO_PickWave",
+          "DO_Shipment",
+          "DO_InventoryAdjustment"
+        ]
+      },
+      "LoyaltySystem": {
+        "read": [
+          "DO_Customer",
+          "DO_LoyaltyAccount",
+          "DO_POSTransaction"
+        ],
+        "write": [
+          "DO_LoyaltyTransaction",
+          "DO_PointsBalance",
+          "DO_Rewards"
+        ]
+      },
+      "PaymentGateway": {
+        "read": [
+          "DO_Order",
+          "DO_POSTransaction"
+        ],
+        "write": [
+          "DO_Payment",
+          "DO_PaymentAuthorization",
+          "DO_PaymentCapture",
+          "DO_PaymentSettlement"
         ]
       }
     }
+  },
+  "retail_specific_constructs": {
+    "fulfillment_types": [
+      "Ship to Home",
+      "Ship from Store",
+      "BOPIS (Buy Online Pick up In Store)",
+      "ROPIS (Reserve Online Pick up In Store)",
+      "Curbside Pickup",
+      "Same Day Delivery",
+      "Next Day Delivery",
+      "Standard Shipping",
+      "Express Shipping",
+      "Drop Ship",
+      "Cross Dock",
+      "Direct to Consumer",
+      "Marketplace Fulfillment"
+    ],
+    "inventory_statuses": [
+      "In Stock",
+      "Low Stock",
+      "Out of Stock",
+      "Backorder",
+      "Pre-Order",
+      "Discontinued",
+      "Reserved",
+      "In Transit",
+      "Quarantine",
+      "Damaged",
+      "Recalled"
+    ],
+    "order_statuses": [
+      "Pending",
+      "Confirmed",
+      "Processing",
+      "Allocated",
+      "Picked",
+      "Packed",
+      "Shipped",
+      "Out for Delivery",
+      "Delivered",
+      "Ready for Pickup",
+      "Picked Up",
+      "Cancelled",
+      "Returned",
+      "Refunded",
+      "On Hold"
+    ],
+    "payment_types": [
+      "Cash",
+      "Credit Card",
+      "Debit Card",
+      "Gift Card",
+      "Store Credit",
+      "Digital Wallet (Apple Pay, Google Pay)",
+      "PayPal",
+      "Buy Now Pay Later (Affirm, Klarna, Afterpay)",
+      "Check",
+      "Wire Transfer",
+      "ACH",
+      "Cryptocurrency"
+    ],
+    "return_reasons": [
+      "Defective",
+      "Wrong Item Received",
+      "Size/Fit Issue",
+      "Changed Mind",
+      "Better Price Found",
+      "Arrived Too Late",
+      "Damaged in Shipping",
+      "Not as Described",
+      "Quality Issues",
+      "Duplicate Order",
+      "Gift Return"
+    ],
+    "promotion_types": [
+      "Percentage Off",
+      "Dollar Off",
+      "BOGO (Buy One Get One)",
+      "BOGOHP (Buy One Get One Half Price)",
+      "Multi-Buy (Buy 3 for $10)",
+      "Spend Threshold ($50 off $200)",
+      "Free Shipping",
+      "Bundle Discount",
+      "Loyalty Discount",
+      "Student/Military Discount",
+      "Flash Sale",
+      "Clearance"
+    ],
+    "price_override_reasons": [
+      "Price Match",
+      "Customer Loyalty",
+      "Manager Discretion",
+      "Damaged Merchandise",
+      "Display Model",
+      "Clearance",
+      "Promotion Not Applied",
+      "System Error",
+      "VIP Customer",
+      "Expired Product"
+    ],
+    "shrinkage_categories": [
+      "Theft - External",
+      "Theft - Internal",
+      "Administrative Error",
+      "Vendor Fraud",
+      "Damage",
+      "Spoilage",
+      "Expiration",
+      "Unknown Loss"
+    ],
+    "product_conditions": [
+      "New",
+      "Refurbished",
+      "Open Box",
+      "Damaged Box",
+      "Scratch and Dent",
+      "Used - Like New",
+      "Used - Very Good",
+      "Used - Good",
+      "Used - Acceptable",
+      "Parts or Repair"
+    ],
+    "compliance_thresholds": {
+      "pci_dss_audit_interval_days": 365,
+      "consumer_complaint_response_days": 30,
+      "product_recall_notification_hours": 24,
+      "data_breach_notification_hours": 72,
+      "gift_card_expiration_minimum_years": 5,
+      "layaway_cancellation_refund_days": 30,
+      "online_order_cancellation_window_hours": 24
+    },
+    "merchandising_strategies": [
+      "Cross-Merchandising",
+      "Vertical Merchandising",
+      "Horizontal Merchandising",
+      "Color Blocking",
+      "Pyramid Display",
+      "Symmetrical Display",
+      "Asymmetrical Display",
+      "Focal Point Display"
+    ],
+    "omnichannel_capabilities": [
+      "Unified Inventory Visibility",
+      "Cross-Channel Returns",
+      "Ship from Store",
+      "Endless Aisle",
+      "Scan & Ship",
+      "Clienteling",
+      "Mobile POS",
+      "Digital Receipts",
+      "QR Code Payments",
+      "Virtual Queue",
+      "Augmented Reality Try-On"
+    ]
   }
 }

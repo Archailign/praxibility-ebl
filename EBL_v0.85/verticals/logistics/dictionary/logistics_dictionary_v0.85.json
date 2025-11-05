@@ -1,242 +1,50 @@
 {
   "version": "0.85",
-  "name": "Logistics Business Lexicon (EBL)",
+  "name": "Logistics & Supply Chain Management Business Lexicon (EBL)",
   "vertical": "logistics",
+  "description": "Comprehensive Domain Specific Language for Logistics, Supply Chain Management, Transportation, Warehousing, Inventory Management, Freight, Last-Mile Delivery, and Trade Compliance",
+  "compliance_frameworks": ["C-TPAT (Customs-Trade Partnership Against Terrorism)", "ISO 28000 (Supply Chain Security)", "IATA Dangerous Goods Regulations", "IMO IMDG Code (Maritime Dangerous Goods)", "AEO (Authorized Economic Operator)", "Customs Regulations", "Import/Export Compliance", "Trade Sanctions", "Incoterms 2020", "GDPR (Transport Data)", "FSMA (Food Safety Modernization Act)", "Drug Supply Chain Security Act (DSCSA)", "Sarbanes-Oxley (Supply Chain Controls)"],
   "core": {
-    "types": [
-      "Entity",
-      "DataObject",
-      "Policy",
-      "Resource",
-      "Process",
-      "Rule",
-      "Report",
-      "Integration",
-      "ITAsset",
-      "Relationship"
-    ],
-    "constraints": {
-      "entity_requires_dataRef": true,
-      "dataObject_requires_policies": true,
-      "dataObject_requires_resources": true
-    },
+    "types": ["Entity", "DataObject", "Policy", "Resource", "Process", "Rule", "Report", "Integration", "ITAsset", "Relationship"],
+    "constraints": {"entity_requires_dataRef": true, "dataObject_requires_policies": true, "dataObject_requires_resources": true},
     "keywords": {
-      "reserved": [
-        "ON",
-        "WHEN",
-        "THEN",
-        "ELSE",
-        "WITHIN",
-        "BEFORE",
-        "AFTER",
-        "BY",
-        "UNTIL",
-        "SINCE",
-        "EVERY",
-        "SHALL",
-        "MUST",
-        "MUST NOT",
-        "SHOULD",
-        "MAY",
-        "CAN",
-        "AND",
-        "OR",
-        "NOT",
-        "IN",
-        "BETWEEN"
-      ]
+      "reserved": ["ON", "WHEN", "THEN", "ELSE", "WITHIN", "BEFORE", "AFTER", "BY", "UNTIL", "SINCE", "EVERY", "SHALL", "MUST", "MUST NOT", "SHOULD", "MAY", "CAN", "AND", "OR", "NOT", "IN", "BETWEEN"],
+      "logistics_specific": ["SKU", "ASN", "BOL", "BILL_OF_LADING", "WAYBILL", "AIRWAY_BILL", "AWB", "CMR", "POD", "PROOF_OF_DELIVERY", "ETA", "ETD", "LTL", "FTL", "FCL", "LCL", "TEU", "TWENTY_FOOT_EQUIVALENT", "CBM", "CUBIC_METER", "PALLET", "CONTAINER", "INTERMODAL", "CROSS_DOCK", "DROPSHIP", "3PL", "4PL", "FREIGHT_FORWARDER", "CUSTOMS_BROKER", "DRAYAGE", "LAST_MILE", "MIDDLE_MILE", "LINEHAUL", "INCOTERMS", "FOB", "CIF", "DDP", "EXW", "HS_CODE", "HTS_CODE", "TARIFF_CODE", "DUTY", "CUSTOMS_CLEARANCE", "BONDED_WAREHOUSE", "FREE_TRADE_ZONE", "DEMURRAGE", "DETENTION", "ACCESSORIAL", "SURCHARGE", "FUEL_SURCHARGE", "DIM_WEIGHT", "DIMENSIONAL_WEIGHT", "CUBIC_WEIGHT", "CHARGEABLE_WEIGHT", "ZONE_SKIPPING", "MILK_RUN", "REVERSE_LOGISTICS", "RETURNS_MANAGEMENT", "HAZMAT", "DG", "DANGEROUS_GOODS", "TEMP_CONTROLLED", "COLD_CHAIN", "REEFER", "BULK_CARGO", "BREAKBULK", "RORO", "ROLL_ON_ROLL_OFF", "CONTAINER_YARD", "CFS", "CY", "PORT", "TERMINAL", "HUB", "SPOKE", "DISTRIBUTION_CENTER", "FULFILLMENT_CENTER", "SORTATION_CENTER", "PARCEL_HUB", "WMS", "TMS", "YARD_MANAGEMENT", "SLOTTING", "WAVE_PICKING", "BATCH_PICKING", "ZONE_PICKING", "PUTAWAY", "REPLENISHMENT", "CYCLE_COUNT", "INVENTORY_TURNOVER", "DAYS_INVENTORY", "FILL_RATE", "ORDER_ACCURACY", "ON_TIME_DELIVERY", "IN_FULL_ON_TIME", "IFOT", "OTIF", "PERFECT_ORDER"]
     },
-    "verbPermissions": {
-      "Create": "write",
-      "Update": "write",
-      "Set": "write",
-      "Persist": "write",
-      "Delete": "write",
-      "Approve": "write",
-      "Reject": "write",
-      "Escalate": "both",
-      "Notify": "both",
-      "Read": "read",
-      "View": "read",
-      "Fetch": "read",
-      "Verify": "read",
-      "Screen": "read",
-      "Validate": "read",
-      "Monitor": "read",
-      "Reconcile": "both",
-      "Emit": "read",
-      "Invoke": "write",
-      "Post": "write",
-      "Schedule": "write",
-      "File": "write",
-      "Archive": "write",
-      "Allocate": "write",
-      "Pick": "write",
-      "Pack": "write",
-      "Ship": "write",
-      "Receive": "write",
-      "Replenish": "write",
-      "Reserve": "write",
-      "Adjust": "write",
-      "Forecast": "read",
-      "Plan": "write",
-      "Disburse": "write",
-      "Settle": "write",
-      "Reverse": "write",
-      "Capture": "write",
-      "Authorize": "write",
-      "Bid": "write",
-      "Investigate": "read",
-      "ReportSAR": "write",
-      "ScreenName": "read",
-      "Enroll": "write",
-      "Randomise": "write",
-      "Titrate": "write",
-      "Consent": "write",
-      "Assess": "read",
-      "Underwrite": "write",
-      "AssessClaim": "read",
-      "Subrogate": "write",
-      "Recover": "write",
-      "Define": "write",
-      "Integrate": "both",
-      "Assemble": "write",
-      "Target": "both",
-      "Identify": "read",
-      "Evaluate": "read",
-      "Deliver": "write",
-      "Track": "write",
-      "Test": "write",
-      "Learn": "write",
-      "Optimise": "write",
-      "Retire": "write",
-      "Scale": "write",
-      "Analyse": "read",
-      "Report": "write",
-      "Attribute": "read"
-    },
-    "relationshipTypes": [
-      "consists_of",
-      "depends_on",
-      "hosted_on",
-      "supports",
-      "communicates_with",
-      "segregation_of_duties",
-      "traceability",
-      "subrogates_against"
-    ]
+    "verbPermissions": {"Plan": "write", "Schedule": "write", "Route": "write", "Optimize": "write", "Allocate": "write", "Pick": "write", "Pack": "write", "Stage": "write", "Load": "write", "Unload": "write", "Ship": "write", "Dispatch": "write", "Receive": "write", "Putaway": "write", "Replenish": "write", "Count": "write", "Transfer": "write", "Track": "write", "Trace": "read", "Locate": "read", "Scan": "read", "Label": "write", "Weigh": "read", "Measure": "read", "Inspect": "read", "Verify": "read", "ClearCustoms": "write", "Declare": "write", "FileEntry": "write", "PayDuty": "write", "Bond": "write", "Consolidate": "write", "Deconsolidate": "write", "Transship": "write", "CrossDock": "write", "ReturnToVendor": "write", "Deliver": "write", "Attempt": "write", "FailedDelivery": "write", "Redeliver": "write", "SignFor": "write", "Monitor": "read", "Alert": "write", "Notify": "both", "Report": "write", "Analyze": "read"},
+    "relationshipTypes": ["consists_of", "depends_on", "ships_via", "stores_in", "routes_through", "consolidates_with", "transships_at", "clears_through"]
   },
   "domain": {
-    "entities": [
-      "Shipment",
-      "Parcel",
-      "Consignment",
-      "Carrier",
-      "Route",
-      "Warehouse",
-      "TrackingEvent"
-    ],
-    "dataObjects": [
-      "DO_Shipment",
-      "DO_Parcel",
-      "DO_Consignment",
-      "DO_Carrier",
-      "DO_Route",
-      "DO_TrackingEvent"
-    ],
-    "verbs": [
-      "Plan",
-      "Allocate",
-      "Pick",
-      "Pack",
-      "Ship",
-      "Receive",
-      "Track",
-      "Notify",
-      "Reconcile"
-    ],
-    "actors": [
-      "LogisticsCoordinator",
-      "WarehouseManager",
-      "CarrierAgent",
-      "Driver",
-      "TrackingSystem"
-    ],
+    "entities": ["Shipment", "Order", "PurchaseOrder", "SalesOrder", "TransferOrder", "ShipmentLine", "Package", "Parcel", "Pallet", "Container", "Unit", "Consignment", "Freight", "LTL_Shipment", "FTL_Shipment", "ParcelShipment", "AirFreight", "OceanFreight", "Carrier", "FreightForwarder", "3PL", "Courier", "LastMileCarrier", "Route", "Lane", "Leg", "Stop", "Waypoint", "Origin", "Destination", "Warehouse", "DC", "FulfillmentCenter", "CrossDock", "Hub", "Terminal", "Port", "Airport", "Yard", "Dock", "Bay", "Location", "Address", "GeoCoordinate", "Inventory", "Stock", "SKU", "Lot", "SerialNumber", "Batch", "BillOfLading", "BOL", "AirwayBill", "AWB", "MasterBOL", "HouseBOL", "Waybill", "PackingList", "CommercialInvoice", "CustomsDeclaration", "EntryForm", "ProofOfDelivery", "POD", "DeliveryReceipt", "TrackingEvent", "Milestone", "StatusUpdate", "Exception", "Delay", "Damage", "Loss", "Theft", "Driver", "Vehicle", "Truck", "Van", "Trailer", "Tractor", "Aircraft", "Vessel", "Train", "Fleet", "Asset", "Equipment", "TempMonitor", "GPS", "Telematics", "Rate", "Quote", "Tariff", "Surcharge", "Accessorial", "Cost", "Invoice"],
+    "dataObjects": ["DO_Shipment", "DO_ShipmentHeader", "DO_ShipmentLine", "DO_Order", "DO_PurchaseOrder", "DO_Package", "DO_Parcel", "DO_Pallet", "DO_Container", "DO_Consignment", "DO_Freight", "DO_Carrier", "DO_CarrierRate", "DO_FreightForwarder", "DO_Route", "DO_RouteOptimization", "DO_Lane", "DO_Stop", "DO_Warehouse", "DO_WarehouseLocation", "DO_Inventory", "DO_InventoryLevel", "DO_Stock", "DO_SKU", "DO_Lot", "DO_SerialNumber", "DO_BillOfLading", "DO_BOL", "DO_MasterBOL", "DO_HouseBOL", "DO_AirwayBill", "DO_PackingList", "DO_CommercialInvoice", "DO_CustomsDeclaration", "DO_EntryForm", "DO_HTS_Classification", "DO_ProofOfDelivery", "DO_POD", "DO_DeliveryReceipt", "DO_Signature", "DO_TrackingEvent", "DO_TrackingNumber", "DO_Milestone", "DO_StatusUpdate", "DO_Exception", "DO_Delay", "DO_Damage", "DO_Driver", "DO_Vehicle", "DO_Truck", "DO_Fleet", "DO_GPS", "DO_Telematics", "DO_TempLog", "DO_Rate", "DO_Quote", "DO_Tariff", "DO_Cost", "DO_FreightInvoice", "DO_ASN", "DO_AdvancedShipNotice", "DO_Incoterms", "DO_DutyCalculation", "DO_Metrics"],
+    "verbs": ["Plan", "Schedule", "Route", "Optimize", "Allocate", "Pick", "Pack", "Stage", "Load", "Unload", "Ship", "Dispatch", "Receive", "Putaway", "Replenish", "Count", "Transfer", "Track", "Trace", "Locate", "Scan", "Label", "Weigh", "Measure", "Inspect", "Verify", "ClearCustoms", "Declare", "FileEntry", "PayDuty", "Bond", "Consolidate", "Deconsolidate", "Transship", "CrossDock", "ReturnToVendor", "Deliver", "Attempt", "FailedDelivery", "Redeliver", "SignFor", "Monitor", "Alert", "Notify", "Report", "Analyze"],
+    "actors": ["Shipper", "Consignee", "LogisticsManager", "TransportationManager", "WarehouseManager", "InventoryManager", "CarrierManager", "FreightCoordinator", "CustomsBroker", "Dispatcher", "RouteOptimizer", "LoadPlanner", "YardManager", "DockSupervisor", "WarehouseAssociate", "Picker", "Packer", "Loader", "Receiver", "ForkliftOperator", "Driver", "Courier", "DeliveryDriver", "FleetManager", "AssetManager", "QualityInspector", "ComplianceOfficer", "TMS", "WMS", "YMS", "OMS", "TrackingSystem", "TelematicsSystem", "RouteOptimizationEngine", "RatingEngine", "CustomsSystem"],
     "actorVerbs": {
-      "LogisticsCoordinator": [
-        "Plan",
-        "Allocate",
-        "Notify",
-        "Reconcile"
-      ],
-      "WarehouseManager": [
-        "Pick",
-        "Pack",
-        "Ship",
-        "Receive"
-      ],
-      "CarrierAgent": [
-        "Ship",
-        "Track",
-        "Notify"
-      ],
-      "Driver": [
-        "Ship",
-        "Track"
-      ],
-      "TrackingSystem": [
-        "Track",
-        "Notify"
-      ]
+      "LogisticsManager": ["Plan", "Schedule", "Optimize", "Allocate", "Monitor", "Report"],
+      "WarehouseManager": ["Plan", "Allocate", "Replenish", "Count", "Monitor", "Report"],
+      "Dispatcher": ["Schedule", "Route", "Dispatch", "Monitor", "Notify"],
+      "Driver": ["Load", "Deliver", "SignFor", "Track", "Update"],
+      "Picker": ["Pick", "Scan", "Verify", "Stage"],
+      "Packer": ["Pack", "Label", "Weigh", "Measure"],
+      "CustomsBroker": ["ClearCustoms", "Declare", "FileEntry", "PayDuty"],
+      "TMS": ["Plan", "Route", "Optimize", "Track", "Rate", "Tender"],
+      "WMS": ["Allocate", "Pick", "Pack", "Putaway", "Replenish", "Count"],
+      "TrackingSystem": ["Track", "Trace", "Locate", "Notify", "Alert"]
     },
     "actorDataPerms": {
-      "LogisticsCoordinator": {
-        "read": [
-          "DO_Shipment",
-          "DO_Consignment",
-          "DO_Route"
-        ],
-        "write": [
-          "DO_Shipment",
-          "DO_Consignment",
-          "DO_Route"
-        ]
-      },
-      "WarehouseManager": {
-        "read": [
-          "DO_Shipment",
-          "DO_Parcel",
-          "DO_TrackingEvent"
-        ],
-        "write": [
-          "DO_TrackingEvent"
-        ]
-      },
-      "CarrierAgent": {
-        "read": [
-          "DO_Shipment",
-          "DO_Parcel"
-        ],
-        "write": [
-          "DO_TrackingEvent"
-        ]
-      },
-      "Driver": {
-        "read": [
-          "DO_Parcel"
-        ],
-        "write": [
-          "DO_TrackingEvent"
-        ]
-      },
-      "TrackingSystem": {
-        "read": [
-          "DO_Shipment"
-        ],
-        "write": [
-          "DO_TrackingEvent"
-        ]
-      }
+      "LogisticsManager": {"read": ["DO_Shipment", "DO_Route", "DO_Metrics"], "write": ["DO_Shipment", "DO_Route"]},
+      "WarehouseManager": {"read": ["DO_Inventory", "DO_Order", "DO_Shipment"], "write": ["DO_Inventory", "DO_TrackingEvent"]},
+      "Driver": {"read": ["DO_Route", "DO_Stop", "DO_Package"], "write": ["DO_TrackingEvent", "DO_POD"]},
+      "CustomsBroker": {"read": ["DO_CommercialInvoice", "DO_Shipment"], "write": ["DO_CustomsDeclaration", "DO_EntryForm"]},
+      "TMS": {"read": ["DO_Shipment", "DO_Carrier"], "write": ["DO_Route", "DO_TrackingEvent"]},
+      "WMS": {"read": ["DO_Inventory", "DO_Order"], "write": ["DO_Inventory", "DO_Shipment", "DO_ASN"]}
     }
+  },
+  "logistics_specific_constructs": {
+    "shipment_statuses": ["Created", "Planned", "Scheduled", "Picked", "Packed", "Staged", "Loaded", "In Transit", "Out for Delivery", "Delivered", "Failed Delivery", "Returned", "Cancelled", "Exception"],
+    "transport_modes": ["Air", "Ocean", "Rail", "Truck", "Parcel", "Courier", "Intermodal", "Multimodal"],
+    "incoterms": ["EXW", "FCA", "FAS", "FOB", "CFR", "CIF", "CPT", "CIP", "DAP", "DPU", "DDP"],
+    "container_types": ["20ft Standard", "40ft Standard", "40ft High Cube", "45ft High Cube", "20ft Reefer", "40ft Reefer", "20ft Open Top", "40ft Flat Rack"],
+    "kpis": ["On-Time Delivery (OTD)", "In Full On Time (IFOT)", "Order Accuracy", "Perfect Order Rate", "Fill Rate", "Inventory Turnover", "Days Inventory Outstanding (DIO)", "Transit Time", "Dwell Time", "Cost Per Shipment", "Cost Per Unit", "Damage Rate", "Return Rate"]
   }
 }

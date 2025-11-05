@@ -14,16 +14,30 @@ The **verticals** directory organizes Archailign Business Engineering EBL by ind
 
 ## Structure
 
-Each vertical contains:
+Each vertical is **self-contained** with:
 
 ```
 vertical_name/
 ├── README.md                               # Vertical-specific documentation
+├── dictionary/                             # Domain vocabulary
+│   └── vertical_name_dictionary_v0.85.json # Actors, verbs, entities, DataObjects
+├── grammar/                                # ANTLR grammar
+│   └── Vertical_Name_v0_85.g4             # Vertical-specific DSL grammar
+├── validators/                             # Validation logic
+│   ├── python/
+│   │   ├── dictionary_validator.py        # Dictionary compliance
+│   │   └── semantic_validator.py          # Business rules & compliance
+│   └── java/
+│       ├── VerticalDictionaryValidator.java
+│       └── VerticalSemanticValidator.java
+├── tests/                                  # Test suites
+│   ├── python/
+│   │   └── test_vertical_validator.py
+│   └── java/
+│       └── VerticalValidatorTest.java
 ├── examples/                               # Domain EBL examples
 │   └── *.ebl                              # Production-ready workflows
-├── dictionary/                             # Domain vocabulary
-│   └── vertical_name_dictionary_v0.85.json # Actors, verbs, entities
-└── data_model/                             # Database schemas
+└── data_model/                             # Database schemas (optional)
     ├── vertical_name_erm_base.sql         # UUID-based schema
     └── vertical_name_erm_extended.sql     # INT-based with extensions
 ```
@@ -140,7 +154,7 @@ vertical_name/
 
 ### 1. Choose Your Vertical
 ```bash
-cd verticals/banking  # or adtech, healthcare, etc.
+cd verticals/banking  # or healthcare, retail, insurance, etc.
 ```
 
 ### 2. Explore Examples
@@ -151,12 +165,30 @@ cat examples/*.ebl
 
 ### 3. Validate Against Vertical Dictionary
 ```bash
-python ../../ebl_validator.py \
-  dictionary/banking_dictionary_v0.85.json \
-  examples/MortgageLoanApplication.ebl
+# Dictionary validation
+python validators/python/dictionary_validator.py \
+  examples/MortgageLoanApplication.ebl \
+  dictionary/banking_dictionary_v0.85.json
+
+# Semantic validation (business rules & compliance)
+python validators/python/semantic_validator.py \
+  examples/Payments_Screening.ebl \
+  dictionary/banking_dictionary_v0.85.json
 ```
 
-### 4. Deploy Vertical Data Model
+### 4. Run Tests
+```bash
+# Python tests
+cd tests/python
+python test_banking_validator.py
+
+# Java tests
+cd tests/java
+javac BankingValidatorTest.java
+java BankingValidatorTest
+```
+
+### 5. Deploy Vertical Data Model (Optional)
 ```bash
 # PostgreSQL
 psql -d mydb -f data_model/banking_erm_base.sql
@@ -198,17 +230,17 @@ python ebl_validator.py \
 
 ## Vertical Statistics
 
-| Vertical | Examples | Actors | Verbs | Data Tables |
-|----------|----------|--------|-------|-------------|
-| AdTech | 2 | 5 | 15+ | 8+ |
-| Banking | 3 | 7 | 12+ | 10+ |
-| Healthcare | 2 | 5 | 10+ | 7+ |
-| Insurance | 2 | 5 | 12+ | 8+ |
-| KYC/Compliance | 3 | 6 | 10+ | 9+ |
-| Retail | 2 | 5 | 10+ | 6+ |
-| Logistics | 1 | 5 | 8+ | 5+ |
-| IT Infrastructure | 2 | 5 | 8+ | 6+ |
-| **Total** | **17** | **43+** | **85+** | **59+** |
+| Vertical | Actors | Verbs | Entities | DataObjects | Keywords | Compliance Frameworks |
+|----------|--------|-------|----------|-------------|----------|----------------------|
+| Banking | 125 | 91 | 110 | 165 | 60+ | 24 |
+| Healthcare | 90 | 85 | 100 | 62 | 20+ | 11 |
+| Retail | 134 | 111 | 111 | 165 | 62 | 15 |
+| Insurance | 130 | 87 | 108 | 150 | 100 | 22 |
+| KYC/Compliance | 116 | 86 | 128 | 160 | 107 | 25 |
+| AdTech | 43 | 44 | 94 | 105 | 105 | 11 |
+| Logistics | 36 | 45 | 98 | 62 | 101 | 13 |
+| IT Infrastructure | 166 | 104 | 135 | 170 | 108 | 17 |
+| **Total** | **840** | **653** | **884** | **1,039** | **663** | **138** |
 
 ## Contributing New Verticals
 

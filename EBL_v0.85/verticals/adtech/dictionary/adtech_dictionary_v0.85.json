@@ -1,367 +1,93 @@
 {
   "version": "0.85",
-  "name": "Adtech Business Lexicon (EBL)",
+  "name": "AdTech & Digital Advertising Business Lexicon (EBL)",
   "vertical": "adtech",
+  "description": "Comprehensive Domain Specific Language for Advertising Technology, Programmatic Advertising, Real-Time Bidding (RTB), DSP/SSP/DMP, Ad Serving, Creative Management, Audience Targeting, Ad Verification, Fraud Detection, Attribution, and Privacy Compliance",
+  "compliance_frameworks": [
+    "GDPR (EU Data Protection - Advertising)",
+    "CCPA (California Consumer Privacy Act)",
+    "ePrivacy Directive (Cookie Law)",
+    "TCF 2.2 (Transparency & Consent Framework - IAB Europe)",
+    "COPPA (Children's Online Privacy Protection Act)",
+    "CAN-SPAM Act",
+    "TCPA (Telephone Consumer Protection Act)",
+    "FTC Act Section 5 (Unfair/Deceptive Practices)",
+    "NAI Code of Conduct",
+    "DAA Self-Regulatory Principles",
+    "EDAA European Principles"
+  ],
   "core": {
-    "types": [
-      "Entity",
-      "DataObject",
-      "Policy",
-      "Resource",
-      "Process",
-      "Rule",
-      "Report",
-      "Integration",
-      "ITAsset",
-      "Relationship"
-    ],
+    "types": ["Entity", "DataObject", "Policy", "Resource", "Process", "Rule", "Report", "Integration", "ITAsset", "Relationship"],
     "constraints": {
       "entity_requires_dataRef": true,
       "dataObject_requires_policies": true,
       "dataObject_requires_resources": true
     },
     "keywords": {
-      "reserved": [
-        "ON",
-        "WHEN",
-        "THEN",
-        "ELSE",
-        "WITHIN",
-        "BEFORE",
-        "AFTER",
-        "BY",
-        "UNTIL",
-        "SINCE",
-        "EVERY",
-        "SHALL",
-        "MUST",
-        "MUST NOT",
-        "SHOULD",
-        "MAY",
-        "CAN",
-        "AND",
-        "OR",
-        "NOT",
-        "IN",
-        "BETWEEN"
-      ]
+      "reserved": ["ON", "WHEN", "THEN", "ELSE", "WITHIN", "BEFORE", "AFTER", "BY", "UNTIL", "SINCE", "EVERY", "SHALL", "MUST", "MUST NOT", "SHOULD", "MAY", "CAN", "AND", "OR", "NOT", "IN", "BETWEEN"],
+      "adtech_specific": ["RTB", "PROGRAMMATIC", "DSP", "SSP", "DMP", "AD_EXCHANGE", "AD_SERVER", "AD_NETWORK", "CPM", "CPC", "CPA", "CPV", "CPI", "ECPM", "VIEWABILITY", "VIEWABLE_IMPRESSION", "MRC_VIEWABILITY", "IVT", "INVALID_TRAFFIC", "SIVT", "GIVT", "CTR", "CLICK_THROUGH_RATE", "CVR", "CONVERSION_RATE", "VCR", "VIDEO_COMPLETION_RATE", "ROAS", "RETURN_ON_AD_SPEND", "ATTRIBUTION", "MULTI_TOUCH_ATTRIBUTION", "LAST_CLICK", "FIRST_CLICK", "LINEAR", "TIME_DECAY", "POSITION_BASED", "LOOKALIKE", "RETARGETING", "REMARKETING", "FREQUENCY_CAP", "RECENCY", "REACH", "IMPRESSION_SHARE", "VAST", "VPAID", "MRAID", "PREBID", "HEADER_BIDDING", "WATERFALL", "OPEN_RTB", "AD_POD", "COMPANION_AD", "NATIVE_AD", "VIDEO_AD", "DISPLAY_AD", "INTERSTITIAL", "BANNER", "REWARDED_VIDEO", "PLAYABLE_AD", "RICH_MEDIA", "EXPANDABLE_AD", "TAKEOVER", "ROADBLOCK", "SPONSORSHIP", "PRIVATE_MARKETPLACE", "PMP", "PROGRAMMATIC_GUARANTEED", "PG", "FIRST_PRICE_AUCTION", "SECOND_PRICE_AUCTION", "WIN_RATE", "BID_RATE", "FILL_RATE", "FLOOR_PRICE", "BID_SHADING", "CONTEXTUAL_TARGETING", "BEHAVIORAL_TARGETING", "GEOTARGETING", "DAYPARTING", "DEVICE_TARGETING", "DEMO_TARGETING", "CRM_ONBOARDING", "ID_SYNC", "COOKIE_SYNC", "COOKIELESS", "FIRST_PARTY_DATA", "SECOND_PARTY_DATA", "THIRD_PARTY_DATA", "ZERO_PARTY_DATA", "PRIVACY_SANDBOX", "TOPICS_API", "FLEDGE", "PAAPI", "UNIFIED_ID", "UID2", "PROBABILISTIC_MATCHING", "DETERMINISTIC_MATCHING", "FINGERPRINTING", "BRAND_SAFETY", "PRE_BID_FILTERING", "POST_BID_FILTERING", "KEYWORD_BLOCKLIST", "DOMAIN_BLOCKLIST", "INCLUSION_LIST", "EXCLUSION_LIST", "MADE_FOR_ADVERTISING", "MFA_SITE"]
     },
     "verbPermissions": {
-      "Create": "write",
-      "Update": "write",
-      "Set": "write",
-      "Persist": "write",
-      "Delete": "write",
-      "Approve": "write",
-      "Reject": "write",
-      "Escalate": "both",
-      "Notify": "both",
-      "Read": "read",
-      "View": "read",
-      "Fetch": "read",
-      "Verify": "read",
-      "Screen": "read",
-      "Validate": "read",
-      "Monitor": "read",
-      "Reconcile": "both",
-      "Emit": "read",
-      "Invoke": "write",
-      "Post": "write",
-      "Schedule": "write",
-      "File": "write",
-      "Archive": "write",
-      "Allocate": "write",
-      "Pick": "write",
-      "Pack": "write",
-      "Ship": "write",
-      "Receive": "write",
-      "Replenish": "write",
-      "Reserve": "write",
-      "Adjust": "write",
-      "Forecast": "read",
-      "Plan": "write",
-      "Disburse": "write",
-      "Settle": "write",
-      "Reverse": "write",
-      "Capture": "write",
-      "Authorize": "write",
-      "Bid": "write",
-      "Investigate": "read",
-      "ReportSAR": "write",
-      "ScreenName": "read",
-      "Enroll": "write",
-      "Randomise": "write",
-      "Titrate": "write",
-      "Consent": "write",
-      "Assess": "read",
-      "Underwrite": "write",
-      "AssessClaim": "read",
-      "Subrogate": "write",
-      "Recover": "write",
-      "Define": "write",
-      "Integrate": "both",
-      "Assemble": "write",
-      "Target": "both",
-      "Identify": "read",
-      "Evaluate": "read",
-      "Deliver": "write",
-      "Track": "write",
-      "Test": "write",
-      "Learn": "write",
-      "Optimise": "write",
-      "Retire": "write",
-      "Scale": "write",
-      "Analyse": "read",
-      "Report": "write",
-      "Attribute": "read"
+      "Create": "write", "Update": "write", "Delete": "write", "Approve": "write", "Reject": "write", "Bid": "write", "Serve": "write", "Render": "write", "Track": "write", "Fire": "write", "Pixel": "write", "Beacon": "write", "Segment": "write", "Target": "both", "Retarget": "write", "Lookalike": "write", "Sync": "write", "Match": "write", "Onboard": "write", "Enrich": "write", "Profile": "write", "Score": "read", "Predict": "read", "Recommend": "read", "Optimize": "write", "ABTest": "write", "Attribute": "read", "Incrementality": "read", "LiftStudy": "read", "Verify": "read", "Detect": "read", "Filter": "write", "Block": "write", "Allow": "write", "Monetize": "write", "Mediate": "write", "Waterfall": "write", "HeaderBid": "write", "Prebid": "write", "Report": "write", "Analyze": "read", "View": "read", "Consent": "write", "Optout": "write"
     },
-    "relationshipTypes": [
-      "consists_of",
-      "depends_on",
-      "hosted_on",
-      "supports",
-      "communicates_with",
-      "segregation_of_duties",
-      "traceability",
-      "subrogates_against"
-    ]
+    "relationshipTypes": ["consists_of", "depends_on", "hosted_on", "supports", "targets", "segments_from", "attributes_to", "competes_with"]
   },
   "domain": {
-    "entities": [
-      "Campaign",
-      "AudienceSegment",
-      "CreativeAsset",
-      "Template",
-      "TargetingRule",
-      "BidRequest",
-      "BidResponse",
-      "Impression",
-      "Click",
-      "Conversion",
-      "Experiment",
-      "MLModel",
-      "Report",
-      "KPI",
-      "DMPProfile"
-    ],
-    "dataObjects": [
-      "DO_Campaign",
-      "DO_AudienceProfile",
-      "DO_CreativeAsset",
-      "DO_Template",
-      "DO_TargetingRule",
-      "DO_BidRequest",
-      "DO_BidResponse",
-      "DO_Impression",
-      "DO_Click",
-      "DO_Conversion",
-      "DO_PerformanceMetrics",
-      "DO_ExperimentDesign",
-      "DO_MLModel",
-      "DO_IncrementalityResult",
-      "DO_BrandLiftStudy",
-      "DO_Report"
-    ],
-    "verbs": [
-      "Plan",
-      "Define",
-      "Integrate",
-      "Assemble",
-      "Target",
-      "Identify",
-      "Evaluate",
-      "Bid",
-      "Deliver",
-      "Track",
-      "Test",
-      "Learn",
-      "Optimise",
-      "Retire",
-      "Scale",
-      "Analyse",
-      "Report",
-      "Attribute",
-      "Verify",
-      "Approve",
-      "Reject"
-    ],
-    "actors": [
-      "MarketingManager",
-      "CreativeDesigner",
-      "DCOEngine",
-      "DMP",
-      "DSP",
-      "SSP",
-      "AdServer",
-      "DataScientist",
-      "MLTrainingService",
-      "Analyst",
-      "ComplianceOfficer"
-    ],
+    "entities": ["Campaign", "LineItem", "CreativeFlight", "AdGroup", "AudienceSegment", "FirstPartySegment", "ThirdPartySegment", "LookalikeSegment", "Creative", "CreativeAsset", "VideoCreative", "DisplayCreative", "NativeCreative", "DynamicCreative", "DCO", "Template", "TargetingRule", "GeoTarget", "DemographicTarget", "BehavioralTarget", "ContextualTarget", "Inventory", "AdUnit", "Placement", "Site", "App", "Domain", "Bundle", "Supply", "Demand", "Deal", "PrivateMarketplace", "PMP", "ProgrammaticGuaranteed", "PG", "PreferredDeal", "BidRequest", "BidResponse", "Auction", "Bid", "WinNotice", "Impression", "ViewableImpression", "Click", "Conversion", "PostViewConversion", "PostClickConversion", "Event", "Pixel", "Beacon", "User", "UserProfile", "Cookie", "DeviceID", "UnifiedID", "UID2", "Identifier", "IDGraph", "Household", "CrossDevice", "Attribution", "TouchPoint", "Experiment", "ABTest", "HoldoutGroup", "ControlGroup", "TreatmentGroup", "MLModel", "BidModel", "PredictiveModel", "LookalikModel", "FrequencyCap", "Budget", "Pacing", "DailyBudget", "CampaignBudget", "FloorPrice", "CPM", "CPC", "Viewability", "BrandSafety", "AdVerification", "InvalidTraffic", "IVT", "Fraud", "Report", "Dashboard", "KPI", "Metric"],
+    "dataObjects": ["DO_Campaign", "DO_LineItem", "DO_AdGroup", "DO_AudienceProfile", "DO_FirstPartyData", "DO_ThirdPartyData", "DO_CRMData", "DO_SegmentMembership", "DO_Creative", "DO_CreativeAsset", "DO_VideoAsset", "DO_ImageAsset", "DO_HTMLAsset", "DO_Template", "DO_DCO_Config", "DO_TargetingRule", "DO_GeoRule", "DO_DemoRule", "DO_BehaviorRule", "DO_ContextualRule", "DO_Inventory", "DO_AdUnit", "DO_Placement", "DO_Site", "DO_App", "DO_SupplySource", "DO_Deal", "DO_PMP", "DO_PG", "DO_BidRequest", "DO_OpenRTB_BidRequest", "DO_BidResponse", "DO_OpenRTB_BidResponse", "DO_Auction", "DO_Bid", "DO_WinNotice", "DO_LossNotice", "DO_Impression", "DO_ImpressionEvent", "DO_ViewableImpression", "DO_Click", "DO_ClickEvent", "DO_Conversion", "DO_ConversionEvent", "DO_PostViewConversion", "DO_PostClickConversion", "DO_Pixel", "DO_TrackingPixel", "DO_ConversionPixel", "DO_Beacon", "DO_User", "DO_UserProfile", "DO_Cookie", "DO_DeviceID", "DO_MobileAdID", "DO_IDFA", "DO_GAID", "DO_UnifiedID", "DO_UID2", "DO_IDGraph", "DO_IDSync", "DO_CookieSync", "DO_Attribution", "DO_AttributionModel", "DO_TouchPoint", "DO_CustomerJourney", "DO_Experiment", "DO_ABTest", "DO_HoldoutGroup", "DO_ExperimentResult", "DO_MLModel", "DO_BidModel", "DO_CTRModel", "DO_CVRModel", "DO_LookalikModel", "DO_FrequencyCap", "DO_Budget", "DO_Pacing", "DO_BidStrategy", "DO_FloorPrice", "DO_CPM", "DO_CPC", "DO_CPA", "DO_Viewability", "DO_ViewabilityMeasurement", "DO_BrandSafety", "DO_BrandSafetyCheck", "DO_ContextualAnalysis", "DO_AdVerification", "DO_IVT", "DO_IVT_Detection", "DO_FraudScore", "DO_Report", "DO_PerformanceReport", "DO_AudienceReport", "DO_InventoryReport", "DO_AttributionReport", "DO_Dashboard", "DO_Metrics", "DO_KPI", "DO_ConsentString", "DO_TCF_ConsentString", "DO_GDPR_Consent", "DO_CCPA_Signal", "DO_PrivacySignal"],
+    "verbs": ["Create", "Update", "Delete", "Approve", "Reject", "Bid", "Serve", "Render", "Track", "Fire", "Pixel", "Beacon", "Segment", "Target", "Retarget", "Lookalike", "Sync", "Match", "Onboard", "Enrich", "Profile", "Score", "Predict", "Recommend", "Optimize", "ABTest", "Attribute", "Incrementality", "LiftStudy", "Verify", "Detect", "Filter", "Block", "Allow", "Monetize", "Mediate", "Waterfall", "HeaderBid", "Prebid", "Report", "Analyze", "View", "Consent", "Optout"],
+    "actors": ["Advertiser", "Agency", "Trader", "MediaBuyer", "CampaignManager", "MarketingManager", "CreativeDirector", "CreativeDesigner", "VideoProducer", "CopyWriter", "Publisher", "SiteOwner", "AppDeveloper", "AdOpsManager", "YieldManager", "InventoryManager", "DataScientist", "MLEngineer", "AttributionAnalyst", "Analyst", "PerformanceAnalyst", "AudienceAnalyst", "ComplianceOfficer", "PrivacyOfficer", "LegalCounsel", "AdServer", "DSP", "SSP", "AdExchange", "DMP", "CDP", "DCO_Engine", "BiddingEngine", "OptimizationEngine", "AttributionPlatform", "VerificationVendor", "MeasurementVendor", "BrandSafetyVendor", "FraudDetectionVendor", "ViewabilityVendor", "IdentityVendor", "ConsentManagementPlatform", "CMP"],
     "actorVerbs": {
-      "MarketingManager": [
-        "Plan",
-        "Define",
-        "Target",
-        "Report"
-      ],
-      "CreativeDesigner": [
-        "Define",
-        "Assemble"
-      ],
-      "DCOEngine": [
-        "Assemble",
-        "Target",
-        "Deliver",
-        "Track",
-        "Optimise",
-        "Retire",
-        "Scale"
-      ],
-      "DMP": [
-        "Integrate",
-        "Identify",
-        "Attribute"
-      ],
-      "DSP": [
-        "Bid",
-        "Deliver"
-      ],
-      "SSP": [
-        "Emit"
-      ],
-      "AdServer": [
-        "Deliver",
-        "Track"
-      ],
-      "DataScientist": [
-        "Test",
-        "Learn",
-        "Optimise",
-        "Analyse",
-        "Evaluate"
-      ],
-      "MLTrainingService": [
-        "Evaluate"
-      ],
-      "Analyst": [
-        "Analyse",
-        "Report",
-        "Attribute"
-      ],
-      "ComplianceOfficer": [
-        "Verify",
-        "Approve",
-        "Reject"
-      ]
+      "Advertiser": ["Create", "Approve", "View", "Report"],
+      "CampaignManager": ["Create", "Update", "Target", "Optimize", "Report", "View"],
+      "CreativeDesigner": ["Create", "Update", "Approve"],
+      "Publisher": ["Create", "Update", "Monetize", "View"],
+      "YieldManager": ["Optimize", "Waterfall", "HeaderBid", "Mediate", "Report"],
+      "DataScientist": ["Segment", "Lookalike", "Score", "Predict", "ABTest", "Attribute"],
+      "AdServer": ["Serve", "Render", "Track", "Fire", "Pixel"],
+      "DSP": ["Bid", "Target", "Optimize", "Sync"],
+      "SSP": ["Mediate", "Waterfall", "HeaderBid", "Prebid"],
+      "DMP": ["Segment", "Profile", "Enrich", "Sync", "Match", "Onboard"],
+      "DCO_Engine": ["Render", "Optimize", "Target", "Serve"],
+      "VerificationVendor": ["Verify", "Detect", "Score", "Report"],
+      "CMP": ["Consent", "Optout", "Track", "Sync"]
     },
     "actorDataPerms": {
-      "MarketingManager": {
-        "read": [
-          "DO_Report",
-          "DO_PerformanceMetrics"
-        ],
-        "write": [
-          "DO_Campaign",
-          "DO_TargetingRule"
-        ]
+      "CampaignManager": {
+        "read": ["DO_Campaign", "DO_AudienceProfile", "DO_Report"],
+        "write": ["DO_Campaign", "DO_LineItem", "DO_TargetingRule"]
       },
-      "CreativeDesigner": {
-        "read": [
-          "DO_Template"
-        ],
-        "write": [
-          "DO_CreativeAsset",
-          "DO_Template"
-        ]
-      },
-      "DCOEngine": {
-        "read": [
-          "DO_Template",
-          "DO_CreativeAsset",
-          "DO_TargetingRule",
-          "DO_AudienceProfile",
-          "DO_MLModel"
-        ],
-        "write": [
-          "DO_Impression",
-          "DO_Click",
-          "DO_Conversion",
-          "DO_PerformanceMetrics"
-        ]
-      },
-      "DMP": {
-        "read": [
-          "DO_AudienceProfile"
-        ],
-        "write": [
-          "DO_AudienceProfile"
-        ]
-      },
-      "DSP": {
-        "read": [
-          "DO_BidRequest",
-          "DO_AudienceProfile"
-        ],
-        "write": [
-          "DO_BidResponse"
-        ]
-      },
-      "SSP": {
-        "read": [],
-        "write": [
-          "DO_BidRequest"
-        ]
-      },
-      "AdServer": {
-        "read": [
-          "DO_BidResponse",
-          "DO_CreativeAsset"
-        ],
-        "write": [
-          "DO_Impression",
-          "DO_Click"
-        ]
+      "YieldManager": {
+        "read": ["DO_Inventory", "DO_Deal", "DO_Report"],
+        "write": ["DO_FloorPrice", "DO_Deal", "DO_PMP"]
       },
       "DataScientist": {
-        "read": [
-          "DO_PerformanceMetrics",
-          "DO_Impression",
-          "DO_Click",
-          "DO_Conversion"
-        ],
-        "write": [
-          "DO_ExperimentDesign",
-          "DO_MLModel",
-          "DO_IncrementalityResult",
-          "DO_BrandLiftStudy"
-        ]
+        "read": ["DO_Impression", "DO_Click", "DO_Conversion", "DO_UserProfile"],
+        "write": ["DO_MLModel", "DO_Experiment", "DO_Attribution"]
       },
-      "MLTrainingService": {
-        "read": [
-          "DO_PerformanceMetrics"
-        ],
-        "write": [
-          "DO_MLModel"
-        ]
+      "DSP": {
+        "read": ["DO_BidRequest", "DO_AudienceProfile"],
+        "write": ["DO_BidResponse", "DO_Bid"]
       },
-      "Analyst": {
-        "read": [
-          "DO_PerformanceMetrics",
-          "DO_IncrementalityResult",
-          "DO_BrandLiftStudy"
-        ],
-        "write": [
-          "DO_Report"
-        ]
+      "DMP": {
+        "read": ["DO_FirstPartyData", "DO_ThirdPartyData"],
+        "write": ["DO_AudienceProfile", "DO_SegmentMembership"]
       },
-      "ComplianceOfficer": {
-        "read": [
-          "DO_Campaign",
-          "DO_TargetingRule"
-        ],
-        "write": []
+      "VerificationVendor": {
+        "read": ["DO_Impression", "DO_Creative", "DO_Site"],
+        "write": ["DO_Viewability", "DO_BrandSafety", "DO_IVT"]
       }
     }
+  },
+  "adtech_specific_constructs": {
+    "bidding_models": ["First Price Auction", "Second Price Auction", "Header Bidding", "Waterfall", "Programmatic Guaranteed", "Private Marketplace", "Open Exchange"],
+    "pricing_models": ["CPM (Cost Per Mille)", "CPC (Cost Per Click)", "CPA (Cost Per Acquisition)", "CPV (Cost Per View)", "CPI (Cost Per Install)", "vCPM (Viewable CPM)", "eCPM (Effective CPM)", "RevShare"],
+    "creative_formats": ["Display Banner", "Video (In-Stream, Out-Stream)", "Native", "Rich Media", "Expandable", "Interstitial", "Rewarded Video", "Playable", "Audio", "Connected TV (CTV)", "Digital Out-of-Home (DOOH)"],
+    "targeting_types": ["Demographic", "Geographic", "Behavioral", "Contextual", "Retargeting", "Lookalike", "CRM Onboarding", "Device", "Dayparting", "Frequency", "Viewability"],
+    "attribution_models": ["Last Click", "First Click", "Linear", "Time Decay", "Position Based (U-Shaped)", "Data-Driven", "Multi-Touch Attribution (MTA)"],
+    "privacy_signals": ["GDPR Consent String (TCF 2.2)", "CCPA Do Not Sell (us_privacy)", "GPP (Global Privacy Platform)", "Opt-Out", "Limited Ad Tracking (LAT)"],
+    "identity_types": ["Cookie", "Device ID (IDFA/GAID)", "IP Address", "Unified ID (UID2)", "Hashed Email (SHA-256)", "First-Party ID", "Probabilistic ID", "Deterministic ID"],
+    "fraud_types": ["Bot Traffic", "Click Fraud", "Impression Fraud", "Ad Stacking", "Pixel Stuffing", "Domain Spoofing", "App Spoofing", "Location Fraud", "SDK Spoofing"],
+    "kpis": ["Impressions", "Clicks", "CTR", "Conversions", "CVR", "CPA", "ROAS", "Reach", "Frequency", "Viewability Rate", "VCR (Video Completion Rate)", "Brand Lift", "Incrementality"]
   }
 }
