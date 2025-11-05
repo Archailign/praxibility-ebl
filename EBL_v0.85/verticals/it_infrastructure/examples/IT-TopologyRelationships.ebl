@@ -16,8 +16,8 @@ Metadata:
   Domain: it
   Owner: EnterpriseArchitecture
   Version: 0.85
-  CreatedAt: 2025-01-03
-  UpdatedAt: 2025-01-03
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
 
 DataObject DO_ApplicationCatalog {
   Schema:

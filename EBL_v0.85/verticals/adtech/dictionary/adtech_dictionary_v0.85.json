@@ -1,0 +1,367 @@
+{
+  "version": "0.85",
+  "name": "Adtech Business Lexicon (EBL)",
+  "vertical": "adtech",
+  "core": {
+    "types": [
+      "Entity",
+      "DataObject",
+      "Policy",
+      "Resource",
+      "Process",
+      "Rule",
+      "Report",
+      "Integration",
+      "ITAsset",
+      "Relationship"
+    ],
+    "constraints": {
+      "entity_requires_dataRef": true,
+      "dataObject_requires_policies": true,
+      "dataObject_requires_resources": true
+    },
+    "keywords": {
+      "reserved": [
+        "ON",
+        "WHEN",
+        "THEN",
+        "ELSE",
+        "WITHIN",
+        "BEFORE",
+        "AFTER",
+        "BY",
+        "UNTIL",
+        "SINCE",
+        "EVERY",
+        "SHALL",
+        "MUST",
+        "MUST NOT",
+        "SHOULD",
+        "MAY",
+        "CAN",
+        "AND",
+        "OR",
+        "NOT",
+        "IN",
+        "BETWEEN"
+      ]
+    },
+    "verbPermissions": {
+      "Create": "write",
+      "Update": "write",
+      "Set": "write",
+      "Persist": "write",
+      "Delete": "write",
+      "Approve": "write",
+      "Reject": "write",
+      "Escalate": "both",
+      "Notify": "both",
+      "Read": "read",
+      "View": "read",
+      "Fetch": "read",
+      "Verify": "read",
+      "Screen": "read",
+      "Validate": "read",
+      "Monitor": "read",
+      "Reconcile": "both",
+      "Emit": "read",
+      "Invoke": "write",
+      "Post": "write",
+      "Schedule": "write",
+      "File": "write",
+      "Archive": "write",
+      "Allocate": "write",
+      "Pick": "write",
+      "Pack": "write",
+      "Ship": "write",
+      "Receive": "write",
+      "Replenish": "write",
+      "Reserve": "write",
+      "Adjust": "write",
+      "Forecast": "read",
+      "Plan": "write",
+      "Disburse": "write",
+      "Settle": "write",
+      "Reverse": "write",
+      "Capture": "write",
+      "Authorize": "write",
+      "Bid": "write",
+      "Investigate": "read",
+      "ReportSAR": "write",
+      "ScreenName": "read",
+      "Enroll": "write",
+      "Randomise": "write",
+      "Titrate": "write",
+      "Consent": "write",
+      "Assess": "read",
+      "Underwrite": "write",
+      "AssessClaim": "read",
+      "Subrogate": "write",
+      "Recover": "write",
+      "Define": "write",
+      "Integrate": "both",
+      "Assemble": "write",
+      "Target": "both",
+      "Identify": "read",
+      "Evaluate": "read",
+      "Deliver": "write",
+      "Track": "write",
+      "Test": "write",
+      "Learn": "write",
+      "Optimise": "write",
+      "Retire": "write",
+      "Scale": "write",
+      "Analyse": "read",
+      "Report": "write",
+      "Attribute": "read"
+    },
+    "relationshipTypes": [
+      "consists_of",
+      "depends_on",
+      "hosted_on",
+      "supports",
+      "communicates_with",
+      "segregation_of_duties",
+      "traceability",
+      "subrogates_against"
+    ]
+  },
+  "domain": {
+    "entities": [
+      "Campaign",
+      "AudienceSegment",
+      "CreativeAsset",
+      "Template",
+      "TargetingRule",
+      "BidRequest",
+      "BidResponse",
+      "Impression",
+      "Click",
+      "Conversion",
+      "Experiment",
+      "MLModel",
+      "Report",
+      "KPI",
+      "DMPProfile"
+    ],
+    "dataObjects": [
+      "DO_Campaign",
+      "DO_AudienceProfile",
+      "DO_CreativeAsset",
+      "DO_Template",
+      "DO_TargetingRule",
+      "DO_BidRequest",
+      "DO_BidResponse",
+      "DO_Impression",
+      "DO_Click",
+      "DO_Conversion",
+      "DO_PerformanceMetrics",
+      "DO_ExperimentDesign",
+      "DO_MLModel",
+      "DO_IncrementalityResult",
+      "DO_BrandLiftStudy",
+      "DO_Report"
+    ],
+    "verbs": [
+      "Plan",
+      "Define",
+      "Integrate",
+      "Assemble",
+      "Target",
+      "Identify",
+      "Evaluate",
+      "Bid",
+      "Deliver",
+      "Track",
+      "Test",
+      "Learn",
+      "Optimise",
+      "Retire",
+      "Scale",
+      "Analyse",
+      "Report",
+      "Attribute",
+      "Verify",
+      "Approve",
+      "Reject"
+    ],
+    "actors": [
+      "MarketingManager",
+      "CreativeDesigner",
+      "DCOEngine",
+      "DMP",
+      "DSP",
+      "SSP",
+      "AdServer",
+      "DataScientist",
+      "MLTrainingService",
+      "Analyst",
+      "ComplianceOfficer"
+    ],
+    "actorVerbs": {
+      "MarketingManager": [
+        "Plan",
+        "Define",
+        "Target",
+        "Report"
+      ],
+      "CreativeDesigner": [
+        "Define",
+        "Assemble"
+      ],
+      "DCOEngine": [
+        "Assemble",
+        "Target",
+        "Deliver",
+        "Track",
+        "Optimise",
+        "Retire",
+        "Scale"
+      ],
+      "DMP": [
+        "Integrate",
+        "Identify",
+        "Attribute"
+      ],
+      "DSP": [
+        "Bid",
+        "Deliver"
+      ],
+      "SSP": [
+        "Emit"
+      ],
+      "AdServer": [
+        "Deliver",
+        "Track"
+      ],
+      "DataScientist": [
+        "Test",
+        "Learn",
+        "Optimise",
+        "Analyse",
+        "Evaluate"
+      ],
+      "MLTrainingService": [
+        "Evaluate"
+      ],
+      "Analyst": [
+        "Analyse",
+        "Report",
+        "Attribute"
+      ],
+      "ComplianceOfficer": [
+        "Verify",
+        "Approve",
+        "Reject"
+      ]
+    },
+    "actorDataPerms": {
+      "MarketingManager": {
+        "read": [
+          "DO_Report",
+          "DO_PerformanceMetrics"
+        ],
+        "write": [
+          "DO_Campaign",
+          "DO_TargetingRule"
+        ]
+      },
+      "CreativeDesigner": {
+        "read": [
+          "DO_Template"
+        ],
+        "write": [
+          "DO_CreativeAsset",
+          "DO_Template"
+        ]
+      },
+      "DCOEngine": {
+        "read": [
+          "DO_Template",
+          "DO_CreativeAsset",
+          "DO_TargetingRule",
+          "DO_AudienceProfile",
+          "DO_MLModel"
+        ],
+        "write": [
+          "DO_Impression",
+          "DO_Click",
+          "DO_Conversion",
+          "DO_PerformanceMetrics"
+        ]
+      },
+      "DMP": {
+        "read": [
+          "DO_AudienceProfile"
+        ],
+        "write": [
+          "DO_AudienceProfile"
+        ]
+      },
+      "DSP": {
+        "read": [
+          "DO_BidRequest",
+          "DO_AudienceProfile"
+        ],
+        "write": [
+          "DO_BidResponse"
+        ]
+      },
+      "SSP": {
+        "read": [],
+        "write": [
+          "DO_BidRequest"
+        ]
+      },
+      "AdServer": {
+        "read": [
+          "DO_BidResponse",
+          "DO_CreativeAsset"
+        ],
+        "write": [
+          "DO_Impression",
+          "DO_Click"
+        ]
+      },
+      "DataScientist": {
+        "read": [
+          "DO_PerformanceMetrics",
+          "DO_Impression",
+          "DO_Click",
+          "DO_Conversion"
+        ],
+        "write": [
+          "DO_ExperimentDesign",
+          "DO_MLModel",
+          "DO_IncrementalityResult",
+          "DO_BrandLiftStudy"
+        ]
+      },
+      "MLTrainingService": {
+        "read": [
+          "DO_PerformanceMetrics"
+        ],
+        "write": [
+          "DO_MLModel"
+        ]
+      },
+      "Analyst": {
+        "read": [
+          "DO_PerformanceMetrics",
+          "DO_IncrementalityResult",
+          "DO_BrandLiftStudy"
+        ],
+        "write": [
+          "DO_Report"
+        ]
+      },
+      "ComplianceOfficer": {
+        "read": [
+          "DO_Campaign",
+          "DO_TargetingRule"
+        ],
+        "write": []
+      }
+    }
+  }
+}

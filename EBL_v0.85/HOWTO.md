@@ -3,10 +3,11 @@
 **Initial Open Source Release** - This version includes all core features, validators, and domain dictionaries.
 
 ## Features
-- **Multi-domain support:** AdTech, Healthcare, Insurance, Finance/Payments, KYC, Logistics, Retail, IT/Infrastructure
+- **Multi-domain support:** 8 industry verticals (AdTech, Healthcare, Insurance, Banking, KYC, Logistics, Retail, IT)
 - **Comprehensive validation:** Action checks, relationship validation, permission inference
 - **Extensible dictionaries:** JSON/YAML format with actor/verb whitelists and data permissions
-- **Example-driven:** 15+ real-world EBL files demonstrating various domain patterns
+- **Example-driven:** 17 real-world EBL files organized by vertical
+- **Vertical structure:** Each industry has isolated examples, dictionaries, and data models
 
 ## Quick Start
 
@@ -70,8 +71,13 @@ mvn -q -DskipTests package
 java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator <DICTIONARY>.json <EBL_FILE>.ebl
 
 # Examples:
-java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator adTech_Dictionary_v0.85.json examples/Insurance_Subrogation_Counterparty.ebl
-java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator adTech_Dictionary_v0.85.json examples/KYC_Verb_NeverPermitted.ebl
+java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator \
+  verticals/insurance/dictionary/insurance_dictionary_v0.85.json \
+  verticals/insurance/examples/Insurance_Subrogation_Counterparty.ebl
+
+java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator \
+  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
+  verticals/kyc_compliance/examples/KYC_Verb_NeverPermitted.ebl
 ```
 
 ### Validate EBL Files (Python)
@@ -80,16 +86,26 @@ java -cp target/classes:generated-src/java org.example.ebl.EBLSemanticValidator 
 PYTHONPATH=generated-src/python python3 ebl_validator.py <DICTIONARY>.json <EBL_FILE>.ebl
 
 # Examples:
-PYTHONPATH=generated-src/python python3 ebl_validator.py adTech_Dictionary_v0.85.json examples/AdTech_Dynamic_Marketing_Cycle_Full.ebl
-PYTHONPATH=generated-src/python python3 ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+PYTHONPATH=generated-src/python python3 ebl_validator.py \
+  verticals/adtech/dictionary/adtech_dictionary_v0.85.json \
+  verticals/adtech/examples/AdTech_Dynamic_Marketing_Cycle_Full.ebl
+
+PYTHONPATH=generated-src/python python3 ebl_validator.py \
+  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
+  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 ```
 
-## Available Domain Dictionaries
-- `adTech_Dictionary_v0.85.json` - Advertising Technology
-- `healthcare_Dictionary_v0.85.json` - Healthcare & Pharmaceuticals
-- `insurance_Dictionary_v0.85.json` - Insurance & Risk Management
-- `payments_Dictionary_v0.85.json` - Payments & Financial Services
-- `kyc_Dictionary_v0.85.json` - Know Your Customer & Compliance
-- `logistics_Dictionary_v0.85.json` - Logistics & Supply Chain
-- `retail_Dictionary_v0.85.json` - Retail & E-commerce
-- `it_Dictionary_v0.85.json` - IT Infrastructure & Operations
+## Available Vertical Dictionaries
+
+Each vertical includes its own dictionary in `verticals/[vertical]/dictionary/`:
+
+- `verticals/adtech/dictionary/adtech_dictionary_v0.85.json` - Advertising Technology
+- `verticals/healthcare/dictionary/healthcare_dictionary_v0.85.json` - Healthcare & Pharmaceuticals
+- `verticals/insurance/dictionary/insurance_dictionary_v0.85.json` - Insurance & Risk Management
+- `verticals/banking/dictionary/banking_dictionary_v0.85.json` - Banking & Financial Services
+- `verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json` - Know Your Customer & Compliance
+- `verticals/logistics/dictionary/logistics_dictionary_v0.85.json` - Logistics & Supply Chain
+- `verticals/retail/dictionary/retail_dictionary_v0.85.json` - Retail & E-commerce
+- `verticals/it_infrastructure/dictionary/it_infrastructure_dictionary_v0.85.json` - IT Infrastructure & Operations
+
+**Master Dictionary:** `EBL_Dictionary_v0.85_all.json` (contains all domains)

@@ -1,0 +1,301 @@
+{
+  "version": "0.85",
+  "name": "Retail Business Lexicon (EBL)",
+  "vertical": "retail",
+  "core": {
+    "types": [
+      "Entity",
+      "DataObject",
+      "Policy",
+      "Resource",
+      "Process",
+      "Rule",
+      "Report",
+      "Integration",
+      "ITAsset",
+      "Relationship"
+    ],
+    "constraints": {
+      "entity_requires_dataRef": true,
+      "dataObject_requires_policies": true,
+      "dataObject_requires_resources": true
+    },
+    "keywords": {
+      "reserved": [
+        "ON",
+        "WHEN",
+        "THEN",
+        "ELSE",
+        "WITHIN",
+        "BEFORE",
+        "AFTER",
+        "BY",
+        "UNTIL",
+        "SINCE",
+        "EVERY",
+        "SHALL",
+        "MUST",
+        "MUST NOT",
+        "SHOULD",
+        "MAY",
+        "CAN",
+        "AND",
+        "OR",
+        "NOT",
+        "IN",
+        "BETWEEN"
+      ]
+    },
+    "verbPermissions": {
+      "Create": "write",
+      "Update": "write",
+      "Set": "write",
+      "Persist": "write",
+      "Delete": "write",
+      "Approve": "write",
+      "Reject": "write",
+      "Escalate": "both",
+      "Notify": "both",
+      "Read": "read",
+      "View": "read",
+      "Fetch": "read",
+      "Verify": "read",
+      "Screen": "read",
+      "Validate": "read",
+      "Monitor": "read",
+      "Reconcile": "both",
+      "Emit": "read",
+      "Invoke": "write",
+      "Post": "write",
+      "Schedule": "write",
+      "File": "write",
+      "Archive": "write",
+      "Allocate": "write",
+      "Pick": "write",
+      "Pack": "write",
+      "Ship": "write",
+      "Receive": "write",
+      "Replenish": "write",
+      "Reserve": "write",
+      "Adjust": "write",
+      "Forecast": "read",
+      "Plan": "write",
+      "Disburse": "write",
+      "Settle": "write",
+      "Reverse": "write",
+      "Capture": "write",
+      "Authorize": "write",
+      "Bid": "write",
+      "Investigate": "read",
+      "ReportSAR": "write",
+      "ScreenName": "read",
+      "Enroll": "write",
+      "Randomise": "write",
+      "Titrate": "write",
+      "Consent": "write",
+      "Assess": "read",
+      "Underwrite": "write",
+      "AssessClaim": "read",
+      "Subrogate": "write",
+      "Recover": "write",
+      "Define": "write",
+      "Integrate": "both",
+      "Assemble": "write",
+      "Target": "both",
+      "Identify": "read",
+      "Evaluate": "read",
+      "Deliver": "write",
+      "Track": "write",
+      "Test": "write",
+      "Learn": "write",
+      "Optimise": "write",
+      "Retire": "write",
+      "Scale": "write",
+      "Analyse": "read",
+      "Report": "write",
+      "Attribute": "read"
+    },
+    "relationshipTypes": [
+      "consists_of",
+      "depends_on",
+      "hosted_on",
+      "supports",
+      "communicates_with",
+      "segregation_of_duties",
+      "traceability",
+      "subrogates_against"
+    ]
+  },
+  "domain": {
+    "entities": [
+      "Customer",
+      "Order",
+      "OrderItem",
+      "Product",
+      "Inventory",
+      "Store",
+      "Shipment",
+      "Return"
+    ],
+    "dataObjects": [
+      "DO_Customer",
+      "DO_Order",
+      "DO_OrderItem",
+      "DO_Product",
+      "DO_Inventory",
+      "DO_Shipment",
+      "DO_Return",
+      "DO_ReplenishmentPlan"
+    ],
+    "verbs": [
+      "Create",
+      "Update",
+      "Reserve",
+      "Allocate",
+      "Pick",
+      "Pack",
+      "Ship",
+      "Receive",
+      "Replenish",
+      "Adjust",
+      "Forecast",
+      "Plan",
+      "Notify",
+      "Read",
+      "View"
+    ],
+    "actors": [
+      "StoreAssociate",
+      "CustomerService",
+      "WarehouseManager",
+      "Picker",
+      "Packer",
+      "LogisticsCoordinator",
+      "InventoryAnalyst",
+      "EComPlatform"
+    ],
+    "actorVerbs": {
+      "StoreAssociate": [
+        "Create",
+        "Update",
+        "Reserve",
+        "Notify",
+        "View"
+      ],
+      "CustomerService": [
+        "Create",
+        "Update",
+        "Notify",
+        "View"
+      ],
+      "WarehouseManager": [
+        "Allocate",
+        "Pick",
+        "Pack",
+        "Ship",
+        "Receive"
+      ],
+      "Picker": [
+        "Pick"
+      ],
+      "Packer": [
+        "Pack"
+      ],
+      "LogisticsCoordinator": [
+        "Ship",
+        "Receive",
+        "Notify"
+      ],
+      "InventoryAnalyst": [
+        "Forecast",
+        "Plan",
+        "Replenish",
+        "Adjust",
+        "View"
+      ],
+      "EComPlatform": [
+        "Create",
+        "Update",
+        "Notify"
+      ]
+    },
+    "actorDataPerms": {
+      "StoreAssociate": {
+        "read": [
+          "DO_Product",
+          "DO_Inventory",
+          "DO_Order"
+        ],
+        "write": [
+          "DO_Order",
+          "DO_Return"
+        ]
+      },
+      "CustomerService": {
+        "read": [
+          "DO_Order",
+          "DO_Customer"
+        ],
+        "write": [
+          "DO_Order",
+          "DO_Return"
+        ]
+      },
+      "WarehouseManager": {
+        "read": [
+          "DO_Order",
+          "DO_OrderItem",
+          "DO_Inventory",
+          "DO_Shipment"
+        ],
+        "write": [
+          "DO_Shipment",
+          "DO_Inventory"
+        ]
+      },
+      "Picker": {
+        "read": [
+          "DO_OrderItem",
+          "DO_Inventory"
+        ],
+        "write": []
+      },
+      "Packer": {
+        "read": [
+          "DO_OrderItem"
+        ],
+        "write": [
+          "DO_Shipment"
+        ]
+      },
+      "LogisticsCoordinator": {
+        "read": [
+          "DO_Shipment",
+          "DO_Order"
+        ],
+        "write": [
+          "DO_Shipment"
+        ]
+      },
+      "InventoryAnalyst": {
+        "read": [
+          "DO_Inventory",
+          "DO_ReplenishmentPlan"
+        ],
+        "write": [
+          "DO_ReplenishmentPlan",
+          "DO_Inventory"
+        ]
+      },
+      "EComPlatform": {
+        "read": [
+          "DO_Product",
+          "DO_Inventory"
+        ],
+        "write": [
+          "DO_Order"
+        ]
+      }
+    }
+  }
+}

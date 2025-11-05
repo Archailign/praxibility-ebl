@@ -10,8 +10,8 @@ Metadata:
   EBLClass: ClinicalTrialManagement
   RequirementID: REQ-PHARMA-001
   ProjectID: PRJ-PHARMA-001
-  CreatedAt: 2025-01-03
-  UpdatedAt: 2025-01-03
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
 
 Entity Participant {
   Properties:

@@ -1,0 +1,271 @@
+{
+  "version": "0.85",
+  "name": "Insurance Business Lexicon (EBL)",
+  "vertical": "insurance",
+  "core": {
+    "types": [
+      "Entity",
+      "DataObject",
+      "Policy",
+      "Resource",
+      "Process",
+      "Rule",
+      "Report",
+      "Integration",
+      "ITAsset",
+      "Relationship"
+    ],
+    "constraints": {
+      "entity_requires_dataRef": true,
+      "dataObject_requires_policies": true,
+      "dataObject_requires_resources": true
+    },
+    "keywords": {
+      "reserved": [
+        "ON",
+        "WHEN",
+        "THEN",
+        "ELSE",
+        "WITHIN",
+        "BEFORE",
+        "AFTER",
+        "BY",
+        "UNTIL",
+        "SINCE",
+        "EVERY",
+        "SHALL",
+        "MUST",
+        "MUST NOT",
+        "SHOULD",
+        "MAY",
+        "CAN",
+        "AND",
+        "OR",
+        "NOT",
+        "IN",
+        "BETWEEN"
+      ]
+    },
+    "verbPermissions": {
+      "Create": "write",
+      "Update": "write",
+      "Set": "write",
+      "Persist": "write",
+      "Delete": "write",
+      "Approve": "write",
+      "Reject": "write",
+      "Escalate": "both",
+      "Notify": "both",
+      "Read": "read",
+      "View": "read",
+      "Fetch": "read",
+      "Verify": "read",
+      "Screen": "read",
+      "Validate": "read",
+      "Monitor": "read",
+      "Reconcile": "both",
+      "Emit": "read",
+      "Invoke": "write",
+      "Post": "write",
+      "Schedule": "write",
+      "File": "write",
+      "Archive": "write",
+      "Allocate": "write",
+      "Pick": "write",
+      "Pack": "write",
+      "Ship": "write",
+      "Receive": "write",
+      "Replenish": "write",
+      "Reserve": "write",
+      "Adjust": "write",
+      "Forecast": "read",
+      "Plan": "write",
+      "Disburse": "write",
+      "Settle": "write",
+      "Reverse": "write",
+      "Capture": "write",
+      "Authorize": "write",
+      "Bid": "write",
+      "Investigate": "read",
+      "ReportSAR": "write",
+      "ScreenName": "read",
+      "Enroll": "write",
+      "Randomise": "write",
+      "Titrate": "write",
+      "Consent": "write",
+      "Assess": "read",
+      "Underwrite": "write",
+      "AssessClaim": "read",
+      "Subrogate": "write",
+      "Recover": "write",
+      "Define": "write",
+      "Integrate": "both",
+      "Assemble": "write",
+      "Target": "both",
+      "Identify": "read",
+      "Evaluate": "read",
+      "Deliver": "write",
+      "Track": "write",
+      "Test": "write",
+      "Learn": "write",
+      "Optimise": "write",
+      "Retire": "write",
+      "Scale": "write",
+      "Analyse": "read",
+      "Report": "write",
+      "Attribute": "read"
+    },
+    "relationshipTypes": [
+      "consists_of",
+      "depends_on",
+      "hosted_on",
+      "supports",
+      "communicates_with",
+      "segregation_of_duties",
+      "traceability",
+      "subrogates_against"
+    ]
+  },
+  "domain": {
+    "entities": [
+      "Claim",
+      "Policy",
+      "Policyholder",
+      "Beneficiary",
+      "ClaimAssessment",
+      "Payment",
+      "AdjusterReport",
+      "SubrogationCase"
+    ],
+    "dataObjects": [
+      "DO_Claim",
+      "DO_Policy",
+      "DO_Assessment",
+      "DO_ClaimPayment",
+      "DO_ClaimDocument",
+      "DO_Subrogation",
+      "DO_FraudSignal"
+    ],
+    "verbs": [
+      "File",
+      "Assess",
+      "Approve",
+      "Reject",
+      "Investigate",
+      "Disburse",
+      "Recover",
+      "Subrogate",
+      "Notify",
+      "Reopen",
+      "Close"
+    ],
+    "actors": [
+      "Policyholder",
+      "ClaimsAdjuster",
+      "Underwriter",
+      "FraudAnalyst",
+      "PaymentClerk",
+      "SubrogationSpecialist",
+      "Regulator"
+    ],
+    "actorVerbs": {
+      "Policyholder": [
+        "File"
+      ],
+      "ClaimsAdjuster": [
+        "Assess",
+        "Investigate",
+        "Approve",
+        "Reject",
+        "Notify",
+        "Close",
+        "Reopen"
+      ],
+      "Underwriter": [
+        "Approve",
+        "Reject",
+        "Verify"
+      ],
+      "FraudAnalyst": [
+        "Investigate",
+        "Verify",
+        "Notify"
+      ],
+      "PaymentClerk": [
+        "Disburse",
+        "Notify"
+      ],
+      "SubrogationSpecialist": [
+        "Recover",
+        "Subrogate",
+        "Notify"
+      ],
+      "Regulator": [
+        "Read"
+      ]
+    },
+    "actorDataPerms": {
+      "Policyholder": {
+        "read": [
+          "DO_Claim"
+        ],
+        "write": [
+          "DO_Claim",
+          "DO_ClaimDocument"
+        ]
+      },
+      "ClaimsAdjuster": {
+        "read": [
+          "DO_Claim",
+          "DO_Assessment",
+          "DO_FraudSignal"
+        ],
+        "write": [
+          "DO_Assessment"
+        ]
+      },
+      "Underwriter": {
+        "read": [
+          "DO_Claim",
+          "DO_Policy"
+        ],
+        "write": [
+          "DO_Claim"
+        ]
+      },
+      "FraudAnalyst": {
+        "read": [
+          "DO_Claim",
+          "DO_FraudSignal"
+        ],
+        "write": [
+          "DO_FraudSignal"
+        ]
+      },
+      "PaymentClerk": {
+        "read": [
+          "DO_ClaimPayment"
+        ],
+        "write": [
+          "DO_ClaimPayment"
+        ]
+      },
+      "SubrogationSpecialist": {
+        "read": [
+          "DO_Subrogation",
+          "DO_Claim"
+        ],
+        "write": [
+          "DO_Subrogation"
+        ]
+      },
+      "Regulator": {
+        "read": [
+          "DO_Claim",
+          "DO_Policy"
+        ],
+        "write": []
+      }
+    }
+  }
+}

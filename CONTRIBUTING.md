@@ -78,7 +78,7 @@ We welcome pull requests for:
 
 4. **Build the project**:
    ```bash
-   cd EBL_v1.3.1
+   cd EBL_v0.85
    mvn clean install
    # or
    gradle build
@@ -113,7 +113,9 @@ We welcome pull requests for:
 3. **Test your changes**:
    ```bash
    mvn test
-   python ebl_validator.py examples/YourExample.ebl
+   python ebl_validator.py \
+     verticals/[vertical]/dictionary/[vertical]_dictionary_v0.85.json \
+     verticals/[vertical]/examples/YourExample.ebl
    ```
 
 4. **Commit your changes**:
@@ -203,7 +205,9 @@ We welcome pull requests for:
 
 2. **Integration Tests**: Test EBL file parsing
    ```bash
-   python ebl_validator.py examples/NewFeature.ebl
+   python ebl_validator.py \
+     verticals/[vertical]/dictionary/[vertical]_dictionary_v0.85.json \
+     verticals/[vertical]/examples/NewFeature.ebl
    ```
 
 3. **Grammar Tests**: Test ANTLR grammar rules
@@ -214,12 +218,15 @@ We welcome pull requests for:
 # Java tests
 mvn test
 
-# Python validator
-cd EBL_v1.3.1
-python ebl_validator.py examples/*.ebl
+# Python validator - test specific vertical
+cd EBL_v0.85
+for file in verticals/kyc_compliance/examples/*.ebl; do
+  python ebl_validator.py \
+    verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json "$file"
+done
 
 # Specific test class
-mvn test -Dtest=ValidatorV130Test
+mvn test -Dtest=SemanticValidatorTest
 ```
 
 ## Submitting Changes
@@ -294,13 +301,25 @@ When adding to `EBL_Dictionary_*.json`:
 
 ## Adding Examples
 
-When contributing example EBL files to `examples/`:
+When contributing example EBL files to `verticals/[vertical]/examples/`:
 
-1. Use clear, realistic scenarios
-2. Follow naming convention: `Domain_UseCase.ebl`
-3. Include inline comments explaining key concepts
-4. Test with validator before submitting
-5. Add description in PR
+1. **Choose or create a vertical**: Place your example in the appropriate industry vertical
+2. **Use clear, realistic scenarios** from that industry domain
+3. **Follow naming convention**: `Domain_UseCase.ebl` (e.g., `Insurance_ClaimLifecycle.ebl`)
+4. **Include inline comments** explaining key concepts
+5. **Ensure dictionary compatibility**: Use only actors/verbs defined in the vertical's dictionary
+6. **Test with validator** before submitting:
+   ```bash
+   python ebl_validator.py \
+     verticals/[vertical]/dictionary/[vertical]_dictionary_v0.85.json \
+     verticals/[vertical]/examples/YourExample.ebl
+   ```
+7. **Add description** in PR explaining the use case and industry context
+
+If your example spans multiple verticals, consider:
+- Creating it in the primary vertical
+- Documenting cross-vertical dependencies in the PR
+- Or proposing a new vertical if appropriate
 
 ## Community
 

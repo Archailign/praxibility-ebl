@@ -1,0 +1,243 @@
+{
+  "version": "0.85",
+  "name": "Banking Business Lexicon (EBL)",
+  "vertical": "banking",
+  "core": {
+    "types": [
+      "Entity",
+      "DataObject",
+      "Policy",
+      "Resource",
+      "Process",
+      "Rule",
+      "Report",
+      "Integration",
+      "ITAsset",
+      "Relationship"
+    ],
+    "constraints": {
+      "entity_requires_dataRef": true,
+      "dataObject_requires_policies": true,
+      "dataObject_requires_resources": true
+    },
+    "keywords": {
+      "reserved": [
+        "ON",
+        "WHEN",
+        "THEN",
+        "ELSE",
+        "WITHIN",
+        "BEFORE",
+        "AFTER",
+        "BY",
+        "UNTIL",
+        "SINCE",
+        "EVERY",
+        "SHALL",
+        "MUST",
+        "MUST NOT",
+        "SHOULD",
+        "MAY",
+        "CAN",
+        "AND",
+        "OR",
+        "NOT",
+        "IN",
+        "BETWEEN"
+      ]
+    },
+    "verbPermissions": {
+      "Create": "write",
+      "Update": "write",
+      "Set": "write",
+      "Persist": "write",
+      "Delete": "write",
+      "Approve": "write",
+      "Reject": "write",
+      "Escalate": "both",
+      "Notify": "both",
+      "Read": "read",
+      "View": "read",
+      "Fetch": "read",
+      "Verify": "read",
+      "Screen": "read",
+      "Validate": "read",
+      "Monitor": "read",
+      "Reconcile": "both",
+      "Emit": "read",
+      "Invoke": "write",
+      "Post": "write",
+      "Schedule": "write",
+      "File": "write",
+      "Archive": "write",
+      "Allocate": "write",
+      "Pick": "write",
+      "Pack": "write",
+      "Ship": "write",
+      "Receive": "write",
+      "Replenish": "write",
+      "Reserve": "write",
+      "Adjust": "write",
+      "Forecast": "read",
+      "Plan": "write",
+      "Disburse": "write",
+      "Settle": "write",
+      "Reverse": "write",
+      "Capture": "write",
+      "Authorize": "write",
+      "Bid": "write",
+      "Investigate": "read",
+      "ReportSAR": "write",
+      "ScreenName": "read",
+      "Enroll": "write",
+      "Randomise": "write",
+      "Titrate": "write",
+      "Consent": "write",
+      "Assess": "read",
+      "Underwrite": "write",
+      "AssessClaim": "read",
+      "Subrogate": "write",
+      "Recover": "write",
+      "Define": "write",
+      "Integrate": "both",
+      "Assemble": "write",
+      "Target": "both",
+      "Identify": "read",
+      "Evaluate": "read",
+      "Deliver": "write",
+      "Track": "write",
+      "Test": "write",
+      "Learn": "write",
+      "Optimise": "write",
+      "Retire": "write",
+      "Scale": "write",
+      "Analyse": "read",
+      "Report": "write",
+      "Attribute": "read"
+    },
+    "relationshipTypes": [
+      "consists_of",
+      "depends_on",
+      "hosted_on",
+      "supports",
+      "communicates_with",
+      "segregation_of_duties",
+      "traceability",
+      "subrogates_against"
+    ]
+  },
+  "domain": {
+    "entities": [
+      "Case",
+      "SuspiciousActivity",
+      "SARReport",
+      "RuleHit",
+      "Investigation",
+      "Evidence"
+    ],
+    "dataObjects": [
+      "DO_FraudSignal",
+      "DO_Transaction",
+      "DO_Customer",
+      "DO_Alert",
+      "DO_SAR"
+    ],
+    "verbs": [
+      "Monitor",
+      "Investigate",
+      "Escalate",
+      "Approve",
+      "Reject",
+      "Report",
+      "File",
+      "Notify",
+      "Reconcile"
+    ],
+    "actors": [
+      "FraudAnalyst",
+      "InvestigationLead",
+      "SAROfficer",
+      "ComplianceOfficer",
+      "CaseManagementSystem"
+    ],
+    "actorVerbs": {
+      "FraudAnalyst": [
+        "Monitor",
+        "Investigate",
+        "Escalate",
+        "Notify",
+        "Reconcile"
+      ],
+      "InvestigationLead": [
+        "Investigate",
+        "Approve",
+        "Reject",
+        "Notify"
+      ],
+      "SAROfficer": [
+        "Approve",
+        "Reject",
+        "File",
+        "Report",
+        "Notify"
+      ],
+      "ComplianceOfficer": [
+        "Approve",
+        "Reject",
+        "Report",
+        "Notify"
+      ],
+      "CaseManagementSystem": [
+        "Notify",
+        "Reconcile"
+      ]
+    },
+    "actorDataPerms": {
+      "FraudAnalyst": {
+        "read": [
+          "DO_Transaction",
+          "DO_FraudSignal",
+          "DO_Customer"
+        ],
+        "write": [
+          "DO_Alert"
+        ]
+      },
+      "InvestigationLead": {
+        "read": [
+          "DO_Transaction",
+          "DO_Alert"
+        ],
+        "write": [
+          "DO_Alert"
+        ]
+      },
+      "SAROfficer": {
+        "read": [
+          "DO_Alert",
+          "DO_Transaction"
+        ],
+        "write": [
+          "DO_SAR"
+        ]
+      },
+      "ComplianceOfficer": {
+        "read": [
+          "DO_SAR",
+          "DO_Alert"
+        ],
+        "write": [
+          "DO_SAR"
+        ]
+      },
+      "CaseManagementSystem": {
+        "read": [
+          "DO_Alert"
+        ],
+        "write": [
+          "DO_Alert"
+        ]
+      }
+    }
+  }
+}

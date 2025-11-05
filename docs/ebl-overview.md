@@ -176,8 +176,10 @@ mvn clean install
 # Or build with Gradle
 gradle build
 
-# Validate an example
-python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+# Validate an example from the KYC vertical
+python ebl_validator.py \
+  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
+  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 ```
 
 ---

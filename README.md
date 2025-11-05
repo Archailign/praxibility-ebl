@@ -93,12 +93,14 @@ mvn antlr4:antlr4
 ### Running Examples
 
 ```bash
-# Validate an EBL file
+# Validate an EBL file from a vertical
 cd EBL_v0.85
-python ebl_validator.py adTech_Dictionary_v0.85.json examples/AdCampaignManagement.ebl
+python ebl_validator.py \
+  verticals/banking/dictionary/banking_dictionary_v0.85.json \
+  verticals/banking/examples/MortgageLoanApplication.ebl
 
-# View example files
-ls examples/
+# Explore verticals
+ls verticals/
 
 # Run all tests
 mvn test
@@ -119,7 +121,8 @@ praxibility-ebl/
 │   ├── ebl-overview.md               # EBL architecture overview
 │   ├── ebl-classes.md                # EBL class reference
 │   ├── ebl-Lexicon.md                # Enterprise Business Lexicon specification
-│   └── data_model/                   # Data model schemas
+│   └── data_model/                   # Base data model schemas
+│       ├── README.md                 # Data model documentation
 │       ├── entity_relationship_model.txt  # UUID-based ERM schema
 │       └── erm_schema.txt            # INT-based ERM schema
 │
@@ -143,41 +146,74 @@ praxibility-ebl/
     │   └── test/
     │       └── java/
     │           └── org/example/ebl/
-    │               ├── ValidatorV130Test.java
-    │               └── AdTechValidatorTest.java
+    │               ├── SemanticValidatorTest.java
+    │               ├── AdTechValidatorTest.java
+    │               ├── BankingValidatorTest.java
+    │               └── ... (all vertical tests)
     │
-    ├── examples/                     # 17 domain-specific EBL files
-    │   ├── AdCampaignManagement.ebl
-    │   ├── AdTech_Dynamic_Marketing_Cycle_Full.ebl
-    │   ├── AFC_Fraud_SAR.ebl
-    │   ├── ClinicalTrialEnrollment.ebl
-    │   ├── Governance_SoD_Traceability.ebl
-    │   ├── Healthcare_PatientIntake.ebl
-    │   ├── Insurance_ClaimLifecycle.ebl
-    │   ├── Insurance_Subrogation_Counterparty.ebl
-    │   ├── InventoryReplenishment.ebl
-    │   ├── IT_Application_Onboarding.ebl
-    │   ├── IT-TopologyRelationships.ebl
-    │   ├── KYC_Onboarding.ebl
-    │   ├── KYC_Verb_NeverPermitted.ebl
-    │   ├── Logistics_Tracking.ebl
-    │   ├── MortgageLoanApplication.ebl
-    │   ├── Payments_Screening.ebl
-    │   └── Retail_Order_Inventory.ebl
+    ├── verticals/                    # 🎯 Industry-specific implementations
+    │   ├── README.md                 # Verticals overview
+    │   │
+    │   ├── adtech/                   # Advertising Technology
+    │   │   ├── README.md
+    │   │   ├── examples/             # 2 AdTech examples
+    │   │   ├── dictionary/           # AdTech vocabulary
+    │   │   └── data_model/           # AdTech schemas
+    │   │
+    │   ├── banking/                  # Financial Services
+    │   │   ├── README.md
+    │   │   ├── examples/             # 3 Banking examples
+    │   │   ├── dictionary/           # Banking vocabulary
+    │   │   └── data_model/           # Banking schemas
+    │   │
+    │   ├── healthcare/               # Healthcare & Pharma
+    │   │   ├── README.md
+    │   │   ├── examples/             # 2 Healthcare examples
+    │   │   ├── dictionary/           # Healthcare vocabulary
+    │   │   └── data_model/           # Healthcare schemas
+    │   │
+    │   ├── insurance/                # Insurance & Risk
+    │   │   ├── README.md
+    │   │   ├── examples/             # 2 Insurance examples
+    │   │   ├── dictionary/           # Insurance vocabulary
+    │   │   └── data_model/           # Insurance schemas
+    │   │
+    │   ├── kyc_compliance/           # KYC & Governance
+    │   │   ├── README.md
+    │   │   ├── examples/             # 3 KYC examples
+    │   │   ├── dictionary/           # KYC vocabulary
+    │   │   └── data_model/           # KYC schemas
+    │   │
+    │   ├── retail/                   # Retail & E-Commerce
+    │   │   ├── README.md
+    │   │   ├── examples/             # 2 Retail examples
+    │   │   ├── dictionary/           # Retail vocabulary
+    │   │   └── data_model/           # Retail schemas
+    │   │
+    │   ├── logistics/                # Logistics & Supply Chain
+    │   │   ├── README.md
+    │   │   ├── examples/             # 1 Logistics example
+    │   │   ├── dictionary/           # Logistics vocabulary
+    │   │   └── data_model/           # Logistics schemas
+    │   │
+    │   └── it_infrastructure/        # IT Operations
+    │       ├── README.md
+    │       ├── examples/             # 2 IT examples
+    │       ├── dictionary/           # IT vocabulary
+    │       └── data_model/           # IT schemas
     │
     ├── tests/                        # Python test suites
+    │   ├── test_semantic_validation.py
     │   ├── test_adtech_full.py
-    │   └── test_v130.py
+    │   ├── test_banking.py
+    │   └── ... (all vertical tests)
     │
     ├── generated-src/                # ANTLR-generated parsers (post-build)
     │   ├── java/                     # Java parser output
     │   └── python/                   # Python parser output
     │
-    ├── adTech_Dictionary_v0.85.json  # AdTech domain dictionary
-    ├── adTech_Dictionary_v0.85.yaml  # AdTech domain dictionary (YAML)
-    ├── EBL_Dictionary_v0.85_all.json # Extended multi-domain dictionary
-    ├── EBL_Dictionary_v0.85_all.yaml # Extended multi-domain dictionary (YAML)
-    │
+    ├── EBL_Dictionary_v0.85_all.json # Master multi-domain dictionary
+    ├── EBL_Dictionary_v0.85_all.yaml # Master multi-domain dictionary (YAML)
     ├── ebl_validator.py              # Python validator script
     ├── pom.xml                       # Maven build configuration
     └── build.gradle.kts              # Gradle build configuration
@@ -190,7 +226,7 @@ praxibility-ebl/
 | `src/main/antlr4/` | ANTLR4 grammar file (EBL.g4) |
 | `src/main/java/` | Java semantic validators and symbol loaders |
 | `src/test/java/` | Java unit tests for validators |
-| `examples/` | Real-world EBL specifications across 8 domains |
+| `verticals/` | Industry-specific implementations with examples, dictionaries, and data models |
 | `tests/` | Python test suites using pytest |
 | `generated-src/` | ANTLR-generated parsers (created during build) |
 | `docs/` | Architecture documentation and lexicon specs |
@@ -219,14 +255,17 @@ The EBL dictionary system includes:
 - **Actors**: Domain-specific roles and actors
 - **Verbs**: Actions with read/write permissions
 - **Relationship Types**: consists_of, depends_on, hosted_on, supports, communicates_with, etc.
-- **Domain Packs**: Pre-built vocabularies for industries:
-  - AdTech (campaigns, audiences, bidding)
-  - Healthcare (trials, patients, protocols)
-  - Retail (inventory, orders, customers)
-  - Logistics (shipments, warehouses, routes)
-  - Finance (payments, accounts, transactions)
-  - Insurance (policies, claims, underwriting)
-  - KYC (identity verification, compliance)
+- **Vertical-Specific Dictionaries**: Pre-built vocabularies organized by industry vertical:
+  - **AdTech** (`verticals/adtech/dictionary/`) - Campaigns, audiences, bidding
+  - **Banking** (`verticals/banking/dictionary/`) - Payments, accounts, transactions, lending
+  - **Healthcare** (`verticals/healthcare/dictionary/`) - Trials, patients, protocols
+  - **Insurance** (`verticals/insurance/dictionary/`) - Policies, claims, underwriting
+  - **KYC/Compliance** (`verticals/kyc_compliance/dictionary/`) - Identity verification, compliance
+  - **Retail** (`verticals/retail/dictionary/`) - Inventory, orders, customers
+  - **Logistics** (`verticals/logistics/dictionary/`) - Shipments, warehouses, routes
+  - **IT Infrastructure** (`verticals/it_infrastructure/dictionary/`) - Applications, systems, platforms
+
+Each vertical includes its own dictionary, examples, and data model for isolated, domain-focused development.
 
 ### Example EBL Snippet
 
@@ -288,11 +327,35 @@ EBL is ideal for:
 
 ### Adding Custom Domains
 
-1. Edit `adTech_Dictionary_v0.85.json` or `EBL_Dictionary_v0.85_all.json` to add domain-specific:
-   - Actors (roles)
-   - Verbs (actions with permissions)
-   - Data objects
-   - Relationship types
+**Option 1: Create a New Vertical**
+
+1. Create vertical directory structure:
+   ```bash
+   mkdir -p verticals/my_vertical/{examples,dictionary,data_model}
+   ```
+
+2. Create vertical-specific dictionary in `verticals/my_vertical/dictionary/my_vertical_dictionary_v0.85.json`:
+   - Define domain-specific actors (roles)
+   - Define verbs (actions with permissions)
+   - Define data objects and entities
+   - Define relationship types
+
+3. Add example EBL files to `verticals/my_vertical/examples/`
+
+4. Create data model schemas in `verticals/my_vertical/data_model/`
+
+5. Validate against your vertical dictionary:
+   ```bash
+   python ebl_validator.py \
+     verticals/my_vertical/dictionary/my_vertical_dictionary_v0.85.json \
+     verticals/my_vertical/examples/MyWorkflow.ebl
+   ```
+
+See [verticals/README.md](EBL_v0.85/verticals/README.md) for detailed guidelines.
+
+**Option 2: Extend Existing Dictionary**
+
+1. Edit an existing vertical dictionary or `EBL_Dictionary_v0.85_all.json` to add domain-specific elements
 
 2. Update dictionary version and validate against grammar
 

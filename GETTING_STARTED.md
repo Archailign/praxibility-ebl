@@ -71,9 +71,11 @@ mvn antlr4:antlr4
 # Install Python dependencies
 pip install antlr4-python3-runtime pytest
 
-# Validate an example
+# Validate an example from the KYC vertical
 cd EBL_v0.85
-python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+python ebl_validator.py \
+  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
+  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 ```
 
 ✅ **Success!** You're now ready to explore EBL.
@@ -228,7 +230,7 @@ Process KYCOnboarding {
 
 ### Example: Insurance Claim Lifecycle
 
-Based on `examples/Insurance_ClaimLifecycle.ebl`:
+Based on `verticals/insurance/examples/Insurance_ClaimLifecycle.ebl`:
 
 ```ebl
 Metadata:
@@ -288,9 +290,11 @@ Process ClaimLifecycle {
 ### Python Validator
 
 ```bash
-# Validate a single file
+# Validate a single file from a vertical
 cd EBL_v0.85
-python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+python ebl_validator.py \
+  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
+  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 
 # Expected output:
 # ✓ Parsing successful
@@ -304,11 +308,12 @@ python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
 
 ```bash
 # Build and run Java validator
+cd EBL_v0.85
 mvn clean package
 java -cp target/classes:generated-src/java \
   org.example.ebl.EBLSemanticValidator \
-  adTech_Dictionary_v0.85.json \
-  examples/Insurance_ClaimLifecycle.ebl
+  verticals/insurance/dictionary/insurance_dictionary_v0.85.json \
+  verticals/insurance/examples/Insurance_ClaimLifecycle.ebl
 ```
 
 ### Run All Tests
@@ -545,11 +550,11 @@ alias grun='java -cp antlr-4.13.1-complete.jar org.antlr.v4.gui.TestRig'
 java -jar antlr-4.13.1-complete.jar EBL.g4
 
 # Test with TestRig
-grun EBL eblDefinition -gui < examples/KYC_Onboarding.ebl
+grun EBL eblDefinition -gui < verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 # Opens a GUI showing the parse tree
 
 # Or print tokens
-grun EBL eblDefinition -tokens < examples/KYC_Onboarding.ebl
+grun EBL eblDefinition -tokens < verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 ```
 
 ### Modifying the Grammar
@@ -632,46 +637,63 @@ go get github.com/antlr/antlr4/runtime/Go/antlr/v4
 
 ## 7. Exploring Examples
 
-EBL v0.85 includes **15+ real-world examples** across multiple domains:
+EBL v0.85 includes **17 real-world examples** organized by industry vertical:
 
-### AdTech Examples
+### AdTech Examples (2 examples)
 ```bash
-cat examples/AdCampaignManagement.ebl
-cat examples/AdTech_Dynamic_Marketing_Cycle_Full.ebl
+cd EBL_v0.85/verticals/adtech/examples
+cat AdCampaignManagement.ebl
+cat AdTech_Dynamic_Marketing_Cycle_Full.ebl
 ```
 
-### Healthcare Examples
+### Banking Examples (3 examples)
 ```bash
-cat examples/Healthcare_PatientIntake.ebl
+cd EBL_v0.85/verticals/banking/examples
+cat MortgageLoanApplication.ebl
+cat Payments_Screening.ebl
+cat AFC_Fraud_SAR.ebl
 ```
 
-### Insurance Examples
+### Healthcare Examples (2 examples)
 ```bash
-cat examples/Insurance_ClaimLifecycle.ebl
-cat examples/Insurance_Subrogation_Counterparty.ebl
+cd EBL_v0.85/verticals/healthcare/examples
+cat Healthcare_PatientIntake.ebl
+cat ClinicalTrialEnrollment.ebl
 ```
 
-### KYC/Compliance Examples
+### Insurance Examples (2 examples)
 ```bash
-cat examples/KYC_Onboarding.ebl
-cat examples/KYC_Verb_NeverPermitted.ebl  # Demonstrates validation warnings
+cd EBL_v0.85/verticals/insurance/examples
+cat Insurance_ClaimLifecycle.ebl
+cat Insurance_Subrogation_Counterparty.ebl
 ```
 
-### Payments Examples
+### KYC/Compliance Examples (3 examples)
 ```bash
-cat examples/Payments_Screening.ebl
-cat examples/AFC_Fraud_SAR.ebl
+cd EBL_v0.85/verticals/kyc_compliance/examples
+cat KYC_Onboarding.ebl
+cat KYC_Verb_NeverPermitted.ebl  # Demonstrates validation warnings
+cat Governance_SoD_Traceability.ebl
 ```
 
-### IT Infrastructure Examples
+### Retail Examples (2 examples)
 ```bash
-cat examples/IT_Application_Onboarding.ebl
-cat examples/IT-TopologyRelationships.ebl
+cd EBL_v0.85/verticals/retail/examples
+cat Retail_Order_Inventory.ebl
+cat InventoryReplenishment.ebl
 ```
 
-### Logistics Examples
+### IT Infrastructure Examples (2 examples)
 ```bash
-cat examples/Logistics_Tracking.ebl
+cd EBL_v0.85/verticals/it_infrastructure/examples
+cat IT_Application_Onboarding.ebl
+cat IT-TopologyRelationships.ebl
+```
+
+### Logistics Examples (1 example)
+```bash
+cd EBL_v0.85/verticals/logistics/examples
+cat Logistics_Tracking.ebl
 ```
 
 ---
@@ -701,9 +723,11 @@ EBL validators perform comprehensive checks:
 ### Example Validation Output
 
 ```bash
-$ python ebl_validator.py adTech_Dictionary_v0.85.json examples/KYC_Onboarding.ebl
+$ python ebl_validator.py \
+  verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json \
+  verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 
-✓ Parse successful: examples/KYC_Onboarding.ebl
+✓ Parse successful: verticals/kyc_compliance/examples/KYC_Onboarding.ebl
 ✓ DataObjects: DO_KYCApplication, DO_IdentityDocument
 ✓ Entities: Application
 ✓ Processes: KYCOnboarding
@@ -922,4 +946,4 @@ For questions, issues, or contributions:
 
 ---
 
-*Apache 2.0 License | Praxibility | EBL v0.85 – January 2025*
+*Apache 2.0 License | Praxibility | EBL v0.85 – 05-11-2025*
