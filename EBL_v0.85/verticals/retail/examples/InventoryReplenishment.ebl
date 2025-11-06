@@ -8,10 +8,15 @@
 
 Metadata:
   EBLClass: InventoryManagement
-  RequirementID: REQ-RETAIL-001
-  ProjectID: PRJ-RETAIL-001
+  RequirementID: REQ-RETL-INV-001
+  ProjectID: PRJ-RETL-SUPPLY-2025
+  CapabilityID: CAP-RETL-INV-001
+  BusinessUnit: SupplyChainOperations
+  Owner: ChiefOperationsOfficer
+  ComplianceFrameworks: [SOX, GAAP]
   CreatedAt: 05-11-2025
   UpdatedAt: 05-11-2025
+  Version: 0.85
 
 Entity Product {
   Properties:
@@ -27,11 +32,19 @@ Entity Product {
 }
 
 Process InventoryReplenishment {
-  Description: Replenishes inventory based on stock levels
-  ObjectiveID: OBJ-RETAIL-001
-  BusinessGoalID: BG-RETAIL-001
-  Actors: [InventoryManager, Supplier]
-  erMap: BusinessProcess
+  Description: Automated inventory replenishment based on stock levels and demand forecasting
+  ObjectiveID: OBJ-RETL-INV-001
+  BusinessGoalID: BG-RETL-OPS-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-RETL-INV-001
+  Capabilities:
+    - CAP-RETL-FORECAST-001: Demand Forecasting
+    - CAP-RETL-PROCURE-001: Procurement & Ordering
+    - CAP-RETL-MONITOR-001: Stock Level Monitoring
+
+  Actors: [InventoryManager, Supplier, ProcurementSpecialist]
+  erMap: InventoryReplenishmentProcess
 
   Starts With: Event LowStockDetected(ProductID)
 

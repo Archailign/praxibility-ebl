@@ -8,13 +8,15 @@
 
 Metadata:
   EBLClass: AdCampaignManagement
-  RequirementID: BR-001
-  ProjectID: PRJ-ADTECH-001
-  OrganisationID: ORG-002
-  DomainID: DOM-ADTECH
-  DepartmentID: DEPT-ADTECH-CAMPAIGN
+  RequirementID: REQ-ADTC-CAM-001
+  ProjectID: PRJ-ADTC-CAMPAIGN-2025
+  CapabilityID: CAP-ADTC-CAM-001
+  BusinessUnit: DigitalMarketingOperations
+  Owner: ChiefMarketingOfficer
+  ComplianceFrameworks: [GDPR, CCPA, IAB_TCF, FTC_Guidelines]
   CreatedAt: 05-11-2025
   UpdatedAt: 05-11-2025
+  Version: 0.85
 
 # --- Data Objects (Blended from sources) ---
 DataObject DO_Campaign {
@@ -359,11 +361,21 @@ Entity Report {
 
 # --- Process: Blended Dynamic Cycle with Predictive Enhancements ---
 Process AdCampaignManagement {
-  Description: Continuous DCO-driven ads blended with predictive budgeting: plan → assemble → bid/deliver → optimise → analyse, using Archailign’s integrated framework
-  ObjectiveID: OBJ-ADTECH-001
-  BusinessGoalID: BG-ADTECH-001
+  Description: Continuous DCO-driven ads blended with predictive budgeting: plan → assemble → bid/deliver → optimise → analyse, using Archailign's integrated framework
+  ObjectiveID: OBJ-ADTC-CAM-001
+  BusinessGoalID: BG-ADTC-GROWTH-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-ADTC-CAM-001
+  Capabilities:
+    - CAP-ADTC-DCO-001: Dynamic Creative Optimization
+    - CAP-ADTC-RTB-001: Real-Time Bidding & Ad Delivery
+    - CAP-ADTC-TARGET-001: Audience Targeting & Segmentation
+    - CAP-ADTC-ANALYTICS-001: Performance Analytics & Attribution
+    - CAP-ADTC-BUDGET-001: Predictive Budget Management
+
   Actors: [MediaBuyer, DataAnalyst, AccountDirector, OperationsTeam, MarketingManager, CreativeDesigner, DCOEngine, DMP, DSP, SSP, AdServer, DataScientist, Analyst, ComplianceOfficer]
-  erMap: BusinessProcess
+  erMap: AdCampaignManagementProcess
 
   Starts With: Event CampaignCreationRequested(Campaign)
 

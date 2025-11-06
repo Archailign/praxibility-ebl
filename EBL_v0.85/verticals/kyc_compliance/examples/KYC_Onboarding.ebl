@@ -1,6 +1,13 @@
 Metadata:
-  Domain: kyc
-  Owner: Compliance
+  EBLClass: KYCOnboardingWorkflow
+  RequirementID: REQ-KYC-ONB-001
+  ProjectID: PRJ-KYC-CUSTOMER-2025
+  CapabilityID: CAP-KYC-ONB-001
+  BusinessUnit: ComplianceOperations
+  Owner: ChiefComplianceOfficer
+  ComplianceFrameworks: [KYC, AML, CDD, EDD, FATCA]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
 DataObject DO_KYCApplication {
@@ -38,11 +45,21 @@ Entity Application {
 }
 
 Process KYCOnboarding {
-  Description: "Capture documents, verify identity, and approve"
-  ObjectiveID: KYC1
-  BusinessGoalID: AFC1
+  Description: "Customer identity verification and risk assessment for regulatory compliance"
+  ObjectiveID: OBJ-KYC-ONB-001
+  BusinessGoalID: BG-KYC-COMPLY-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-KYC-ONB-001
+  Capabilities:
+    - CAP-KYC-VERIFY-001: Identity Verification & Authentication
+    - CAP-KYC-SCREEN-001: Sanctions & PEP Screening
+    - CAP-KYC-RISK-001: Customer Risk Assessment
+    - CAP-KYC-DOC-001: Document Management & Validation
+
   Actors: [Customer, Registrar, KYCAnalyst, ComplianceOfficer]
-  erMap: KYCOnboarding
+  erMap: KYCOnboardingProcess
+
   Starts With: Event ApplicationSubmitted(Application)
 
   Step CaptureDocs {

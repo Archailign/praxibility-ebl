@@ -1,6 +1,13 @@
 Metadata:
-  Domain: insurance
-  Owner: Claims
+  EBLClass: ClaimLifecycleWorkflow
+  RequirementID: REQ-INSR-CLM-001
+  ProjectID: PRJ-INSR-CLAIMS-2025
+  CapabilityID: CAP-INSR-CLM-001
+  BusinessUnit: ClaimsOperations
+  Owner: ChiefClaimsOfficer
+  ComplianceFrameworks: [NAIC, SOX, State_Regulations]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
 DataObject DO_Claim {
@@ -38,11 +45,21 @@ Entity Claim {
 }
 
 Process ClaimLifecycle {
-  Description: "Process an insurance claim end-to-end"
-  ObjectiveID: INS1
-  BusinessGoalID: CSAT1
-  Actors: [Policyholder, ClaimsAdjuster, Underwriter, PaymentClerk]
-  erMap: ClaimLifecycle
+  Description: "Process an insurance claim end-to-end with fraud detection"
+  ObjectiveID: OBJ-INSR-CLM-001
+  BusinessGoalID: BG-INSR-CSAT-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-INSR-CLM-001
+  Capabilities:
+    - CAP-INSR-ASSESS-001: Claims Assessment & Adjudication
+    - CAP-INSR-FRAUD-001: Fraud Detection & Investigation
+    - CAP-INSR-PAYMENT-001: Claims Payment Processing
+    - CAP-INSR-UNDERWRT-001: Underwriting & Approval
+
+  Actors: [Policyholder, ClaimsAdjuster, Underwriter, PaymentClerk, FraudInvestigator]
+  erMap: ClaimLifecycleProcess
+
   Starts With: Event ClaimFiled(Claim)
 
   Step Assess {

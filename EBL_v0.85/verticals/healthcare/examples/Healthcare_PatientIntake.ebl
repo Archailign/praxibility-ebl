@@ -1,6 +1,13 @@
 Metadata:
-  Domain: healthcare
-  Owner: ClinicalOps
+  EBLClass: PatientIntakeWorkflow
+  RequirementID: REQ-HLTH-INTAKE-001
+  ProjectID: PRJ-HLTH-EHR-2025
+  CapabilityID: CAP-HLTH-INTAKE-001
+  BusinessUnit: ClinicalOperations
+  Owner: ChiefClinicalOfficer
+  ComplianceFrameworks: [HIPAA, HL7, FHIR, ICD-10]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
 DataObject DO_PatientFHIR {
@@ -25,11 +32,19 @@ Entity Patient {
 }
 
 Process PatientIntake {
-  Description: "Register patient and verify eligibility"
-  ObjectiveID: HC1
-  BusinessGoalID: OPS1
+  Description: "Register patient and verify insurance eligibility"
+  ObjectiveID: OBJ-HLTH-INTAKE-001
+  BusinessGoalID: BG-HLTH-OPS-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-HLTH-INTAKE-001
+  Capabilities:
+    - CAP-HLTH-REG-001: Patient Registration
+    - CAP-HLTH-VERIFY-001: Insurance Eligibility Verification
+    - CAP-HLTH-HIPAA-001: HIPAA Privacy & Security
+
   Actors: [Registrar, Provider, ComplianceOfficer]
-  erMap: Intake
+  erMap: PatientIntakeProcess
 
   Starts With: Event Arrival(Patient)
 

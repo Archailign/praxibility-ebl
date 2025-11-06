@@ -1,6 +1,13 @@
 Metadata:
-  Domain: it
-  Owner: EnterpriseArchitecture
+  EBLClass: ApplicationOnboarding
+  RequirementID: REQ-ITIF-AOB-001
+  ProjectID: PRJ-ITIF-APPONBOARD-2025
+  CapabilityID: CAP-ITIF-AOB-001
+  BusinessUnit: PlatformEngineering
+  Owner: ChiefTechnologyOfficer
+  ComplianceFrameworks: [ITIL, COBIT, ISO_20000, NIST_CSF]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
 DataObject DO_ApplicationCatalog {
@@ -27,10 +34,18 @@ Entity Application {
 
 Process ApplicationOnboarding {
   Description: "Register and monitor app"
-  ObjectiveID: IT1
-  BusinessGoalID: GOV1
+  ObjectiveID: OBJ-ITIF-AOB-001
+  BusinessGoalID: BG-ITIF-GOVERNANCE-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-ITIF-AOB-001
+  Capabilities:
+    - CAP-ITIF-CATALOG-001: Application Catalog Management
+    - CAP-ITIF-PROVISION-001: Application Provisioning
+    - CAP-ITIF-MONITOR-001: Application Monitoring & Observability
+
   Actors: [ApplicationOwner, DevOpsEngineer, PlatformAdmin]
-  erMap: AppOnboarding
+  erMap: ApplicationOnboardingProcess
 
   Starts With: Event IntakeReceived(Application)
 

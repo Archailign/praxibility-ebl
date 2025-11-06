@@ -1,6 +1,13 @@
 Metadata:
-  Domain: insurance
-  Owner: Legal
+  EBLClass: SubrogationWorkflow
+  RequirementID: REQ-INSR-SUBRO-001
+  ProjectID: PRJ-INSR-RECOVERY-2025
+  CapabilityID: CAP-INSR-SUBRO-001
+  BusinessUnit: LegalRecovery
+  Owner: ChiefLegalOfficer
+  ComplianceFrameworks: [NAIC, State_Insurance_Codes]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
 DataObject DO_Subrogation {
@@ -32,11 +39,19 @@ Entity ThirdParty {
 }
 
 Process SubrogationPursuit {
-  Description: "Pursue recovery from third party"
-  ObjectiveID: INS3
-  BusinessGoalID: LOSS2
-  Actors: [SubrogationSpecialist, ClaimsAdjuster]  // ClaimsAdjuster declared but intentionally unused to trigger warning
-  erMap: SubroProc
+  Description: "Pursue recovery from liable third parties"
+  ObjectiveID: OBJ-INSR-SUBRO-001
+  BusinessGoalID: BG-INSR-LOSS-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-INSR-SUBRO-001
+  Capabilities:
+    - CAP-INSR-RECOVERY-001: Third-Party Recovery
+    - CAP-INSR-LEGAL-001: Legal Case Management
+
+  Actors: [SubrogationSpecialist, ClaimsAdjuster, LegalCounsel]
+  erMap: SubrogationProcess
+
   Starts With: Event SubroOpened(SubrogationCase)
 
   Step Recover {

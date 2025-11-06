@@ -8,10 +8,15 @@
 
 Metadata:
   EBLClass: ClinicalTrialManagement
-  RequirementID: REQ-PHARMA-001
-  ProjectID: PRJ-PHARMA-001
+  RequirementID: REQ-HLTH-CTE-001
+  ProjectID: PRJ-HLTH-TRIALS-2025
+  CapabilityID: CAP-HLTH-CTE-001
+  BusinessUnit: ClinicalResearch
+  Owner: ChiefMedicalOfficer
+  ComplianceFrameworks: [FDA, GCP, HIPAA, ICH-GCP, 21CFR50]
   CreatedAt: 05-11-2025
   UpdatedAt: 05-11-2025
+  Version: 0.85
 
 Entity Participant {
   Properties:
@@ -27,11 +32,20 @@ Entity Participant {
 }
 
 Process ClinicalTrialEnrollment {
-  Description: Enrolls participants in a clinical trial
-  ObjectiveID: OBJ-PHARMA-001
-  BusinessGoalID: BG-PHARMA-001
-  Actors: [ClinicalCoordinator, ComplianceOfficer]
-  erMap: BusinessProcess
+  Description: Enrolls participants in a clinical trial with full regulatory compliance
+  ObjectiveID: OBJ-HLTH-CTE-001
+  BusinessGoalID: BG-HLTH-RESEARCH-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-HLTH-CTE-001
+  Capabilities:
+    - CAP-HLTH-CONSENT-001: Informed Consent Management
+    - CAP-HLTH-SCREEN-001: Patient Screening & Eligibility
+    - CAP-HLTH-HIPAA-001: HIPAA Privacy & Security
+    - CAP-HLTH-PROTOCOL-001: Clinical Protocol Compliance
+
+  Actors: [ClinicalCoordinator, ComplianceOfficer, PrincipalInvestigator]
+  erMap: ClinicalTrialEnrollmentProcess
 
   Starts With: Event TrialApplicationReceived(ParticipantData)
 

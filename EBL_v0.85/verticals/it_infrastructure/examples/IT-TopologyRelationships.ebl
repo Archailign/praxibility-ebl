@@ -8,16 +8,15 @@
 
 Metadata:
   EBLClass: ITTopologyManagement
-  RequirementID: REQ-IT-002
-  ProjectID: PRJ-IT-001
-  OrganisationID: ORG-IT-001
-  DomainID: DOM-IT
-  DepartmentID: DEPT-IT-OPERATIONS
-  Domain: it
-  Owner: EnterpriseArchitecture
-  Version: 0.85
+  RequirementID: REQ-ITIF-TOP-001
+  ProjectID: PRJ-ITIF-TOPOLOGY-2025
+  CapabilityID: CAP-ITIF-TOP-001
+  BusinessUnit: ITOperations
+  Owner: ChiefInformationOfficer
+  ComplianceFrameworks: [ITIL, COBIT, ISO_20000, ISO_27001]
   CreatedAt: 05-11-2025
   UpdatedAt: 05-11-2025
+  Version: 0.85
 
 DataObject DO_ApplicationCatalog {
   Schema:
@@ -81,10 +80,19 @@ Relationship Trace_App_SLA {
 
 Process ManageApplicationSLA {
   Description: Manage and trace application service level agreements
-  ObjectiveID: OBJ-IT-002
-  BusinessGoalID: BG-IT-001
+  ObjectiveID: OBJ-ITIF-TOP-001
+  BusinessGoalID: BG-ITIF-RELIABILITY-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-ITIF-TOP-001
+  Capabilities:
+    - CAP-ITIF-SLA-001: Service Level Agreement Management
+    - CAP-ITIF-CATALOG-001: Application Catalog Management
+    - CAP-ITIF-MONITOR-001: Service Monitoring & Compliance
+    - CAP-ITIF-TRACE-001: Architecture Traceability
+
   Actors: [EnterpriseArchitect, ServiceOwner, OperationsManager]
-  erMap: ITTopologyProcess
+  erMap: ManageApplicationSLAProcess
 
   Starts With: Event ApplicationRegistered(Application)
 

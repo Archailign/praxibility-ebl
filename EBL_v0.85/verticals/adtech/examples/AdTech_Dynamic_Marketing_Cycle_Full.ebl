@@ -1,6 +1,13 @@
 Metadata:
-  Domain: adtech
-  Owner: GrowthMarketing
+  EBLClass: DynamicMarketingCycle
+  RequirementID: REQ-ADTC-DMC-001
+  ProjectID: PRJ-ADTC-DCO-2025
+  CapabilityID: CAP-ADTC-DMC-001
+  BusinessUnit: GrowthMarketingOperations
+  Owner: ChiefGrowthOfficer
+  ComplianceFrameworks: [GDPR, CCPA, IAB_TCF, FTC_Guidelines]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
 # --- Data Objects (ALL inline) ---
@@ -296,10 +303,21 @@ Entity Conversion {
 # --- Process: the five-stage closed loop ---
 Process DynamicAdMarketingCycle {
   Description: "Continuous DCO-driven ads: plan → assemble → bid/deliver → optimise → analyse"
-  ObjectiveID: GROW1
-  BusinessGoalID: REV1
+  ObjectiveID: OBJ-ADTC-DMC-001
+  BusinessGoalID: BG-ADTC-REVENUE-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-ADTC-DMC-001
+  Capabilities:
+    - CAP-ADTC-DCO-001: Dynamic Creative Optimization
+    - CAP-ADTC-RTB-001: Real-Time Bidding & Ad Delivery
+    - CAP-ADTC-AUDIENCE-001: Data Management & Audience Profiling
+    - CAP-ADTC-OPT-001: Campaign Optimization & ML Learning
+    - CAP-ADTC-IMPACT-001: Incrementality & Brand Lift Analysis
+
   Actors: [MarketingManager, CreativeDesigner, DCOEngine, DMP, DSP, SSP, AdServer, DataScientist, Analyst, ComplianceOfficer]
-  erMap: DCO
+  erMap: DynamicAdMarketingCycleProcess
+
   Starts With: Event CampaignCreated(Campaign)
 
   # 1) Strategy and setup
