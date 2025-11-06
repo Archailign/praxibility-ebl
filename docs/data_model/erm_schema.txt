@@ -117,10 +117,10 @@ CREATE TABLE Requirement (
 );
 
 -- Table: Capability
+-- ArchiMate 3.1 Capability: "An ability that an organization, person, or system possesses"
 CREATE TABLE Capability (
     CapabilityID INT PRIMARY KEY AUTO_INCREMENT,
     ProjectID INT NOT NULL,
-    RequirementID INT NOT NULL,
     Name VARCHAR(255) NOT NULL,
     OutcomeDescription TEXT,
     Status ENUM('Planned', 'Active', 'Retired') NOT NULL,
@@ -128,9 +128,7 @@ CREATE TABLE Capability (
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (ProjectID) REFERENCES Project(ProjectID) ON DELETE CASCADE,
-    FOREIGN KEY (RequirementID) REFERENCES Requirement(RequirementID) ON DELETE CASCADE,
-    INDEX idx_project (ProjectID),
-    INDEX idx_requirement (RequirementID)
+    INDEX idx_project (ProjectID)
 );
 
 -- Table: DataObject
@@ -253,6 +251,45 @@ CREATE TABLE Capability_Policy (
     PRIMARY KEY (CapabilityID, PolicyID),
     FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
     FOREIGN KEY (PolicyID) REFERENCES Policy(PolicyID) ON DELETE CASCADE
+);
+
+-- Table: Capability_Requirement (Many-to-Many)
+-- ArchiMate Realization: Requirements implement/realize Capabilities
+CREATE TABLE Capability_Requirement (
+    CapabilityID INT NOT NULL,
+    RequirementID INT NOT NULL,
+    RealizationType ENUM('Implements', 'Supports', 'Enables') NOT NULL DEFAULT 'Implements',
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (CapabilityID, RequirementID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
+    FOREIGN KEY (RequirementID) REFERENCES Requirement(RequirementID) ON DELETE CASCADE,
+    INDEX idx_requirement (RequirementID)
+);
+
+-- Table: Capability_Objective (Many-to-Many)
+-- ArchiMate Realization: Capabilities realize Objectives (TOGAF capability-based planning)
+CREATE TABLE Capability_Objective (
+    CapabilityID INT NOT NULL,
+    ObjectiveID INT NOT NULL,
+    RealizationLevel ENUM('Primary', 'Supporting', 'Enabling') NOT NULL DEFAULT 'Primary',
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (CapabilityID, ObjectiveID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
+    FOREIGN KEY (ObjectiveID) REFERENCES Objective(ObjectiveID) ON DELETE CASCADE,
+    INDEX idx_objective (ObjectiveID)
+);
+
+-- Table: Capability_BusinessGoal (Many-to-Many)
+-- Strategic Alignment: Capabilities support Business Goals
+CREATE TABLE Capability_BusinessGoal (
+    CapabilityID INT NOT NULL,
+    GoalID INT NOT NULL,
+    ContributionType ENUM('Direct', 'Indirect', 'Enabling') NOT NULL DEFAULT 'Direct',
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (CapabilityID, GoalID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(CapabilityID) ON DELETE CASCADE,
+    FOREIGN KEY (GoalID) REFERENCES BusinessGoal(GoalID) ON DELETE CASCADE,
+    INDEX idx_goal (GoalID)
 );
 
 -- Table: Capability_Application

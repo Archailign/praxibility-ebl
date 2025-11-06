@@ -47,6 +47,76 @@ Business Requirements (EBL)
 
 ---
 
+## 🏛️ Built on Enterprise Architecture Standards
+
+EBL is grounded in established enterprise architecture and capability modelling frameworks:
+
+### ArchiMate 3.1 Specification
+**[ArchiMate® 3.1](https://pubs.opengroup.org/architecture/archimate3-doc/)** - The Open Group Standard
+
+EBL implements ArchiMate's core modelling concepts and relationships:
+
+- **Capability**: "An ability that an active structure element, such as an organization, person, or system, possesses" (ArchiMate 3.1, §5.2)
+- **Realization Relationship**: Capabilities realize Business Objectives and Goals
+- **Serving Relationship**: Capabilities serve Business Processes
+- **Assignment Relationship**: Applications and Resources are assigned to Capabilities
+
+**Key ArchiMate Elements Mapped to EBL**:
+- Business Layer: Goal, Objective, Process, Actor, Event
+- Application Layer: Application Component, Data Object
+- Strategy Layer: Capability, Resource, Course of Action
+- Motivation Layer: Stakeholder, Driver, Assessment
+
+**ArchiMate Resources**:
+- 📘 [ArchiMate 3.1 Specification (PDF)](https://pubs.opengroup.org/architecture/archimate3-doc/archimate3-doc.pdf)
+- 🔗 [The Open Group ArchiMate Forum](https://www.opengroup.org/archimate-forum)
+- 🛠️ [Archi® Modelling Tool](https://www.archimatetool.com/) - Open source ArchiMate modelling
+
+### TOGAF Standard
+**[TOGAF® Standard, 10th Edition](https://www.opengroup.org/togaf)** - The Open Group
+
+EBL aligns with TOGAF's capability-based planning methodology:
+
+- **Capability-Based Planning**: "A business planning technique that focuses on business outcomes" (TOGAF 10, Part III)
+- **Architecture Development Method (ADM)**: EBL supports Phases A-E (Architecture Vision through Opportunities & Solutions)
+- **Content Metamodel**: EBL's data model extends TOGAF's content framework with executable semantics
+- **Requirements Management**: EBL provides traceability from strategic goals to implementation
+
+**EBL Enhancement to TOGAF**:
+- **Executable Capabilities**: EBL extends TOGAF's conceptual capabilities with formal grammar and validation
+- **Policy-as-Code**: Compliance policies compiled to executable artifacts (OPA/Rego)
+- **Continuous Traceability**: Real-time linkage from deployed services back to business goals
+- **Multi-Vertical Portability**: Reusable capability patterns across industries
+
+**TOGAF Resources**:
+- 📘 [TOGAF 10 Standard (Online)](https://pubs.opengroup.org/togaf-standard/index.html)
+- 🎓 [TOGAF Certification](https://www.opengroup.org/certifications/togaf)
+- 📖 [TOGAF Library](https://www.opengroup.org/togaf/library)
+
+### Traceability Model
+
+EBL implements complete strategic-to-operational traceability following ArchiMate and TOGAF principles:
+
+```
+Business Strategy (TOGAF Phase A)
+    └─ Business Goal (ArchiMate Motivation)
+           └─ Business Objective (ArchiMate Motivation)
+                  └─ Capability (ArchiMate Strategy) ⭐ NEW in v0.85
+                         ├─ Business Process (ArchiMate Business)
+                         ├─ Requirement (TOGAF ADM)
+                         ├─ Application (ArchiMate Application)
+                         ├─ Data Object (ArchiMate Application)
+                         └─ Policy (EBL Extension)
+```
+
+**Every EBL file now includes**:
+- `CapabilityID`: Links to Capability in data model (REQUIRED as of v0.85)
+- `ObjectiveID`: Links to Business Objective
+- `BusinessGoalID`: Links to Business Goal
+- `erMap`: Links to ArchiMate elements for model generation
+
+---
+
 ## ✨ NEW in v0.85: ANTLR-Based Vertical Independence
 
 Version 0.85 represents a **major architectural shift**:

@@ -1,6 +1,13 @@
 Metadata:
-  Domain: afc
-  Owner: FinancialCrime
+  EBLClass: FraudSARWorkflow
+  RequirementID: REQ-BAIN-SAR-001
+  ProjectID: PRJ-BAIN-AFC-2025
+  CapabilityID: CAP-BAIN-FRAUD-001
+  BusinessUnit: AntiFinancialCrime
+  Owner: ChiefComplianceOfficer
+  ComplianceFrameworks: [BSA, AML, FinCEN, SAR]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
   Version: 0.85
 
 DataObject DO_SARFiling {
@@ -24,11 +31,20 @@ Entity Case {
 }
 
 Process FraudSAR {
-  Description: "Investigate and file SAR"
-  ObjectiveID: AFC2
-  BusinessGoalID: REG1
-  Actors: [Investigator, FilingOfficer]
-  erMap: FraudSAR
+  Description: "Investigate suspicious activity and file SAR with FinCEN"
+  ObjectiveID: OBJ-BAIN-SAR-001
+  BusinessGoalID: BG-BAIN-COMPLY-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-BAIN-FRAUD-001
+  Capabilities:
+    - CAP-BAIN-INVEST-001: Fraud Investigation
+    - CAP-BAIN-SCREEN-001: Transaction Monitoring & Screening
+    - CAP-BAIN-FILING-001: Regulatory Filing & Reporting
+
+  Actors: [FraudInvestigator, FilingOfficer, ComplianceOfficer]
+  erMap: FraudSARProcess
+
   Starts With: Event CaseOpened(Case)
 
   Step Investigate {

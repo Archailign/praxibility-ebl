@@ -11,6 +11,7 @@ Metadata:
   EBLClass: MortgageOriginationWorkflow
   RequirementID: REQ-BAIN-MLO-001
   ProjectID: PRJ-BAIN-MORTGAGE-2025
+  CapabilityID: CAP-BAIN-MLO-001
   BusinessUnit: ResidentialLending
   Owner: ChiefLendingOfficer
   ComplianceFrameworks: [TILA, RESPA, HMDA, RegB, TRID, QM, ATR, FCRA, ECOA]
@@ -405,6 +406,16 @@ Process MortgageLoanOriginationWorkflow {
   Description: Comprehensive end-to-end mortgage loan origination from application through closing
   ObjectiveID: OBJ-BAIN-MLO-001
   BusinessGoalID: BG-BAIN-GROWTH-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-BAIN-MLO-001
+  Capabilities:
+    - CAP-BAIN-CREDIT-001: Credit Risk Assessment
+    - CAP-BAIN-UNDERWRT-001: Loan Underwriting & Decision
+    - CAP-BAIN-COMPLY-001: Regulatory Compliance Management
+    - CAP-BAIN-DOCMGMT-001: Document Management & Verification
+    - CAP-BAIN-APPRAISE-001: Property Appraisal & Valuation
+
   Actors: [
     MortgageLoanOfficer,
     LoanProcessor,

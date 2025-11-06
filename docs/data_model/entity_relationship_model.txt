@@ -241,6 +241,28 @@ CREATE TABLE Application_Policy (
     FOREIGN KEY (PolicyID) REFERENCES Policy(ID) ON DELETE CASCADE
 );
 
+-- Capability_Objective (Many-to-Many) - ArchiMate Realization Relationship
+-- One Capability can realize multiple Objectives (ArchiMate 3.1 "realization" relationship)
+CREATE TABLE Capability_Objective (
+    CapabilityID UUID,
+    ObjectiveID UUID,
+    RealizationLevel VARCHAR(50) CHECK (RealizationLevel IN ('Primary', 'Supporting', 'Enabling')),
+    PRIMARY KEY (CapabilityID, ObjectiveID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(ID) ON DELETE CASCADE,
+    FOREIGN KEY (ObjectiveID) REFERENCES Objective(ID) ON DELETE CASCADE
+);
+
+-- Capability_BusinessGoal (Many-to-Many) - ArchiMate Association Relationship
+-- One Capability can support multiple Business Goals (strategic alignment)
+CREATE TABLE Capability_BusinessGoal (
+    CapabilityID UUID,
+    BusinessGoalID UUID,
+    ContributionType VARCHAR(50) CHECK (ContributionType IN ('Direct', 'Indirect', 'Enabling')),
+    PRIMARY KEY (CapabilityID, BusinessGoalID),
+    FOREIGN KEY (CapabilityID) REFERENCES Capability(ID) ON DELETE CASCADE,
+    FOREIGN KEY (BusinessGoalID) REFERENCES BusinessGoal(ID) ON DELETE CASCADE
+);
+
 -- ArchitecturePattern Table (Derived Output)
 CREATE TABLE ArchitecturePattern (
     ID UUID PRIMARY KEY,
@@ -285,3 +307,5 @@ CREATE INDEX idx_businessprocess_objectiveid ON BusinessProcess(ObjectiveID);
 CREATE INDEX idx_requirement_businessprocessid ON Requirement(BusinessProcessID);
 CREATE INDEX idx_requirement_eblclassid ON Requirement(EBLClassID);
 CREATE INDEX idx_capability_projectid ON Capability(ProjectID);
+CREATE INDEX idx_capability_objective_objectiveid ON Capability_Objective(ObjectiveID);
+CREATE INDEX idx_capability_businessgoal_goalid ON Capability_BusinessGoal(BusinessGoalID);

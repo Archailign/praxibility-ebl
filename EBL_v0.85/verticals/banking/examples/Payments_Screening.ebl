@@ -11,6 +11,7 @@ Metadata:
   EBLClass: PaymentsScreeningWorkflow
   RequirementID: REQ-BAIN-OFAC-001
   ProjectID: PRJ-BAIN-SANCTIONS-2025
+  CapabilityID: CAP-BAIN-PAYMENT-001
   BusinessUnit: PaymentsCompliance
   Owner: ChiefComplianceOfficer
   ComplianceFrameworks: [OFAC, BSA/AML, PATRIOT_Act, Sanctions, CTR, SAR, FinCEN]
@@ -370,6 +371,15 @@ Process PaymentsScreeningWorkflow {
   Description: Real-time OFAC and sanctions screening for payment transactions with automated decision-making and manual review escalation
   ObjectiveID: OBJ-BAIN-SCREEN-001
   BusinessGoalID: BG-BAIN-COMPLIANCE-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-BAIN-PAYMENT-001
+  Capabilities:
+    - CAP-BAIN-SCREEN-001: Transaction Monitoring & Screening
+    - CAP-BAIN-OFAC-001: OFAC & Sanctions Compliance
+    - CAP-BAIN-AML-001: Anti-Money Laundering Detection
+    - CAP-BAIN-FILING-001: Regulatory Filing & Reporting
+
   Actors: [
     WireTransferOperator,
     OFACOfficer,
