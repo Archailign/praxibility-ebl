@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to EBL! This document provides guidelines and instructions for contributing to the project.
 
+EBL is part of the **Archailign Business Engineering** framework, integrating ArchiMate 3.1 capabilities with executable business logic. Your contributions help advance the state of enterprise architecture and business process automation.
+
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
@@ -15,7 +17,7 @@ Thank you for your interest in contributing to EBL! This document provides guide
 
 ## Code of Conduct
 
-This project adheres to the Contributor Covenant [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to info@praxibility.com.
+This project adheres to the Contributor Covenant [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behaviour to info@praxibility.com.
 
 ## How Can I Contribute?
 
@@ -25,7 +27,7 @@ Before creating bug reports, please check the [issue tracker](https://github.com
 
 - **Clear title and description**
 - **Steps to reproduce** the issue
-- **Expected vs actual behavior**
+- **Expected vs actual behaviour**
 - **EBL version** you're using
 - **Environment details** (OS, Java/Python version)
 - **Sample EBL file** that demonstrates the issue (if applicable)
@@ -49,17 +51,20 @@ We welcome pull requests for:
 - Domain dictionary additions
 - Example EBL files
 - Test coverage improvements
-- Performance optimizations
+- Performance optimisations
+
+**Important**: EBL v0.85 uses a **vertical-based architecture** where each domain (Banking, Healthcare, Insurance, etc.) is self-contained with its own ANTLR grammar, validators, tests, and examples. See [verticals/README.md](EBL_v0.85/verticals/README.md) for details.
 
 ## Getting Started
 
 ### Prerequisites
 
-- JDK 11 or higher
-- Maven 3.6+ or Gradle 7+
-- Python 3.8+ (for Python tooling)
-- Git
-- A GitHub account
+- **JDK 11 or higher** (for ANTLR parser generation and Java validators)
+- **Maven 3.6+** or **Gradle 7+** (for Java builds)
+- **Python 3.8+** with `antlr4-python3-runtime` (for Python validators)
+- **ANTLR 4.13.1** (included in `EBL_v0.85/antlr-4.13.1-complete.jar`)
+- **Git**
+- **A GitHub account**
 
 ### Setup Development Environment
 
@@ -76,7 +81,12 @@ We welcome pull requests for:
    git remote add upstream https://github.com/Archailign/praxibility-ebl.git
    ```
 
-4. **Build the project**:
+4. **Install Python dependencies**:
+   ```bash
+   pip install antlr4-python3-runtime pytest
+   ```
+
+5. **Build the project** (optional, for Java development):
    ```bash
    cd EBL_v0.85
    mvn clean install
@@ -84,11 +94,17 @@ We welcome pull requests for:
    gradle build
    ```
 
-5. **Run tests**:
+6. **Verify installation by running tests**:
    ```bash
+   # Java tests
+   cd EBL_v0.85
    mvn test
    # or
    gradle test
+
+   # Python validator test (Banking vertical)
+   cd verticals/banking/tests/python
+   python3 test_banking_validator.py
    ```
 
 ## Development Workflow
@@ -113,9 +129,11 @@ We welcome pull requests for:
 3. **Test your changes**:
    ```bash
    mvn test
-   python ebl_validator.py \
-     verticals/[vertical]/dictionary/[vertical]_dictionary_v0.85.json \
-     verticals/[vertical]/examples/YourExample.ebl
+   # Or for Python validator (from vertical directory)
+   cd EBL_v0.85/verticals/[vertical]
+   python3 validators/python/dictionary_validator.py \
+     examples/YourExample.ebl \
+     dictionary/[vertical]_dictionary_v0.85.json
    ```
 
 4. **Commit your changes**:
@@ -174,15 +192,16 @@ We welcome pull requests for:
 
 - Use clear, descriptive rule names (camelCase for parser rules, UPPER_CASE for lexer rules)
 - Add comments for complex rules
-- Organize rules logically (top-down)
+- Organise rules logically (top-down)
 - Test grammar changes thoroughly
 
 ### Documentation
 
-- Use GitHub-flavored Markdown
+- Use GitHub-flavoured Markdown
 - Keep documentation up-to-date with code changes
 - Include code examples in documentation
 - Use clear, concise language
+- **Use British English** spelling throughout (behaviour, organisation, licence, etc.)
 
 ## Testing Requirements
 
@@ -205,9 +224,10 @@ We welcome pull requests for:
 
 2. **Integration Tests**: Test EBL file parsing
    ```bash
-   python ebl_validator.py \
-     verticals/[vertical]/dictionary/[vertical]_dictionary_v0.85.json \
-     verticals/[vertical]/examples/NewFeature.ebl
+   cd EBL_v0.85/verticals/[vertical]
+   python3 validators/python/dictionary_validator.py \
+     examples/NewFeature.ebl \
+     dictionary/[vertical]_dictionary_v0.85.json
    ```
 
 3. **Grammar Tests**: Test ANTLR grammar rules
@@ -215,18 +235,24 @@ We welcome pull requests for:
 ### Running Tests
 
 ```bash
-# Java tests
+# Java tests (from project root)
+cd EBL_v0.85
 mvn test
 
 # Python validator - test specific vertical
-cd EBL_v0.85
-for file in verticals/kyc_compliance/examples/*.ebl; do
-  python ebl_validator.py \
-    verticals/kyc_compliance/dictionary/kyc_compliance_dictionary_v0.85.json "$file"
+cd EBL_v0.85/verticals/banking
+for file in examples/*.ebl; do
+  python3 validators/python/dictionary_validator.py \
+    "$file" dictionary/banking_dictionary_v0.85.json
 done
 
-# Specific test class
-mvn test -Dtest=SemanticValidatorTest
+# Run Python test suite for a vertical
+cd EBL_v0.85/verticals/banking/tests/python
+python3 test_banking_validator.py
+
+# Specific Java test class
+cd EBL_v0.85
+mvn test -Dtest=BankingValidatorTest
 ```
 
 ## Submitting Changes
@@ -307,14 +333,20 @@ When contributing example EBL files to `verticals/[vertical]/examples/`:
 2. **Use clear, realistic scenarios** from that industry domain
 3. **Follow naming convention**: `Domain_UseCase.ebl` (e.g., `Insurance_ClaimLifecycle.ebl`)
 4. **Include inline comments** explaining key concepts
-5. **Ensure dictionary compatibility**: Use only actors/verbs defined in the vertical's dictionary
-6. **Test with validator** before submitting:
+5. **Include required metadata** (new in v0.85):
+   - `CapabilityID`: Links to ArchiMate 3.1 Capability (REQUIRED)
+   - `ObjectiveID`: Links to Business Objective
+   - `BusinessGoalID`: Links to Business Goal
+   - `erMap`: Links to ArchiMate elements for model generation
+6. **Ensure dictionary compatibility**: Use only actors/verbs defined in the vertical's dictionary
+7. **Test with validator** before submitting:
    ```bash
-   python ebl_validator.py \
-     verticals/[vertical]/dictionary/[vertical]_dictionary_v0.85.json \
-     verticals/[vertical]/examples/YourExample.ebl
+   cd EBL_v0.85/verticals/[vertical]
+   python3 validators/python/dictionary_validator.py \
+     examples/YourExample.ebl \
+     dictionary/[vertical]_dictionary_v0.85.json
    ```
-7. **Add description** in PR explaining the use case and industry context
+8. **Add description** in PR explaining the use case and industry context
 
 If your example spans multiple verticals, consider:
 - Creating it in the primary vertical
@@ -336,9 +368,9 @@ Contributors will be recognized in:
 - GitHub contributors page
 - Project documentation (for major features)
 
-## License
+## Licence
 
-By contributing to EBL, you agree that your contributions will be licensed under the Apache License 2.0.
+By contributing to EBL, you agree that your contributions will be licensed under the Apache Licence 2.0.
 
 ---
 
