@@ -1,0 +1,383 @@
+Metadata:
+  EBLClass: DynamicMarketingCycle
+  RequirementID: REQ-ADTC-DMC-001
+  ProjectID: PRJ-ADTC-DCO-2025
+  CapabilityID: CAP-ADTC-DMC-001
+  BusinessUnit: GrowthMarketingOperations
+  Owner: ChiefGrowthOfficer
+  ComplianceFrameworks: [GDPR, CCPA, IAB_TCF, FTC_Guidelines]
+  CreatedAt: 05-11-2025
+  UpdatedAt: 05-11-2025
+  Version: 0.85
+
+# --- Data Objects (ALL inline) ---
+DataObject DO_Campaign {
+  Schema:
+    CampaignId: UUID, required, unique
+    Name: String, required
+    Objective: Enum, values=["Awareness","Traffic","Conversion","Revenue"], default="Conversion"
+    Budget: Currency, min=0
+    Status: Enum, values=["Draft","Active","Paused","Completed"], default="Draft"
+  Policies:
+    - "Marketing governance; changes logged; 2-year retention"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/campaign/in", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/campaign/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: CampaignDO
+}
+
+DataObject DO_AudienceProfile {
+  Schema:
+    ProfileId: UUID, required, unique
+    Segments: JSON, required
+    Consent: Enum, values=["OptIn","OptOut","Unknown"], default="OptIn"
+  Policies:
+    - "Privacy: consent-respecting; PII hashed; jurisdictional controls"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://audience/in", Auth: mTLS, Format: JSON, SLA: "P99<200ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://dmp/audience/out", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: AudienceProfile
+}
+
+DataObject DO_Template {
+  Schema:
+    TemplateId: UUID, required, unique
+    Slots: JSON, required
+  Policies:
+    - "Templates versioned; audit retained 1 year"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://creative/template/in", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: CDN, Protocol: HTTPS, Endpoint: "https://cdn/template", Auth: None, Format: JSON, SLA: "P95<50ms" }
+  erMap: Template
+}
+
+DataObject DO_CreativeAsset {
+  Schema:
+    AssetId: UUID, required, unique
+    Type: Enum, values=["Image","Video","Text","Product"], default="Image"
+    Meta: JSON
+  Policies:
+    - "Creative assets rights-managed; usage logged"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://creative/asset/in", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: CDN, Protocol: HTTPS, Endpoint: "https://cdn/asset", Auth: None, Format: JSON, SLA: "P95<50ms" }
+  erMap: CreativeAsset
+}
+
+DataObject DO_TargetingRule {
+  Schema:
+    RuleId: UUID, required, unique
+    Expression: JSON, required
+  Policies:
+    - "Targeting logic reviewed by Compliance"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/rule/in", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ad/rule/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: TargetingRule
+}
+
+DataObject DO_BidRequest {
+  Schema:
+    RequestId: UUID, required, unique
+    UserSignals: JSON, required
+    FloorPrice: Currency, min=0
+  Policies:
+    - "No PII; contractual data-use constraints per SSP"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ssp/bidreq/in", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ssp/bidreq/out", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+  erMap: BidRequest
+}
+
+DataObject DO_BidResponse {
+  Schema:
+    ResponseId: UUID, required, unique
+    RequestId: UUID, required
+    Price: Currency, min=0
+    CreativeRef: UUID, required
+  Policies:
+    - "Bids stored 30 days for audit"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://dsp/bidresp/in", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://dsp/bidresp/out", Auth: OAuth2, Format: JSON, SLA: "P99<20ms" }
+  erMap: BidResponse
+}
+
+DataObject DO_Impression {
+  Schema:
+    ImpressionId: UUID, required, unique
+    ResponseId: UUID, required
+    Timestamp: Date, required
+  Policies:
+    - "Event-level logs aggregated within 24h"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://events/impression", Auth: mTLS, Format: JSON, SLA: "P99<100ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://events/impression/export", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Impression
+}
+
+DataObject DO_Click {
+  Schema:
+    ClickId: UUID, required, unique
+    ImpressionId: UUID, required
+    Timestamp: Date, required
+  Policies:
+    - "Event-level logs aggregated within 24h"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://events/click", Auth: mTLS, Format: JSON, SLA: "P99<100ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://events/click/export", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Click
+}
+
+DataObject DO_Conversion {
+  Schema:
+    ConvId: UUID, required, unique
+    ImpressionId: UUID
+    ClickId: UUID
+    Value: Currency, min=0
+    Timestamp: Date, required
+  Policies:
+    - "Attribution windows: 1/7/28-day configurable"
+  Resources:
+    Input:  { Channel: Stream, Protocol: Kafka, Endpoint: "kafka://events/conversion", Auth: mTLS, Format: JSON, SLA: "P99<100ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://events/conversion/export", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Conversion
+}
+
+DataObject DO_PerformanceMetrics {
+  Schema:
+    WindowStart: Date, required
+    WindowEnd: Date, required
+    CTR: Ratio
+    CVR: Ratio
+    ROAS: Ratio
+    Revenue: Currency, min=0
+  Policies:
+    - "Aggregates retained 3 years"
+  Resources:
+    Input:  { Channel: Batch, Protocol: S3, Endpoint: "s3://metrics/in", Auth: IAM, Format: JSON, SLA: "Daily" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://metrics/api", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+  erMap: Metrics
+}
+
+DataObject DO_ExperimentDesign {
+  Schema:
+    ExpId: UUID, required, unique
+    Method: Enum, values=["A_B","MVT","GeoLift"], default="A_B"
+    Parameters: JSON
+  Policies:
+    - "Experiment registry immutable; audit forever"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/design/in", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/design/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: ExperimentDesign
+}
+
+DataObject DO_MLModel {
+  Schema:
+    ModelId: UUID, required, unique
+    Version: String, required
+    Features: JSON
+    Metrics: JSON
+  Policies:
+    - "Models tracked via model registry; lineage kept"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://ml/model/in", Auth: OAuth2, Format: JSON, SLA: "P95<500ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://ml/model/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: Model
+}
+
+DataObject DO_IncrementalityResult {
+  Schema:
+    ResultId: UUID, required, unique
+    ExpId: UUID, required
+    Lift: Ratio
+    Confidence: Ratio
+  Policies:
+    - "Experiment outcomes confidential"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/result/in", Auth: OAuth2, Format: JSON, SLA: "P95<300ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://exp/result/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: Incrementality
+}
+
+DataObject DO_BrandLiftStudy {
+  Schema:
+    StudyId: UUID, required, unique
+    Metric: Enum, values=["Recall","Familiarity","Intent"], default="Recall"
+    Lift: Ratio
+  Policies:
+    - "3rd-party vendor agreements apply"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://brandlift/in", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://brandlift/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: BrandLift
+}
+
+DataObject DO_Report {
+  Schema:
+    ReportId: UUID, required, unique
+    PeriodStart: Date, required
+    PeriodEnd: Date, required
+    Payload: JSON, required
+  Policies:
+    - "Reports retained 7 years"
+  Resources:
+    Input:  { Channel: API, Protocol: HTTPS, Endpoint: "https://report/in", Auth: OAuth2, Format: JSON, SLA: "P95<400ms" }
+    Output: { Channel: API, Protocol: HTTPS, Endpoint: "https://report/out", Auth: OAuth2, Format: JSON, SLA: "P95<200ms" }
+  erMap: Report
+}
+
+# --- Entities ---
+Entity Campaign {
+  dataRef: DO_Campaign
+  Properties:
+    CampaignId: { type: UUID, required: true, unique: true }
+    Objective:  { type: Enum, values: ["Awareness","Traffic","Conversion","Revenue"], default: "Conversion" }
+  erMap: Campaign
+}
+
+Entity DMPProfile {
+  dataRef: DO_AudienceProfile
+  Properties:
+    ProfileId: { type: UUID, required: true, unique: true }
+  erMap: DMPProfile
+}
+
+Entity Template {
+  dataRef: DO_Template
+  Properties:
+    TemplateId: { type: UUID, required: true, unique: true }
+  erMap: Template
+}
+
+Entity CreativeAsset {
+  dataRef: DO_CreativeAsset
+  Properties:
+    AssetId: { type: UUID, required: true, unique: true }
+  erMap: CreativeAsset
+}
+
+Entity TargetingRule {
+  dataRef: DO_TargetingRule
+  Properties:
+    RuleId: { type: UUID, required: true, unique: true }
+  erMap: TargetingRule
+}
+
+Entity BidRequest {
+  dataRef: DO_BidRequest
+  Properties:
+    RequestId: { type: UUID, required: true, unique: true }
+  erMap: BidRequest
+}
+
+Entity BidResponse {
+  dataRef: DO_BidResponse
+  Properties:
+    ResponseId: { type: UUID, required: true, unique: true }
+  erMap: BidResponse
+}
+
+Entity Impression {
+  dataRef: DO_Impression
+  Properties:
+    ImpressionId: { type: UUID, required: true, unique: true }
+  erMap: Impression
+}
+
+Entity Click {
+  dataRef: DO_Click
+  Properties:
+    ClickId: { type: UUID, required: true, unique: true }
+  erMap: Click
+}
+
+Entity Conversion {
+  dataRef: DO_Conversion
+  Properties:
+    ConvId: { type: UUID, required: true, unique: true }
+  erMap: Conversion
+}
+
+# --- Process: the five-stage closed loop ---
+Process DynamicAdMarketingCycle {
+  Description: "Continuous DCO-driven ads: plan → assemble → bid/deliver → optimise → analyse"
+  ObjectiveID: OBJ-ADTC-DMC-001
+  BusinessGoalID: BG-ADTC-REVENUE-2025
+
+  # ArchiMate 3.1 Capability References
+  CapabilityID: CAP-ADTC-DMC-001
+  Capabilities:
+    - CAP-ADTC-DCO-001: Dynamic Creative Optimization
+    - CAP-ADTC-RTB-001: Real-Time Bidding & Ad Delivery
+    - CAP-ADTC-AUDIENCE-001: Data Management & Audience Profiling
+    - CAP-ADTC-OPT-001: Campaign Optimization & ML Learning
+    - CAP-ADTC-IMPACT-001: Incrementality & Brand Lift Analysis
+
+  Actors: [MarketingManager, CreativeDesigner, DCOEngine, DMP, DSP, SSP, AdServer, DataScientist, Analyst, ComplianceOfficer]
+  erMap: DynamicAdMarketingCycleProcess
+
+  Starts With: Event CampaignCreated(Campaign)
+
+  # 1) Strategy and setup
+  Step StrategySetup {
+    Actions:
+      - MarketingManager Plan via DO_Campaign Input
+      - MarketingManager Define via DO_TargetingRule Input
+      - CreativeDesigner Define via DO_Template Input
+      - CreativeDesigner Assemble via DO_CreativeAsset Input
+      - ComplianceOfficer Verify via DO_TargetingRule Output
+  }
+
+  # 2) Data collection and creative assembly
+  Step DataAndAssembly {
+    Actions:
+      - DMP Integrate via DO_AudienceProfile Input
+      - DCOEngine Target via DO_AudienceProfile Output
+      - DCOEngine Assemble via DO_Template Output
+      - DCOEngine Assemble via DO_CreativeAsset Output
+  }
+
+  # 3) Real-time bidding and ad delivery
+  Step RTBAndDelivery {
+    Actions:
+      - SSP Emit via DO_BidRequest Input
+      - DSP Bid via DO_BidResponse Input
+      - AdServer Deliver via DO_Impression Input
+      - AdServer Track via DO_Click Input
+  }
+
+  # 4) Continuous optimisation and learning
+  Step OptimiseLearn {
+    Actions:
+      - DCOEngine Optimise via DO_PerformanceMetrics Output
+      - DataScientist Test via DO_ExperimentDesign Input
+      - DataScientist Learn via DO_MLModel Input
+      - DCOEngine Retire via DO_CreativeAsset Output
+      - DCOEngine Scale via DO_CreativeAsset Output
+  }
+
+  # 5) Impact analysis and reporting
+  Step ImpactAnalysis {
+    Actions:
+      - Analyst Analyse via DO_IncrementalityResult Output
+      - Analyst Analyse via DO_BrandLiftStudy Output
+      - Analyst Report via DO_Report Input
+  }
+
+  Ends With: Event CampaignOptimised(Campaign)
+}
+
+# --- Relationships ---
+Relationship AdServer_Hosting {
+  From: AdServer
+  To:   DeliveryPlatform
+  Type: hosted_on
+}
+
+Relationship DCO_Comm_DMP {
+  From: DCOEngine
+  To:   DMP
+  Type: communicates_with
+}
